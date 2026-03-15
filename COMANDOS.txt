@@ -1,0 +1,166 @@
+================================================================================
+                    SPARTAMC BUILDS - GUIA DE COMANDOS
+================================================================================
+
+Aliases do comando principal: /bs, /builds, //
+
+--------------------------------------------------------------------------------
+COMANDO PRINCIPAL
+--------------------------------------------------------------------------------
+
+/sb
+  Lista todos os comandos disponiveis e mostra seu cargo/prefixo atual.
+  Aliases: /spartabuilds, /spartab
+
+
+--------------------------------------------------------------------------------
+COMANDOS DE CONSTRUCAO (Cargo: BUILDER)
+--------------------------------------------------------------------------------
+
+/bs gradient <bloco1> <bloco2> [v|h|d]
+  Cria um gradiente entre dois blocos na selecao.
+  v = vertical (padrao), h = horizontal (eixo X), d = profundidade (eixo Z)
+  Exemplo: /bs gradient 35:0 35:15 v
+  Alias: /gradient, /grad
+
+/bs checkerboard <bloco1> <bloco2> [tamanho]
+  Preenche a selecao com padrao xadrez alternando entre dois blocos.
+  Tamanho opcional define o tamanho de cada quadrado (padrao: 1).
+  Exemplo: /bs checkerboard stone brick 2
+  Alias: /checkerboard, /checker, /xadrez
+
+/bs stripes <bloco1> <bloco2> [largura] [eixo]
+  Cria listras alternadas entre dois blocos.
+  Largura opcional (padrao: 1), eixo: x, y ou z.
+  Exemplo: /bs stripes wool:0 wool:15 2 y
+  Alias: /stripes, /listras
+
+/bs outline <bloco>
+  Desenha apenas as arestas/bordas da selecao cubica com o bloco especificado.
+  Exemplo: /bs outline stone
+  Alias: /outline, /contorno, /arestas
+
+/bs colorswap <cor_origem> <cor_destino>
+  Troca uma cor por outra em blocos coloridos (la, argila, vidro, paineis, carpete).
+  Cores: 0=branco, 1=laranja, 2=magenta, 3=azul_claro, 4=amarelo,
+         5=verde_claro, 6=rosa, 7=cinza, 8=cinza_claro, 9=ciano,
+         10=roxo, 11=azul, 12=marrom, 13=verde, 14=vermelho, 15=preto
+  Exemplo: /bs colorswap 11 14  (troca azul por vermelho)
+  Alias: /colorswap, /cswap, /trocarcor
+
+/bs palette [wool|clay|glass]
+  Coloca uma paleta de cores para referencia na selecao.
+  Tipos: wool (la), clay (argila), glass (vidro).
+  Exemplo: /bs palette wool
+  Alias: /palette, /paleta
+
+/bs measure
+  Mede e exibe as dimensoes da sua selecao atual.
+  Alias: /measure, /medir
+
+/bs clear
+  Limpa toda a selecao (substitui por ar).
+  Alias: /bs clear
+
+/bs undo [n]
+  Desfaz as ultimas n alteracoes (padrao: 1).
+  Exemplo: /bs undo 5
+
+/bs redo [n]
+  Refaz as ultimas n alteracoes desfeitas (padrao: 1).
+  Exemplo: /bs redo 3
+
+
+--------------------------------------------------------------------------------
+COMANDOS AVANCADOS (Cargo: STAFF)
+--------------------------------------------------------------------------------
+
+/bs randomfill <bloco1> <peso1> <bloco2> <peso2> [...]
+  Preenche a selecao com blocos aleatorios usando pesos.
+  Cada peso representa a chance relativa de aparecer (nao precisa somar 100).
+  Exemplo: /bs randomfill 1 60 4 25 98 15  (60% pedra, 25% cobblestone, 15% stone brick)
+  Alias: /randomfill, /rfill, /aleatorio
+
+/bs terraform [camadas]
+  Naturaliza o terreno adicionando camadas de terra/grama.
+  Camadas opcional (padrao: 1).
+  Exemplo: /bs terraform 3
+  Alias: /terraform, /tf, /naturalizar
+
+/bs heightmap <raise|lower|smooth> [intensidade]
+  Modifica a altura do terreno na selecao.
+  raise = elevar, lower = rebaixar, smooth = suavizar.
+  Intensidade opcional (padrao: 5).
+  Exemplo: /bs heightmap smooth 10
+  Alias: /heightmap, /hmap, /terreno
+
+/bs circle <bloco> <raio> [preenchido]
+  Desenha um circulo horizontal no chao.
+  preenchido: true ou false (padrao: false = apenas contorno).
+  Exemplo: /bs circle stone 15 true
+  Alias: /circle, /circulo
+
+/bs save <nome>
+  Salva a selecao atual como schematic.
+  Exemplo: /bs save minha_construcao
+
+/bs load <nome>
+  Carrega um schematic salvo na posicao atual.
+  Exemplo: /bs load minha_construcao
+
+/bs list
+  Lista todos os schematics disponiveis.
+
+
+--------------------------------------------------------------------------------
+SISTEMA DE TAGS/PREFIXOS
+--------------------------------------------------------------------------------
+
+/tag
+  Abre o menu interativo com suas tags disponiveis (clique para trocar).
+  Alias: /tags
+
+/tag <nome>
+  Define sua tag/prefixo no chat.
+  Opcoes: membro, builder, staff, admin, liru
+  membro = sem prefixo (padrao)
+  Exemplo: /tag builder
+  Alias: /tags
+
+
+--------------------------------------------------------------------------------
+GERENCIAMENTO (Cargo: ADMIN)
+--------------------------------------------------------------------------------
+
+/setcargo <nick> <admin|staff|builder|none>
+  Define o cargo de um jogador (apenas admins).
+  O cargo concede permissoes automaticamente.
+  none = remove o cargo do jogador.
+  Exemplo: /setcargo Jogador builder
+  O jogador precisa estar online.
+
+
+--------------------------------------------------------------------------------
+CARGO E PERMISSOES
+--------------------------------------------------------------------------------
+
+spartabuilds.build  - Construtor (comandos basicos de construcao)
+spartabuilds.staff  - Staff (comandos avancados + tudo do build)
+spartabuilds.admin  - Admin (acesso total, inclui /setcargo)
+
+Apenas jogadores com cargo ou permissao podem entrar no servidor.
+
+
+--------------------------------------------------------------------------------
+DICAS
+--------------------------------------------------------------------------------
+
+- Use o bastao de madeira (padrao) para selecionar regioes.
+- Blocos podem ser especificados por ID ou ID:data (ex: 35:14 = la vermelha).
+- O comando // e um alias rapido para /bs.
+- Use /sb para ver a ajuda completa no jogo.
+
+================================================================================
+                    SpartaMC - https://spartamc.com.br
+================================================================================
+

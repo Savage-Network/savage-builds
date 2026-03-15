@@ -1,0 +1,832 @@
+package com.spartamc.builds;
+
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
+
+    public enum Tag {
+        LIRU    ("LIRU",    "\u00A7e\u00A7o", "\u00A7e", "spartabuilds.tag.liru"),
+        ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "spartabuilds.tag.admin"),
+        STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "spartabuilds.tag.staff"),
+        BUILDER ("BUILDER", "\u00A72\u00A7l", "\u00A72", "spartabuilds.tag.builder");
+
+        public final String displayName;
+        public final String style;
+        public final String color;
+        public final String permission;
+
+        Tag(String displayName, String style, String color, String permission) {
+            this.displayName = displayName;
+            this.style = style;
+            this.color = color;
+            this.permission = permission;
+        }
+
+        public String formatted() {
+            return style + displayName + "\u00A7r";
+        }
+
+        public static Tag fromName(String name) {
+            for (Tag t : values()) {
+                if (t.name().equalsIgnoreCase(name) || t.displayName.equalsIgnoreCase(name)) {
+                    return t;
+                }
+            }
+            return null;
+        }
+    }
+
+    private static final String PREFIX_DEFAULT = "\u00A77";
+
+    private static final List<String> VALID_CARGOS = Arrays.asList("admin", "staff", "builder");
+
+    private static final String[] CUSTOM_COMMANDS = {
+        "bs", "gradient", "checkerboard", "stripes", "outline",
+        "randomfill", "colorswap", "terraform", "heightmap",
+        "measure", "palette", "circle", "sb", "tag", "setcargo"
+    };
+
+    private static final List<String> BS_SCRIPTS = Arrays.asList(
+        "gradient", "checkerboard", "stripes", "outline",
+        "randomfill", "colorswap", "terraform", "heightmap",
+        "measure", "palette", "circle"
+    );
+
+    private static final List<String> BS_UTILS = Arrays.asList(
+        "clear", "undo", "redo", "save", "load", "list"
+    );
+
+    private static final List<String> BS_ALL_SUBS;
+
+    static {
+        List<String> all = new ArrayList<>();
+        all.addAll(BS_SCRIPTS);
+        all.addAll(BS_UTILS);
+        BS_ALL_SUBS = Collections.unmodifiableList(all);
+    }
+
+    private static final Map<String, String> PERM_MAP = new LinkedHashMap<>();
+
+    static {
+        PERM_MAP.put("gradient", "spartabuilds.gradient");
+        PERM_MAP.put("checkerboard", "spartabuilds.checkerboard");
+        PERM_MAP.put("stripes", "spartabuilds.stripes");
+        PERM_MAP.put("outline", "spartabuilds.outline");
+        PERM_MAP.put("colorswap", "spartabuilds.colorswap");
+        PERM_MAP.put("measure", "spartabuilds.measure");
+        PERM_MAP.put("palette", "spartabuilds.palette");
+        PERM_MAP.put("clear", "spartabuilds.clear");
+        PERM_MAP.put("undo", "spartabuilds.undo");
+        PERM_MAP.put("redo", "spartabuilds.redo");
+        PERM_MAP.put("randomfill", "spartabuilds.randomfill");
+        PERM_MAP.put("terraform", "spartabuilds.terraform");
+        PERM_MAP.put("heightmap", "spartabuilds.heightmap");
+        PERM_MAP.put("circle", "spartabuilds.circle");
+        PERM_MAP.put("save", "spartabuilds.schematic.save");
+        PERM_MAP.put("load", "spartabuilds.schematic.load");
+        PERM_MAP.put("list", "spartabuilds.schematic.list");
+    }
+
+    private static final List<String> BLOCKS_BASIC = Arrays.asList(
+        "1", "2", "3", "4", "5", "17", "18", "24", "35", "43",
+        "44", "45", "48", "79", "80", "82", "98", "112", "121",
+        "155", "159", "160", "168", "169", "170", "171", "172", "174"
+    );
+
+    private static final List<String> BLOCKS_WOOL = Arrays.asList(
+        "35:0", "35:1", "35:2", "35:3", "35:4", "35:5", "35:6", "35:7",
+        "35:8", "35:9", "35:10", "35:11", "35:12", "35:13", "35:14", "35:15"
+    );
+
+    private static final List<String> BLOCKS_CLAY = Arrays.asList(
+        "159:0", "159:1", "159:2", "159:3", "159:4", "159:5", "159:6", "159:7",
+        "159:8", "159:9", "159:10", "159:11", "159:12", "159:13", "159:14", "159:15"
+    );
+
+    private static final List<String> BLOCKS_GLASS = Arrays.asList(
+        "95:0", "95:1", "95:2", "95:3", "95:4", "95:5", "95:6", "95:7",
+        "95:8", "95:9", "95:10", "95:11", "95:12", "95:13", "95:14", "95:15"
+    );
+
+    private static final List<String> ALL_BLOCKS;
+
+    static {
+        List<String> all = new ArrayList<>();
+        all.addAll(BLOCKS_BASIC);
+        all.addAll(BLOCKS_WOOL);
+        all.addAll(BLOCKS_CLAY);
+        all.addAll(BLOCKS_GLASS);
+        ALL_BLOCKS = Collections.unmodifiableList(all);
+    }
+
+    private static final List<String> COLORS = Arrays.asList(
+        "0", "1", "2", "3", "4", "5", "6", "7",
+        "8", "9", "10", "11", "12", "13", "14", "15"
+    );
+
+    private static final List<String> GRADIENT_DIRS = Arrays.asList("v", "h", "d");
+    private static final List<String> AXES = Arrays.asList("x", "y", "z");
+    private static final List<String> HEIGHTMAP_MODES = Arrays.asList("raise", "lower", "smooth");
+    private static final List<String> PALETTE_TYPES = Arrays.asList("wool", "clay", "glass");
+    private static final List<String> BOOL_OPTIONS = Arrays.asList("true", "false");
+    private static final List<String> SMALL_NUMBERS = Arrays.asList("1", "2", "3", "4", "5", "6", "8", "10");
+    private static final List<String> RADIUS_NUMBERS = Arrays.asList("5", "10", "15", "20", "30", "50");
+    private static final List<String> WEIGHT_NUMBERS = Arrays.asList("10", "20", "25", "30", "40", "50", "60", "70", "80", "90");
+    private static final List<String> INTENSITY_NUMBERS = Arrays.asList("3", "5", "8", "10", "15", "20");
+    private static final List<String> UNDO_COUNTS = Arrays.asList("1", "2", "3", "5", "10");
+
+    private final Map<UUID, Tag> playerTags = new HashMap<>();
+    private final Map<UUID, String> playerCargos = new HashMap<>();
+    private final Map<UUID, PermissionAttachment> cargoAttachments = new HashMap<>();
+
+    private File tagsFile;
+    private File cargosFile;
+    private Scoreboard scoreboard;
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+
+        getDataFolder().mkdirs();
+        loadTags();
+        loadCargos();
+
+        for (String cmd : CUSTOM_COMMANDS) {
+            if (getCommand(cmd) != null) {
+                getCommand(cmd).setExecutor(this);
+                getCommand(cmd).setTabCompleter(this);
+            }
+        }
+
+        getServer().getPluginManager().registerEvents(this, this);
+
+        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        setupTeams();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            applyCargo(p);
+            applyPrefix(p);
+        }
+
+        getLogger().info("SpartaMC Builds carregado!");
+        getLogger().info("Cargos: spartabuilds.admin | spartabuilds.staff | spartabuilds.build");
+        getLogger().info("Tags disponiveis: " + Tag.values().length);
+    }
+
+    @Override
+    public void onDisable() {
+        saveTags();
+        saveCargos();
+        super.onDisable();
+    }
+
+    private void loadTags() {
+        tagsFile = new File(getDataFolder(), "tags.yml");
+        if (!tagsFile.exists()) return;
+
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(tagsFile);
+        for (String key : cfg.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                Tag tag = Tag.fromName(cfg.getString(key));
+                if (tag != null) playerTags.put(uuid, tag);
+            } catch (IllegalArgumentException ignored) {}
+        }
+    }
+
+    private void saveTags() {
+        if (tagsFile == null) return;
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<UUID, Tag> entry : playerTags.entrySet()) {
+            cfg.set(entry.getKey().toString(), entry.getValue().name());
+        }
+        try { cfg.save(tagsFile); }
+        catch (IOException e) { getLogger().warning("Erro ao salvar tags: " + e.getMessage()); }
+    }
+
+    private void loadCargos() {
+        cargosFile = new File(getDataFolder(), "cargos.yml");
+        if (!cargosFile.exists()) return;
+
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(cargosFile);
+        for (String key : cfg.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                String cargo = cfg.getString(key);
+                if (cargo != null && VALID_CARGOS.contains(cargo.toLowerCase())) {
+                    playerCargos.put(uuid, cargo.toLowerCase());
+                }
+            } catch (IllegalArgumentException ignored) {}
+        }
+    }
+
+    private void saveCargos() {
+        if (cargosFile == null) return;
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<UUID, String> entry : playerCargos.entrySet()) {
+            cfg.set(entry.getKey().toString(), entry.getValue());
+        }
+        try { cfg.save(cargosFile); }
+        catch (IOException e) { getLogger().warning("Erro ao salvar cargos: " + e.getMessage()); }
+    }
+
+    private Tag getPlayerTag(Player player) {
+        return playerTags.get(player.getUniqueId());
+    }
+
+    private void applyCargo(Player player) {
+        PermissionAttachment old = cargoAttachments.remove(player.getUniqueId());
+        if (old != null) player.removeAttachment(old);
+
+        String cargo = playerCargos.get(player.getUniqueId());
+        if (cargo == null) return;
+
+        PermissionAttachment attach = player.addAttachment(this);
+        switch (cargo) {
+            case "admin":   attach.setPermission("spartabuilds.admin", true); break;
+            case "staff":   attach.setPermission("spartabuilds.staff", true); break;
+            case "builder": attach.setPermission("spartabuilds.build", true); break;
+        }
+        cargoAttachments.put(player.getUniqueId(), attach);
+    }
+
+    private void removeCargo(Player player) {
+        PermissionAttachment old = cargoAttachments.remove(player.getUniqueId());
+        if (old != null) player.removeAttachment(old);
+        playerCargos.remove(player.getUniqueId());
+    }
+
+    private void setupTeams() {
+        createTeam("sb_admin",   "\u00A74\u00A7lADMIN \u00A7r\u00A74", "\u00A7r");
+        createTeam("sb_staff",   "\u00A79\u00A7lSTAFF \u00A7r\u00A79", "\u00A7r");
+        createTeam("sb_builder", "\u00A72\u00A7lBUILDER \u00A7r\u00A72", "\u00A7r");
+        createTeam("sb_liru",    "\u00A7e\u00A7o", "\u00A7r");
+        createTeam("sb_default", "\u00A77", "\u00A7r");
+    }
+
+    private void createTeam(String name, String prefix, String suffix) {
+        Team team = scoreboard.getTeam(name);
+        if (team == null) team = scoreboard.registerNewTeam(name);
+        team.setPrefix(prefix);
+        team.setSuffix(suffix);
+    }
+
+    private String getPlayerRole(Player player) {
+        if (player.hasPermission("spartabuilds.admin")) return "admin";
+        if (player.hasPermission("spartabuilds.staff")) return "staff";
+        if (player.hasPermission("spartabuilds.build")) return "builder";
+        return "default";
+    }
+
+    private String getTeamName(Player player) {
+        Tag tag = getPlayerTag(player);
+        if (tag == null) return "sb_default";
+        switch (tag) {
+            case ADMIN:   return "sb_admin";
+            case STAFF:   return "sb_staff";
+            case BUILDER: return "sb_builder";
+            case LIRU:    return "sb_liru";
+            default:      return "sb_default";
+        }
+    }
+
+    private String buildFullDisplay(Player player) {
+        Tag tag = getPlayerTag(player);
+        if (tag != null) {
+            if (tag == Tag.LIRU) return tag.style + player.getName() + "\u00A7r";
+            return tag.style + tag.displayName + " " + tag.color + player.getName() + "\u00A7r";
+        }
+        return PREFIX_DEFAULT + player.getName() + "\u00A7r";
+    }
+
+    private void applyPrefix(Player player) {
+        for (Team t : scoreboard.getTeams()) {
+            if (t.getName().startsWith("sb_")) t.removeEntry(player.getName());
+        }
+
+        Team team = scoreboard.getTeam(getTeamName(player));
+        if (team != null) team.addEntry(player.getName());
+
+        String display = buildFullDisplay(player);
+        player.setDisplayName(display);
+        player.setPlayerListName(display);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        final Player player = event.getPlayer();
+        Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+            @Override
+            public void run() {
+                applyCargo(player);
+                applyPrefix(player);
+            }
+        }, 5L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
+
+        Player player = event.getPlayer();
+
+        if (player.isOp()) return;
+        if (player.hasPermission("spartabuilds.admin")) return;
+        if (player.hasPermission("spartabuilds.staff")) return;
+        if (player.hasPermission("spartabuilds.build")) return;
+        if (playerCargos.containsKey(player.getUniqueId())) return;
+
+        event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
+            "\u00A7c\u00A7lSpartaMC Builds\n\n\u00A77Voce nao tem permissao para entrar neste servidor.\n\u00A77Contate um administrador.");
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        Tag tag = getPlayerTag(player);
+
+        if (tag != null) {
+            if (tag == Tag.LIRU) {
+                event.setFormat(tag.style + player.getName() + "\u00A7r\u00A77: \u00A7f%2$s");
+            } else {
+                event.setFormat(tag.style + tag.displayName + " " + tag.color + player.getName() + "\u00A7r\u00A77: \u00A7f%2$s");
+            }
+        } else {
+            event.setFormat(PREFIX_DEFAULT + player.getName() + "\u00A7r\u00A77: \u00A7f%2$s");
+        }
+    }
+
+    private boolean handleTag(Player player, String[] args) {
+        if (args.length == 0) {
+            sendTagList(player);
+            return true;
+        }
+
+        String sub = args[0].toLowerCase();
+
+        if (sub.equals("membro")) {
+            playerTags.remove(player.getUniqueId());
+            applyPrefix(player);
+            saveTags();
+            player.sendMessage("\u00A7aTag alterada para: \u00A77MEMBRO");
+            return true;
+        }
+
+        Tag tag = Tag.fromName(sub);
+        if (tag == null) {
+            sendTagList(player);
+            return true;
+        }
+
+        if (!player.hasPermission(tag.permission) && !player.hasPermission("spartabuilds.admin")) {
+            player.sendMessage("\u00A7cVoce nao tem permissao para usar esta tag.");
+            return true;
+        }
+
+        playerTags.put(player.getUniqueId(), tag);
+        applyPrefix(player);
+        saveTags();
+        player.sendMessage("\u00A7aTag alterada para: " + tag.formatted());
+        return true;
+    }
+
+    private void sendTagList(Player player) {
+        Tag current = getPlayerTag(player);
+
+        StringBuilder json = new StringBuilder();
+        json.append("[");
+        json.append("{\"text\":\"Suas Tags: \",\"color\":\"gold\",\"bold\":true}");
+
+        boolean membroActive = (current == null);
+        if (membroActive) {
+            json.append(",{\"text\":\"MEMBRO\",\"color\":\"gray\",\"bold\":true,");
+            json.append("\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"\\u00A7aTag ativa!\"}}");
+        } else {
+            json.append(",{\"text\":\"MEMBRO\",\"color\":\"gray\",\"bold\":false,");
+            json.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/tag membro\"},");
+            json.append("\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"\\u00A7eClique para selecionar\"}}");
+        }
+
+        Tag[] tags = Tag.values();
+        for (int i = tags.length - 1; i >= 0; i--) {
+            Tag tag = tags[i];
+            boolean has = player.hasPermission(tag.permission) || player.hasPermission("spartabuilds.admin");
+            if (!has) continue;
+
+            json.append(",{\"text\":\" | \",\"color\":\"dark_gray\",\"bold\":false}");
+
+            boolean active = (current == tag);
+
+            if (active) {
+                json.append(",{\"text\":\"").append(tag.displayName).append("\",");
+                json.append(tagJsonStyle(tag));
+                json.append(",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"\\u00A7aTag ativa!\"}}");
+            } else {
+                json.append(",{\"text\":\"").append(tag.displayName).append("\",");
+                json.append(tagJsonStyle(tag));
+                json.append(",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/tag ").append(tag.name().toLowerCase()).append("\"},");
+                json.append("\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"\\u00A7eClique para selecionar\"}}");
+            }
+        }
+
+        json.append("]");
+
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+            "tellraw " + player.getName() + " " + json.toString());
+    }
+
+    private String tagJsonStyle(Tag tag) {
+        switch (tag) {
+            case LIRU:    return "\"color\":\"yellow\",\"italic\":true,\"bold\":false";
+            case ADMIN:   return "\"color\":\"dark_red\",\"bold\":true";
+            case STAFF:   return "\"color\":\"blue\",\"bold\":true";
+            case BUILDER: return "\"color\":\"dark_green\",\"bold\":true";
+            default:      return "\"color\":\"gray\",\"bold\":false";
+        }
+    }
+
+    private boolean handleSetCargo(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cApenas admins podem usar este comando.");
+            return true;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("\u00A7cUso: /setcargo <nick> <admin|staff|builder|none>");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[0]);
+        String cargo = args[1].toLowerCase();
+
+        if (target == null) {
+            sender.sendMessage("\u00A7cJogador \u00A7e" + args[0] + " \u00A7cnao esta online.");
+            return true;
+        }
+
+        if (cargo.equals("none") || cargo.equals("remover") || cargo.equals("nenhum")) {
+            removeCargo(target);
+            saveCargos();
+            applyPrefix(target);
+            sender.sendMessage("\u00A7aCargo de \u00A7e" + target.getName() + " \u00A7aremovido.");
+            target.sendMessage("\u00A7eSeu cargo foi removido por " + sender.getName() + ".");
+            return true;
+        }
+
+        if (!VALID_CARGOS.contains(cargo)) {
+            sender.sendMessage("\u00A7cCargo invalido. Use: \u00A7eadmin\u00A7c, \u00A7estaff\u00A7c, \u00A7ebuilder \u00A7cou \u00A7enone");
+            return true;
+        }
+
+        playerCargos.put(target.getUniqueId(), cargo);
+        applyCargo(target);
+        saveCargos();
+        applyPrefix(target);
+
+        String cargoDisplay;
+        switch (cargo) {
+            case "admin":   cargoDisplay = "\u00A74\u00A7lADMIN"; break;
+            case "staff":   cargoDisplay = "\u00A79\u00A7lSTAFF"; break;
+            case "builder": cargoDisplay = "\u00A72\u00A7lBUILDER"; break;
+            default:        cargoDisplay = cargo; break;
+        }
+
+        sender.sendMessage("\u00A7aCargo de \u00A7e" + target.getName() + " \u00A7adefinido para: " + cargoDisplay);
+        target.sendMessage("\u00A7eSeu cargo foi alterado para: " + cargoDisplay + " \u00A7epor " + sender.getName() + ".");
+        return true;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        String cmd = command.getName().toLowerCase();
+
+        boolean isCustom = false;
+        for (String c : CUSTOM_COMMANDS) {
+            if (c.equals(cmd)) { isCustom = true; break; }
+        }
+
+        if (!isCustom) return super.onCommand(sender, command, label, args);
+
+        if (cmd.equals("sb")) { sendHelp(sender); return true; }
+        if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
+            return true;
+        }
+
+        Player player = (Player) sender;
+
+        if (cmd.equals("tag")) return handleTag(player, args);
+        if (cmd.equals("bs")) return handleBs(player, args);
+
+        return handleDirect(player, cmd, args);
+    }
+
+    private boolean handleBs(Player player, String[] args) {
+        if (args.length < 1) { sendHelp(player); return true; }
+
+        String sub = args[0].toLowerCase();
+        String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
+
+        if (!checkPermission(player, sub)) return true;
+
+        if (BS_SCRIPTS.contains(sub)) {
+            dispatchScript(player, sub, subArgs);
+        } else {
+            switch (sub) {
+                case "clear":
+                    player.performCommand("/set 0");
+                    break;
+                case "undo":
+                    player.performCommand("/undo " + (subArgs.length > 0 ? subArgs[0] : "1"));
+                    break;
+                case "redo":
+                    player.performCommand("/redo " + (subArgs.length > 0 ? subArgs[0] : "1"));
+                    break;
+                case "save":
+                    if (subArgs.length < 1) { player.sendMessage("\u00A7cUso: /bs save <nome>"); return true; }
+                    player.performCommand("/schematic save " + subArgs[0]);
+                    break;
+                case "load":
+                    if (subArgs.length < 1) { player.sendMessage("\u00A7cUso: /bs load <nome>"); return true; }
+                    player.performCommand("/schematic load " + subArgs[0]);
+                    break;
+                case "list":
+                    player.performCommand("/schematic list");
+                    break;
+                default:
+                    player.sendMessage("\u00A7cSubcomando desconhecido. Use \u00A7e/sb \u00A7cpara ver os comandos.");
+                    break;
+            }
+        }
+        return true;
+    }
+
+    private boolean handleDirect(Player player, String cmd, String[] args) {
+        if (!checkPermission(player, cmd)) return true;
+        dispatchScript(player, cmd, args);
+        return true;
+    }
+
+    private void dispatchScript(Player player, String scriptName, String[] args) {
+        StringBuilder csCmd = new StringBuilder("cs " + scriptName);
+        for (String arg : args) csCmd.append(" ").append(arg);
+        player.performCommand(csCmd.toString());
+    }
+
+    private boolean checkPermission(Player player, String subCommand) {
+        if (player.hasPermission("spartabuilds.admin")) return true;
+
+        String perm = PERM_MAP.get(subCommand);
+        if (perm != null && !player.hasPermission(perm)) {
+            player.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cVoce nao tem permissao para usar este comando.");
+            player.sendMessage("\u00A77Permissao: \u00A7e" + perm + " \u00A77| Cargo minimo: " + getRequiredRole(subCommand));
+            return false;
+        }
+        return true;
+    }
+
+    private String getRequiredRole(String subCommand) {
+        switch (subCommand) {
+            case "randomfill": case "terraform": case "heightmap": case "circle":
+            case "save": case "load": case "list":
+                return "\u00A79\u00A7lSTAFF";
+            default:
+                return "\u00A72\u00A7lBUILDER";
+        }
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("\u00A76\u00A7l========= SpartaMC Builds =========");
+
+        if (sender instanceof Player) {
+            Player p = (Player) sender;
+            String role = getPlayerRole(p);
+            Tag tag = getPlayerTag(p);
+            String tagInfo = tag != null ? " \u00A77| Prefixo: " + tag.style + tag.displayName + "\u00A7r" : " \u00A77| Prefixo: \u00A77nenhum";
+            sender.sendMessage("\u00A77Cargo: \u00A7e" + role.toUpperCase() + "\u00A7r" + tagInfo);
+        }
+        sender.sendMessage("");
+
+        sender.sendMessage("\u00A72\u00A7l[BUILDER] \u00A7fComandos de construcao:");
+        sender.sendMessage("\u00A7e  /bs gradient \u00A77<bloco1> <bloco2> [v|h|d]");
+        sender.sendMessage("\u00A7e  /bs checkerboard \u00A77<bloco1> <bloco2> [tam]");
+        sender.sendMessage("\u00A7e  /bs stripes \u00A77<bloco1> <bloco2> [larg] [eixo]");
+        sender.sendMessage("\u00A7e  /bs outline \u00A77<bloco>");
+        sender.sendMessage("\u00A7e  /bs colorswap \u00A77<cor_de> <cor_para>");
+        sender.sendMessage("\u00A7e  /bs palette \u00A77[wool|clay|glass]");
+        sender.sendMessage("\u00A7e  /bs measure \u00A77- Medir selecao");
+        sender.sendMessage("\u00A7e  /bs clear \u00A77- Limpar selecao");
+        sender.sendMessage("\u00A7e  /bs undo \u00A77[n] \u00A7f| \u00A7e/bs redo \u00A77[n]");
+        sender.sendMessage("");
+
+        sender.sendMessage("\u00A79\u00A7l[STAFF] \u00A7fComandos avancados:");
+        sender.sendMessage("\u00A7e  /bs randomfill \u00A77<bloco> <peso> ...");
+        sender.sendMessage("\u00A7e  /bs terraform \u00A77[camadas]");
+        sender.sendMessage("\u00A7e  /bs heightmap \u00A77<raise|lower|smooth> [forca]");
+        sender.sendMessage("\u00A7e  /bs circle \u00A77<bloco> <raio> [preenchido]");
+        sender.sendMessage("\u00A7e  /bs save \u00A77<nome> \u00A7f| \u00A7e/bs load \u00A77<nome> \u00A7f| \u00A7e/bs list");
+        sender.sendMessage("");
+
+        sender.sendMessage("\u00A7d\u00A7l[PREFIXOS] \u00A7fEscolha seu prefixo:");
+        sender.sendMessage("\u00A7e  /tag \u00A77- Ver prefixos disponiveis");
+        sender.sendMessage("\u00A7e  /tag <nome> \u00A77- Trocar prefixo");
+        sender.sendMessage("");
+
+        sender.sendMessage("\u00A76\u00A7lPrefixos disponiveis:");
+        sender.sendMessage("  \u00A74\u00A7lADMIN \u00A74Nick \u00A7f- /tag admin");
+        sender.sendMessage("  \u00A79\u00A7lSTAFF \u00A79Nick \u00A7f- /tag staff");
+        sender.sendMessage("  \u00A72\u00A7lBUILDER \u00A72Nick \u00A7f- /tag builder");
+        sender.sendMessage("  \u00A7e\u00A7oNick \u00A7f- /tag liru");
+        sender.sendMessage("");
+
+        if (sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage("\u00A74\u00A7l[ADMIN] \u00A7fGerenciamento:");
+            sender.sendMessage("\u00A7e  /setcargo <nick> <admin|staff|builder|none>");
+            sender.sendMessage("");
+        }
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        String cmd = command.getName().toLowerCase();
+
+        boolean isCustom = false;
+        for (String c : CUSTOM_COMMANDS) {
+            if (c.equals(cmd)) { isCustom = true; break; }
+        }
+
+        if (!isCustom) return super.onTabComplete(sender, command, alias, args);
+
+        String current = args.length > 0 ? args[args.length - 1] : "";
+
+        if (cmd.equals("tag")) return tabTag(sender, args, current);
+        if (cmd.equals("setcargo")) return tabSetCargo(sender, args, current);
+        if (cmd.equals("bs")) return tabBs(sender, args, current);
+
+        return tabForScript(cmd, args, current);
+    }
+
+    private List<String> tabTag(CommandSender sender, String[] args, String current) {
+        if (args.length != 1) return Collections.emptyList();
+
+        List<String> options = new ArrayList<>();
+        options.add("membro");
+        for (Tag tag : Tag.values()) {
+            if (sender.hasPermission(tag.permission) || sender.hasPermission("spartabuilds.admin")) {
+                options.add(tag.name().toLowerCase());
+            }
+        }
+        return filter(options, current);
+    }
+
+    private List<String> tabSetCargo(CommandSender sender, String[] args, String current) {
+        if (!sender.hasPermission("spartabuilds.admin")) return Collections.emptyList();
+
+        if (args.length == 1) {
+            List<String> names = new ArrayList<>();
+            for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+            return filter(names, current);
+        }
+        if (args.length == 2) {
+            List<String> cargos = new ArrayList<>(VALID_CARGOS);
+            cargos.add("none");
+            return filter(cargos, current);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> tabBs(CommandSender sender, String[] args, String current) {
+        if (args.length == 1) {
+            List<String> available = new ArrayList<>();
+            for (String sub : BS_ALL_SUBS) {
+                String perm = PERM_MAP.get(sub);
+                if (perm == null || sender.hasPermission(perm) || sender.hasPermission("spartabuilds.admin")) {
+                    available.add(sub);
+                }
+            }
+            return filter(available, current);
+        }
+
+        String sub = args[0].toLowerCase();
+        String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
+        String subCurrent = subArgs.length > 0 ? subArgs[subArgs.length - 1] : "";
+
+        switch (sub) {
+            case "undo": case "redo":
+                if (subArgs.length == 1) return filter(UNDO_COUNTS, subCurrent);
+                return Collections.emptyList();
+            case "save": case "load": case "clear": case "list":
+                return Collections.emptyList();
+            default:
+                return tabForScript(sub, subArgs, subCurrent);
+        }
+    }
+
+    private List<String> tabForScript(String script, String[] args, String current) {
+        switch (script) {
+            case "gradient":     return tabGradient(args, current);
+            case "checkerboard": return tabCheckerboard(args, current);
+            case "stripes":      return tabStripes(args, current);
+            case "outline":      return tabOutline(args, current);
+            case "randomfill":   return tabRandomFill(args, current);
+            case "colorswap":    return tabColorSwap(args, current);
+            case "terraform":    return tabTerraform(args, current);
+            case "heightmap":    return tabHeightmap(args, current);
+            case "palette":      return tabPalette(args, current);
+            case "circle":       return tabCircle(args, current);
+            default:             return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabGradient(String[] a, String c) {
+        switch (a.length) {
+            case 1: case 2: return filter(ALL_BLOCKS, c);
+            case 3: return filter(GRADIENT_DIRS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabCheckerboard(String[] a, String c) {
+        switch (a.length) {
+            case 1: case 2: return filter(ALL_BLOCKS, c);
+            case 3: return filter(SMALL_NUMBERS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabStripes(String[] a, String c) {
+        switch (a.length) {
+            case 1: case 2: return filter(ALL_BLOCKS, c);
+            case 3: return filter(SMALL_NUMBERS, c);
+            case 4: return filter(AXES, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabOutline(String[] a, String c) {
+        return a.length == 1 ? filter(ALL_BLOCKS, c) : Collections.<String>emptyList();
+    }
+
+    private List<String> tabRandomFill(String[] a, String c) {
+        return a.length % 2 == 1 ? filter(ALL_BLOCKS, c) : filter(WEIGHT_NUMBERS, c);
+    }
+
+    private List<String> tabColorSwap(String[] a, String c) {
+        return a.length <= 2 ? filter(COLORS, c) : Collections.<String>emptyList();
+    }
+
+    private List<String> tabTerraform(String[] a, String c) {
+        return a.length == 1 ? filter(SMALL_NUMBERS, c) : Collections.<String>emptyList();
+    }
+
+    private List<String> tabHeightmap(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(HEIGHTMAP_MODES, c);
+            case 2: return filter(INTENSITY_NUMBERS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabPalette(String[] a, String c) {
+        return a.length == 1 ? filter(PALETTE_TYPES, c) : Collections.<String>emptyList();
+    }
+
+    private List<String> tabCircle(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(ALL_BLOCKS, c);
+            case 2: return filter(RADIUS_NUMBERS, c);
+            case 3: return filter(BOOL_OPTIONS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> filter(List<String> options, String input) {
+        if (input.isEmpty()) return new ArrayList<>(options);
+        String lower = input.toLowerCase();
+        return options.stream()
+            .filter(s -> s.toLowerCase().startsWith(lower))
+            .collect(Collectors.toList());
+    }
+}

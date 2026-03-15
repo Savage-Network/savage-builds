@@ -1,0 +1,201 @@
+name: Builds
+main: com.spartamc.builds.SpartaMCBuilds
+version: "3.0-SpartaMC"
+description: Plugin de construcao do SpartaMC. WorldEdit + ferramentas de build, permissoes e prefixos.
+author: SpartaMC
+website: https://spartamc.com.br
+softdepend: [Spout]
+
+commands:
+  bs:
+    description: Comando principal do SpartaMC Builds
+    usage: /bs <subcomando> [args...]
+    aliases: [builds, "//"]
+  gradient:
+    description: Gradiente entre dois blocos
+    usage: /gradient <bloco1> <bloco2> [v|h|d]
+    aliases: [grad]
+    permission: spartabuilds.gradient
+  checkerboard:
+    description: Padrao xadrez na selecao
+    usage: /checkerboard <bloco1> <bloco2> [tamanho]
+    aliases: [checker, xadrez]
+    permission: spartabuilds.checkerboard
+  stripes:
+    description: Listras alternadas na selecao
+    usage: /stripes <bloco1> <bloco2> [largura] [eixo]
+    aliases: [listras]
+    permission: spartabuilds.stripes
+  outline:
+    description: Desenha as arestas da selecao cubica
+    usage: /outline <bloco>
+    aliases: [contorno, arestas]
+    permission: spartabuilds.outline
+  colorswap:
+    description: Troca paleta de cores em blocos coloridos
+    usage: /colorswap <cor_origem 0-15> <cor_destino 0-15>
+    aliases: [cswap, trocarcor]
+    permission: spartabuilds.colorswap
+  measure:
+    description: Medir dimensoes da selecao
+    usage: /measure
+    aliases: [medir]
+    permission: spartabuilds.measure
+  palette:
+    description: Coloca paleta de cores para referencia
+    usage: /palette [wool|clay|glass]
+    aliases: [paleta]
+    permission: spartabuilds.palette
+  randomfill:
+    description: Preenchimento aleatorio com pesos
+    usage: /randomfill <bloco1> <peso1> <bloco2> <peso2> ...
+    aliases: [rfill, aleatorio]
+    permission: spartabuilds.randomfill
+  terraform:
+    description: Naturaliza o terreno
+    usage: /terraform [camadas_terra]
+    aliases: [tf, naturalizar]
+    permission: spartabuilds.terraform
+  heightmap:
+    description: Modifica altura do terreno
+    usage: /heightmap <raise|lower|smooth> [intensidade]
+    aliases: [hmap, terreno]
+    permission: spartabuilds.heightmap
+  circle:
+    description: Desenha circulo horizontal
+    usage: /circle <bloco> <raio> [preenchido]
+    aliases: [circulo]
+    permission: spartabuilds.circle
+  tag:
+    description: Selecionar ou ver tags disponiveis
+    usage: /tag [nome|list|off]
+    aliases: [tags]
+    permission: spartabuilds.build
+  setcargo:
+    description: Definir cargo de um jogador (apenas admin)
+    usage: /setcargo <nick> <admin|staff|builder|none>
+    permission: spartabuilds.admin
+  sb:
+    description: Lista todos os comandos e cargos do SpartaMC Builds
+    usage: /sb
+    aliases: [spartabuilds, spartab]
+
+# =============================================
+# SISTEMA DE PERMISSOES
+# =============================================
+#
+# Hierarquia: admin > staff > build
+#
+# spartabuilds.build  -> Construtor (ferramentas basicas)
+# spartabuilds.staff  -> Staff (avancados + tudo do build)
+# spartabuilds.admin  -> Admin (acesso total, padrao: OP)
+#
+# Prefixos automaticos no chat:
+#   ADMIN  = &4&lADMIN &4
+#   STAFF  = &9&lSTAFF &9
+#   BUILDER = &2&lBUILDER &2
+
+permissions:
+  spartabuilds.build:
+    description: Cargo Build - ferramentas essenciais de construcao
+    default: false
+    children:
+      spartabuilds.gradient: true
+      spartabuilds.checkerboard: true
+      spartabuilds.stripes: true
+      spartabuilds.outline: true
+      spartabuilds.colorswap: true
+      spartabuilds.measure: true
+      spartabuilds.palette: true
+      spartabuilds.clear: true
+      spartabuilds.undo: true
+      spartabuilds.redo: true
+      spartabuilds.tag.builder: true
+
+  spartabuilds.staff:
+    description: Cargo Staff - ferramentas avancadas + tudo do Build
+    default: false
+    children:
+      spartabuilds.build: true
+      spartabuilds.randomfill: true
+      spartabuilds.terraform: true
+      spartabuilds.heightmap: true
+      spartabuilds.circle: true
+      spartabuilds.schematic.save: true
+      spartabuilds.schematic.load: true
+      spartabuilds.schematic.list: true
+      spartabuilds.tag.staff: true
+
+  spartabuilds.admin:
+    description: Cargo Admin - acesso total a todos os comandos
+    default: op
+    children:
+      spartabuilds.staff: true
+      spartabuilds.tag.admin: true
+      spartabuilds.tag.liru: true
+
+  spartabuilds.gradient:
+    description: Usar /bs gradient
+    default: false
+  spartabuilds.checkerboard:
+    description: Usar /bs checkerboard
+    default: false
+  spartabuilds.stripes:
+    description: Usar /bs stripes
+    default: false
+  spartabuilds.outline:
+    description: Usar /bs outline
+    default: false
+  spartabuilds.colorswap:
+    description: Usar /bs colorswap
+    default: false
+  spartabuilds.measure:
+    description: Usar /bs measure
+    default: false
+  spartabuilds.palette:
+    description: Usar /bs palette
+    default: false
+  spartabuilds.clear:
+    description: Usar /bs clear
+    default: false
+  spartabuilds.undo:
+    description: Usar /bs undo
+    default: false
+  spartabuilds.redo:
+    description: Usar /bs redo
+    default: false
+  spartabuilds.randomfill:
+    description: Usar /bs randomfill
+    default: false
+  spartabuilds.terraform:
+    description: Usar /bs terraform
+    default: false
+  spartabuilds.heightmap:
+    description: Usar /bs heightmap
+    default: false
+  spartabuilds.circle:
+    description: Usar /bs circle
+    default: false
+  spartabuilds.schematic.save:
+    description: Salvar schematics
+    default: false
+  spartabuilds.schematic.load:
+    description: Carregar schematics
+    default: false
+  spartabuilds.schematic.list:
+    description: Listar schematics
+    default: false
+
+  # ---- TAGS ----
+  spartabuilds.tag.liru:
+    description: "Tag: LIRU (amarelo italico) - acesso total"
+    default: false
+  spartabuilds.tag.admin:
+    description: "Tag: ADMIN (vermelho)"
+    default: false
+  spartabuilds.tag.staff:
+    description: "Tag: STAFF (azul)"
+    default: false
+  spartabuilds.tag.builder:
+    description: "Tag: BUILDER (verde)"
+    default: false
