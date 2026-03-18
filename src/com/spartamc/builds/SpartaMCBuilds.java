@@ -1,3 +1,30 @@
+/**
+ * Sparta Network - Software Proprietário
+ * Copyright (c) 2026 Sparta Network.
+ * Todos os direitos reservados.
+ *
+ * Este software e seu código-fonte são propriedade intelectual
+ * exclusiva da Sparta Network. O uso deste software é restrito
+ * aos sistemas, serviços e infraestrutura autorizados pela
+ * organização.
+ *
+ * Nenhuma parte deste software pode ser copiada, modificada,
+ * distribuída, publicada, sublicenciada, vendida ou utilizada
+ * para qualquer finalidade sem autorização prévia e expressa
+ * da Sparta Network.
+ *
+ * Este código pode conter sistemas internos, mecanismos de
+ * segurança e tecnologias proprietárias desenvolvidas para a
+ * infraestrutura da plataforma.
+ *
+ * O acesso a este código é restrito a desenvolvedores e
+ * colaboradores autorizados.
+ *
+ * Qualquer uso não autorizado poderá resultar em medidas
+ * legais conforme a legislação aplicável.
+ *
+ * Sparta Network © 2026
+ */
 package com.spartamc.builds;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -63,13 +90,15 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private static final String[] CUSTOM_COMMANDS = {
         "bs", "gradient", "checkerboard", "stripes", "outline",
         "randomfill", "colorswap", "terraform", "heightmap",
-        "measure", "palette", "circle", "sb", "tag", "setcargo"
+        "measure", "palette", "circle", "sphere", "cylinder", "walls", "floor", "replace",
+        "sb", "tag", "setcargo", "cargos"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
         "gradient", "checkerboard", "stripes", "outline",
         "randomfill", "colorswap", "terraform", "heightmap",
-        "measure", "palette", "circle"
+        "measure", "palette", "circle",
+        "sphere", "cylinder", "walls", "floor", "replace"
     );
 
     private static final List<String> BS_UTILS = Arrays.asList(
@@ -102,6 +131,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         PERM_MAP.put("terraform", "spartabuilds.terraform");
         PERM_MAP.put("heightmap", "spartabuilds.heightmap");
         PERM_MAP.put("circle", "spartabuilds.circle");
+        PERM_MAP.put("sphere", "spartabuilds.staff");
+        PERM_MAP.put("cylinder", "spartabuilds.staff");
+        PERM_MAP.put("walls", "spartabuilds.build");
+        PERM_MAP.put("floor", "spartabuilds.build");
+        PERM_MAP.put("replace", "spartabuilds.build");
         PERM_MAP.put("save", "spartabuilds.schematic.save");
         PERM_MAP.put("load", "spartabuilds.schematic.load");
         PERM_MAP.put("list", "spartabuilds.schematic.list");
@@ -165,6 +199,13 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        getLogger().info("===================================");
+        getLogger().info("Desenvolvido por: zrfadev");
+        getLogger().info("Exclusivamente para (c) SpartaMC");
+        getLogger().info("https://spartamc.com.br");
+        getLogger().info("Copyright (c) 2026 Sparta Network.");
+        getLogger().info("O uso deste plugin é restrito aos sistemas, serviços e infraestrutura autorizados pela organização.");
+        getLogger().info("===================================");
         super.onEnable();
 
         getDataFolder().mkdirs();
@@ -466,13 +507,16 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean handleSetCargo(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("spartabuilds.admin")) {
-            sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cApenas admins podem usar este comando.");
+        if (args.length < 2) {
+            sender.sendMessage("\u00A7cUso: /setcargo <nick> <admin|staff|builder|none>");
             return true;
         }
 
-        if (args.length < 2) {
-            sender.sendMessage("\u00A7cUso: /setcargo <nick> <admin|staff|builder|none>");
+        boolean isAdmin = sender.hasPermission("spartabuilds.admin");
+        boolean isStaff = sender.hasPermission("spartabuilds.staff");
+
+        if (!isAdmin && !isStaff) {
+            sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cVoce nao tem permissao para definir cargos.");
             return true;
         }
 
@@ -498,6 +542,14 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             return true;
         }
 
+        if (isStaff && !isAdmin) {
+            if (cargo.equals("admin") || cargo.equals("staff")) {
+                sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cApenas Admins podem definir cargo Admin ou Staff.");
+                sender.sendMessage("\u00A77Staff pode promover jogadores a \u00A72Builder\u00A77.");
+                return true;
+            }
+        }
+
         playerCargos.put(target.getUniqueId(), cargo);
         applyCargo(target);
         saveCargos();
@@ -516,6 +568,125 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         return true;
     }
 
+    private boolean handleCargos(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            return handleMeuCargo(sender);
+        }
+
+        String sub = args[0].toLowerCase();
+
+        if (sub.equals("list") || sub.equals("lista")) {
+            if (!sender.hasPermission("spartabuilds.staff")) {
+                sender.sendMessage("\u00A7cApenas Staff ou Admin podem listar cargos.");
+                return true;
+            }
+            return handleCargosList(sender);
+        }
+
+        if (sub.equals("info")) {
+            if (!sender.hasPermission("spartabuilds.staff")) {
+                sender.sendMessage("\u00A7cApenas Staff ou Admin podem ver info de cargos.");
+                return true;
+            }
+            if (args.length < 2) {
+                sender.sendMessage("\u00A7cUso: /cargos info <nick>");
+                return true;
+            }
+            return handleCargosInfo(sender, args[1]);
+        }
+
+        if (sub.equals("set") || sub.equals("definir")) {
+            String[] setArgs = Arrays.copyOfRange(args, 1, args.length);
+            return handleSetCargo(sender, setArgs);
+        }
+
+        sender.sendMessage("\u00A7cSubcomando desconhecido. Use: \u00A7e/cargos\u00A7c, \u00A7e/cargos list\u00A7c, \u00A7e/cargos info <nick>");
+        if (sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage("\u00A7cOu \u00A7e/cargos set <nick> <cargo>\u00A7c para definir cargo.");
+        }
+        return true;
+    }
+
+    private boolean handleMeuCargo(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
+            return true;
+        }
+        Player p = (Player) sender;
+        String role = getPlayerRole(p);
+        Tag tag = getPlayerTag(p);
+
+        sender.sendMessage("\u00A76\u00A7l===== Meu Cargo =====");
+        sender.sendMessage("\u00A7eCargo: \u00A7f" + role.toUpperCase());
+        sender.sendMessage("\u00A7eTag no chat: \u00A7f" + (tag != null ? tag.formatted() : "\u00A77nenhuma"));
+        sender.sendMessage("");
+
+        switch (role) {
+            case "admin":
+                sender.sendMessage("\u00A74\u00A7lADMIN \u00A7f- Acesso total:");
+                sender.sendMessage("\u00A77  Todos os comandos de build, schematics, setcargo");
+                sender.sendMessage("\u00A77  Pode definir cargos de qualquer jogador");
+                break;
+            case "staff":
+                sender.sendMessage("\u00A79\u00A7lSTAFF \u00A7f- Ferramentas avancadas:");
+                sender.sendMessage("\u00A77  Comandos de build + randomfill, terraform, heightmap");
+                sender.sendMessage("\u00A77  Schematics (save/load), sphere, cylinder");
+                sender.sendMessage("\u00A77  Pode promover jogadores a \u00A72Builder");
+                break;
+            case "builder":
+                sender.sendMessage("\u00A72\u00A7lBUILDER \u00A7f- Ferramentas basicas:");
+                sender.sendMessage("\u00A77  gradient, checkerboard, stripes, outline, colorswap");
+                sender.sendMessage("\u00A77  palette, measure, walls, floor, replace");
+                sender.sendMessage("\u00A77  clear, undo, redo");
+                break;
+            default:
+                sender.sendMessage("\u00A77Sem cargo - contate um admin para acesso.");
+                break;
+        }
+        sender.sendMessage("\u00A76\u00A7l====================");
+        return true;
+    }
+
+    private boolean handleCargosList(CommandSender sender) {
+        sender.sendMessage("\u00A76\u00A7l===== Jogadores com Cargo =====");
+
+        int count = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            String cargo = playerCargos.get(p.getUniqueId());
+            if (cargo != null) {
+                String cargoColor = cargo.equals("admin") ? "\u00A74" : cargo.equals("staff") ? "\u00A79" : "\u00A72";
+                sender.sendMessage("  " + cargoColor + p.getName() + "\u00A7r \u00A77- " + cargo.toUpperCase());
+                count++;
+            } else if (p.hasPermission("spartabuilds.admin") || p.isOp()) {
+                sender.sendMessage("  \u00A74" + p.getName() + "\u00A7r \u00A77- ADMIN (OP)");
+                count++;
+            }
+        }
+
+        if (count == 0) {
+            sender.sendMessage("\u00A77Nenhum jogador com cargo definido online.");
+        }
+        sender.sendMessage("\u00A76\u00A7l====================");
+        return true;
+    }
+
+    private boolean handleCargosInfo(CommandSender sender, String nick) {
+        Player target = Bukkit.getPlayer(nick);
+        if (target == null) {
+            sender.sendMessage("\u00A7cJogador \u00A7e" + nick + "\u00A7c nao esta online.");
+            return true;
+        }
+
+        String cargo = playerCargos.get(target.getUniqueId());
+        Tag tag = getPlayerTag(target);
+
+        sender.sendMessage("\u00A76\u00A7l===== Cargo de " + target.getName() + " =====");
+        sender.sendMessage("\u00A7eCargo: \u00A7f" + (cargo != null ? cargo.toUpperCase() : (target.isOp() ? "ADMIN (OP)" : "nenhum")));
+        sender.sendMessage("\u00A7eTag: \u00A7f" + (tag != null ? tag.formatted() : "nenhuma"));
+        sender.sendMessage("\u00A76\u00A7l====================");
+        return true;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         String cmd = command.getName().toLowerCase();
@@ -529,6 +700,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         if (cmd.equals("sb")) { sendHelp(sender); return true; }
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
+        if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
 
         if (!(sender instanceof Player)) {
             sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
@@ -610,6 +782,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private String getRequiredRole(String subCommand) {
         switch (subCommand) {
             case "randomfill": case "terraform": case "heightmap": case "circle":
+            case "sphere": case "cylinder":
             case "save": case "load": case "list":
                 return "\u00A79\u00A7lSTAFF";
             default:
@@ -683,6 +856,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         if (cmd.equals("tag")) return tabTag(sender, args, current);
         if (cmd.equals("setcargo")) return tabSetCargo(sender, args, current);
+        if (cmd.equals("cargos")) return tabCargos(sender, args, current);
         if (cmd.equals("bs")) return tabBs(sender, args, current);
 
         return tabForScript(cmd, args, current);
@@ -702,7 +876,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private List<String> tabSetCargo(CommandSender sender, String[] args, String current) {
-        if (!sender.hasPermission("spartabuilds.admin")) return Collections.emptyList();
+        if (!sender.hasPermission("spartabuilds.setcargo")) return Collections.emptyList();
 
         if (args.length == 1) {
             List<String> names = new ArrayList<>();
@@ -710,8 +884,51 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             return filter(names, current);
         }
         if (args.length == 2) {
-            List<String> cargos = new ArrayList<>(VALID_CARGOS);
+            List<String> cargos = new ArrayList<>();
             cargos.add("none");
+            if (sender.hasPermission("spartabuilds.admin")) {
+                cargos.add("admin");
+                cargos.add("staff");
+            }
+            cargos.add("builder");
+            return filter(cargos, current);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> tabCargos(CommandSender sender, String[] args, String current) {
+        if (args.length == 1) {
+            List<String> options = new ArrayList<>();
+            if (sender.hasPermission("spartabuilds.staff")) {
+                options.add("list");
+                options.add("info");
+            }
+            if (sender.hasPermission("spartabuilds.setcargo")) {
+                options.add("set");
+            }
+            return filter(options, current);
+        }
+        if (args.length == 2) {
+            String sub = args[0].toLowerCase();
+            if (sub.equals("info")) {
+                List<String> names = new ArrayList<>();
+                for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+                return filter(names, current);
+            }
+            if (sub.equals("set")) {
+                List<String> names = new ArrayList<>();
+                for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+                return filter(names, current);
+            }
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
+            List<String> cargos = new ArrayList<>();
+            cargos.add("none");
+            if (sender.hasPermission("spartabuilds.admin")) {
+                cargos.add("admin");
+                cargos.add("staff");
+            }
+            cargos.add("builder");
             return filter(cargos, current);
         }
         return Collections.emptyList();
@@ -756,6 +973,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             case "heightmap":    return tabHeightmap(args, current);
             case "palette":      return tabPalette(args, current);
             case "circle":       return tabCircle(args, current);
+            case "sphere":       return tabSphere(args, current);
+            case "cylinder":     return tabCylinder(args, current);
+            case "walls":        return tabOutline(args, current);
+            case "floor":        return tabOutline(args, current);
+            case "replace":      return tabReplace(args, current);
             default:             return Collections.emptyList();
         }
     }
@@ -820,6 +1042,29 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             case 3: return filter(BOOL_OPTIONS, c);
             default: return Collections.emptyList();
         }
+    }
+
+    private List<String> tabSphere(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(ALL_BLOCKS, c);
+            case 2: return filter(RADIUS_NUMBERS, c);
+            case 3: return filter(BOOL_OPTIONS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabCylinder(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(ALL_BLOCKS, c);
+            case 2: return filter(RADIUS_NUMBERS, c);
+            case 3: return filter(INTENSITY_NUMBERS, c);
+            case 4: return filter(BOOL_OPTIONS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabReplace(String[] a, String c) {
+        return a.length <= 2 ? filter(ALL_BLOCKS, c) : Collections.emptyList();
     }
 
     private List<String> filter(List<String> options, String input) {

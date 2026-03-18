@@ -1,6 +1,7 @@
 ================================================================================
                     SPARTAMC BUILDS - GUIA DE COMANDOS
 ================================================================================
+Sparta Network (c) 2026 - Todos os direitos reservados.
 
 Aliases do comando principal: /bs, /builds, //
 
@@ -58,6 +59,21 @@ COMANDOS DE CONSTRUCAO (Cargo: BUILDER)
   Mede e exibe as dimensoes da sua selecao atual.
   Alias: /measure, /medir
 
+/bs walls <bloco>
+  Desenha apenas as 4 paredes laterais da selecao (sem teto e chao).
+  Exemplo: /bs walls stone
+  Alias: /walls, /paredes
+
+/bs floor <bloco>
+  Preenche apenas o chao (face inferior) da selecao.
+  Exemplo: /bs floor grass
+  Alias: /floor, /chao
+
+/bs replace <bloco_origem> <bloco_destino>
+  Substitui todos os blocos do tipo origem pelo destino na selecao.
+  Exemplo: /bs replace 1 4  (pedra por cobblestone)
+  Alias: /replace, /substituir
+
 /bs clear
   Limpa toda a selecao (substitui por ar).
   Alias: /bs clear
@@ -95,10 +111,20 @@ COMANDOS AVANCADOS (Cargo: STAFF)
   Alias: /heightmap, /hmap, /terreno
 
 /bs circle <bloco> <raio> [preenchido]
-  Desenha um circulo horizontal no chao.
+  Desenha um circulo horizontal no chao na posicao do jogador.
   preenchido: true ou false (padrao: false = apenas contorno).
   Exemplo: /bs circle stone 15 true
   Alias: /circle, /circulo
+
+/bs sphere <bloco> <raio> [preenchido]
+  Desenha uma esfera 3D na posicao do jogador.
+  Exemplo: /bs sphere 35:14 10 true
+  Alias: /sphere, /esfera
+
+/bs cylinder <bloco> <raio> <altura> [preenchido]
+  Desenha um cilindro vertical na posicao do jogador.
+  Exemplo: /bs cylinder stone 8 15 true
+  Alias: /cylinder, /cilindro, /cyl
 
 /bs save <nome>
   Salva a selecao atual como schematic.
@@ -110,6 +136,29 @@ COMANDOS AVANCADOS (Cargo: STAFF)
 
 /bs list
   Lista todos os schematics disponiveis.
+
+
+--------------------------------------------------------------------------------
+SISTEMA DE CARGOS
+--------------------------------------------------------------------------------
+
+/cargos
+  Mostra seu cargo atual, tag e o que voce pode fazer.
+  Alias: /meucargo
+
+/cargos list
+  Lista todos os jogadores online e seus cargos.
+  Requer: Staff ou Admin
+
+/cargos info <nick>
+  Mostra o cargo e tag de um jogador especifico.
+  Requer: Staff ou Admin
+
+/cargos set <nick> <cargo>
+  Define o cargo de um jogador.
+  Staff pode definir: builder, none
+  Admin pode definir: admin, staff, builder, none
+  Exemplo: /cargos set Jogador builder
 
 
 --------------------------------------------------------------------------------
@@ -129,24 +178,28 @@ SISTEMA DE TAGS/PREFIXOS
 
 
 --------------------------------------------------------------------------------
-GERENCIAMENTO (Cargo: ADMIN)
+GERENCIAMENTO DE CARGOS
 --------------------------------------------------------------------------------
 
 /setcargo <nick> <admin|staff|builder|none>
-  Define o cargo de um jogador (apenas admins).
-  O cargo concede permissoes automaticamente.
-  none = remove o cargo do jogador.
-  Exemplo: /setcargo Jogador builder
+  Define o cargo de um jogador.
+  ADMIN: pode definir qualquer cargo (admin, staff, builder, none)
+  STAFF: pode definir apenas builder ou none (promover/remover builder)
   O jogador precisa estar online.
+  Exemplo: /setcargo Jogador builder
+  Alias: /cargos set <nick> <cargo>
 
 
 --------------------------------------------------------------------------------
 CARGO E PERMISSOES
 --------------------------------------------------------------------------------
 
-spartabuilds.build  - Construtor (comandos basicos de construcao)
-spartabuilds.staff  - Staff (comandos avancados + tudo do build)
-spartabuilds.admin  - Admin (acesso total, inclui /setcargo)
+spartabuilds.build   - Construtor (comandos basicos + walls, floor, replace)
+spartabuilds.staff   - Staff (comandos avancados + sphere, cylinder + pode promover a builder)
+spartabuilds.admin   - Admin (acesso total, pode definir qualquer cargo)
+
+spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
+spartabuilds.setcargo - Definir cargos (staff=builder, admin=todos)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
 
@@ -159,8 +212,8 @@ DICAS
 - Blocos podem ser especificados por ID ou ID:data (ex: 35:14 = la vermelha).
 - O comando // e um alias rapido para /bs.
 - Use /sb para ver a ajuda completa no jogo.
+- Use /cargos para ver seu cargo e o que voce pode fazer.
 
 ================================================================================
                     SpartaMC - https://spartamc.com.br
 ================================================================================
-

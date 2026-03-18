@@ -1,8 +1,34 @@
+# Sparta Network - Software Proprietário
+# Copyright (c) 2026 Sparta Network.
+# Todos os direitos reservados.
+#
+# Este software e seu código-fonte são propriedade intelectual
+# exclusiva da Sparta Network. O uso deste software é restrito
+# aos sistemas, serviços e infraestrutura autorizados pela
+# organização.
+#
+# Nenhuma parte deste software pode ser copiada, modificada,
+# distribuída, publicada, sublicenciada, vendida ou utilizada
+# para qualquer finalidade sem autorização prévia e expressa
+# da Sparta Network.
+#
+# Este código pode conter sistemas internos, mecanismos de
+# segurança e tecnologias proprietárias desenvolvidas para a
+# infraestrutura da plataforma.
+#
+# O acesso a este código é restrito a desenvolvedores e
+# colaboradores autorizados.
+#
+# Qualquer uso não autorizado poderá resultar em medidas
+# legais conforme a legislação aplicável.
+#
+# Sparta Network © 2026
+
 name: Builds
 main: com.spartamc.builds.SpartaMCBuilds
 version: "3.0-SpartaMC"
 description: Plugin de construcao do SpartaMC. WorldEdit + ferramentas de build, permissoes e prefixos.
-author: SpartaMC
+author: zrfadev
 website: https://spartamc.com.br
 softdepend: [Spout]
 
@@ -66,15 +92,45 @@ commands:
     usage: /circle <bloco> <raio> [preenchido]
     aliases: [circulo]
     permission: spartabuilds.circle
+  sphere:
+    description: Esfera 3D (extra)
+    usage: /sphere <bloco> <raio> [preenchido]
+    aliases: [esfera]
+    permission: spartabuilds.staff
+  cylinder:
+    description: Cilindro vertical (extra)
+    usage: /cylinder <bloco> <raio> <altura> [preenchido]
+    aliases: [cilindro, cyl]
+    permission: spartabuilds.staff
+  walls:
+    description: Apenas paredes da selecao (extra)
+    usage: /walls <bloco>
+    aliases: [paredes]
+    permission: spartabuilds.build
+  floor:
+    description: Apenas chao da selecao (extra)
+    usage: /floor <bloco>
+    aliases: [chao]
+    permission: spartabuilds.build
+  replace:
+    description: Substituir blocos na selecao (extra)
+    usage: /replace <bloco_origem> <bloco_destino>
+    aliases: [substituir]
+    permission: spartabuilds.build
   tag:
     description: Selecionar ou ver tags disponiveis
     usage: /tag [nome|list|off]
     aliases: [tags]
     permission: spartabuilds.build
   setcargo:
-    description: Definir cargo de um jogador (apenas admin)
+    description: Definir cargo de um jogador (admin=qualquer, staff=builder)
     usage: /setcargo <nick> <admin|staff|builder|none>
-    permission: spartabuilds.admin
+    permission: spartabuilds.setcargo
+  cargos:
+    description: Ver cargo, listar jogadores ou definir cargos
+    usage: /cargos [list|info <nick>|set <nick> <cargo>]
+    aliases: [meucargo]
+    permission: spartabuilds.cargos
   sb:
     description: Lista todos os comandos e cargos do SpartaMC Builds
     usage: /sb
@@ -100,6 +156,7 @@ permissions:
     description: Cargo Build - ferramentas essenciais de construcao
     default: false
     children:
+      spartabuilds.cargos: true
       spartabuilds.gradient: true
       spartabuilds.checkerboard: true
       spartabuilds.stripes: true
@@ -117,6 +174,7 @@ permissions:
     default: false
     children:
       spartabuilds.build: true
+      spartabuilds.setcargo: true
       spartabuilds.randomfill: true
       spartabuilds.terraform: true
       spartabuilds.heightmap: true
@@ -131,8 +189,16 @@ permissions:
     default: op
     children:
       spartabuilds.staff: true
+      spartabuilds.setcargo: true
       spartabuilds.tag.admin: true
       spartabuilds.tag.liru: true
+
+  spartabuilds.setcargo:
+    description: Definir cargos (staff=builder apenas, admin=todos)
+    default: false
+  spartabuilds.cargos:
+    description: Ver proprio cargo e info (/cargos, /meucargo)
+    default: false
 
   spartabuilds.gradient:
     description: Usar /bs gradient
