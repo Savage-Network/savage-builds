@@ -182,7 +182,7 @@ SISTEMA DE TAGS/PREFIXOS
 
 /tag <nome>
   Define sua tag/prefixo no chat.
-  Opcoes: membro, builder, staff, admin, pp
+  Opcoes: membro, builder, staff, admin, joia, pp
   membro = sem prefixo (padrao), pp = rosa claro italico
   Exemplo: /tag builder
   Alias: /tags

@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     public enum Tag {
+        JOIA    ("JOIA",    "\u00A7b\u00A7l", "\u00A7b", "spartabuilds.tag.joia"),
         MASTER  ("PP",      "\u00A7d\u00A7o", "\u00A7d", "spartabuilds.tag.master"),
         ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "spartabuilds.tag.admin"),
         STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "spartabuilds.tag.staff"),
@@ -310,6 +311,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             for (Map.Entry<UUID, String> e : data.entrySet()) {
                 String tagName = e.getValue();
                 if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                if ("FP".equalsIgnoreCase(tagName)) tagName = "JOIA";
                 Tag tag = Tag.fromName(tagName);
                 if (tag != null) playerTags.put(e.getKey(), tag);
             }
@@ -323,6 +325,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 UUID uuid = UUID.fromString(key);
                 String tagName = cfg.getString(key);
                 if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                if ("FP".equalsIgnoreCase(tagName)) tagName = "JOIA";
                 Tag tag = Tag.fromName(tagName);
                 if (tag != null) playerTags.put(uuid, tag);
             } catch (IllegalArgumentException ignored) {}
@@ -452,6 +455,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         createTeam("sb_staff",   "\u00A79\u00A7lSTAFF \u00A7r\u00A79", "\u00A7r");
         createTeam("sb_builder", "\u00A72\u00A7lBUILDER \u00A7r\u00A72", "\u00A7r");
         createTeam("sb_master",  "\u00A7d\u00A7o", "\u00A7r");
+        createTeam("sb_joia",    "\u00A7b\u00A7lJoia \u00A7r\u00A7b", "\u00A7r");
         createTeam("sb_default", "\u00A77", "\u00A7r");
     }
 
@@ -477,6 +481,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             case STAFF:   return "sb_staff";
             case BUILDER: return "sb_builder";
             case MASTER:  return "sb_master";
+            case JOIA:    return "sb_joia";
             default:      return "sb_default";
         }
     }
@@ -524,6 +529,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 case "sb_staff":   team.setPrefix("\u00A79\u00A7lSTAFF \u00A7r\u00A79"); break;
                 case "sb_builder": team.setPrefix("\u00A72\u00A7lBUILDER \u00A7r\u00A72"); break;
                 case "sb_master":  team.setPrefix("\u00A7d\u00A7o"); break;
+                case "sb_joia":    team.setPrefix("\u00A7b\u00A7lJoia \u00A7r\u00A7b"); break;
                 default:           team.setPrefix("\u00A77"); break;
             }
             team.setSuffix("\u00A7r");
@@ -567,18 +573,23 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         long totalSec = totalPlayTime.getOrDefault(player.getUniqueId(), 0L) + sessionSec;
 
         String lb = "\u00A77";
-        String vl = "\u00A7f";
+        String tagColored = tag != null ? (tag.style + tagStr + "\u00A7r") : (lb + tagStr);
+        String mundoVal = "\u00A7b" + truncate(world, 14);
+        String coordsVal = "\u00A7b" + x + ", " + y + ", " + z;
+        String sessaoVal = "\u00A7a" + formatTime(sessionSec);
+        String totalVal = "\u00A7a" + formatTime(totalSec);
+        String onlineVal = "\u00A7e" + online;
 
         board.updateLines(
             "\u00A78 ",
-            lb + "Tag: " + vl + tagStr,
+            lb + "Tag: " + tagColored,
             "\u00A78  ",
-            lb + "Mundo: " + vl + truncate(world, 14),
-            lb + "Coords: " + vl + x + ", " + y + ", " + z,
+            lb + "Mundo: " + mundoVal,
+            lb + "Coords: " + coordsVal,
             "\u00A78   ",
-            lb + "Sessao: " + vl + formatTime(sessionSec),
-            lb + "Total: " + vl + formatTime(totalSec),
-            lb + "Online: " + vl + online,
+            lb + "Sessao: " + sessaoVal,
+            lb + "Total: " + totalVal,
+            lb + "Online: " + onlineVal,
             "\u00A78    ",
             pluginConfig.getScoreboardFooter()
         );
@@ -753,7 +764,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         Tag tag = Tag.fromName(tagArg);
         if (tag == null) {
-            sender.sendMessage("\u00A7cTag invalida. Use: membro, builder, staff, admin, master");
+            sender.sendMessage("\u00A7cTag invalida. Use: membro, builder, staff, admin, joia, pp");
             return true;
         }
 
@@ -835,6 +846,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private String tagJsonStyle(Tag tag) {
         switch (tag) {
+            case JOIA:    return "\"color\":\"aqua\",\"bold\":true";
             case MASTER:  return "\"color\":\"light_purple\",\"italic\":true,\"bold\":false";
             case ADMIN:   return "\"color\":\"dark_red\",\"bold\":true";
             case STAFF:   return "\"color\":\"blue\",\"bold\":true";

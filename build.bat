@@ -31,7 +31,7 @@ if exist com\mysql rmdir /s /q com\mysql
 
 echo [3/5] Criando JAR...
 if exist SpartaBuilds.jar del SpartaBuilds.jar
-%JAR_EXE% cf SpartaBuilds.jar plugin.yml config.yml com craftscripts defaults fr javax net nmsblocks META-INF
+%JAR_EXE% cf SpartaBuilds.jar plugin.yml config.yml com craftscripts fr javax net nmsblocks META-INF
 if errorlevel 1 (
     echo ERRO ao criar JAR!
     exit /b 1

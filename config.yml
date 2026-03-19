@@ -1,8 +1,9 @@
-# SpartaMC Builds - Configuracao do Plugin
+# SpartaMC Builds - Configuracao Unificada
 # (c) 2026 Sparta Network. - zrfadev
 # https://spartamc.com.br
+# IMPORTANTE: Use ESPACOS, nao TABS.
 
-# ========== MENSAGENS ==========
+# ========== PLUGIN - MENSAGENS ==========
 messages:
   prefix: "&8[&6&lBuilds&8] &7"
   no-permission: "&cVoce nao tem permissao para usar este comando."
@@ -20,7 +21,6 @@ messages:
   reload-success: "&aConfiguracao recarregada com sucesso!"
   offline-cargo-set: "&aCargo de &e%player% &a sera aplicado quando entrar no servidor."
 
-# Mensagem exibida ao kickar jogador sem permissao
 kick-no-permission: |
   &c&lSPARTA BUILDS
 
@@ -29,19 +29,16 @@ kick-no-permission: |
 
   &8spartamc.com.br
 
-# ========== BYPASS ==========
-# Jogadores com permissao de bypass podem entrar sem cargo
+# ========== PLUGIN - BYPASS ==========
 bypass:
   enabled: true
   permission: "spartabuilds.bypass"
   op-bypass: true
 
-# ========== MUNDOS ==========
-# Lista de mundos onde o plugin funciona. Vazio = todos os mundos
+# ========== PLUGIN - MUNDOS ==========
 allowed-worlds: []
 
-# ========== BANCO DE DADOS (MySQL) ==========
-# Armazena tags, cargos e playtime na tabela 'builds'
+# ========== PLUGIN - BANCO DE DADOS (MySQL) ==========
 database:
   enabled: true
   host: 'mysql52-farm1.kinghost.net'
@@ -51,9 +48,68 @@ database:
   database: 'zrfa01'
   use-ssl: false
 
-# ========== SCOREBOARD ==========
+# ========== PLUGIN - SCOREBOARD ==========
 scoreboard:
   enabled: true
-  title: "&6&lSPARTA"  # max 32 caracteres (1.8)
-  footer: "&6spartamc.com.br"  # ou IP do servidor
-  update-interval: 10  # ticks (10 = 0.5 segundos, 20 = 1 segundo)
+  title: "&6&lSPARTA"
+  footer: "&6spartamc.com.br"
+  update-interval: 10
+
+# ========== WORLDEDIT - LIMITES ==========
+limits:
+  allow-extra-data-values: true
+  max-blocks-changed:
+    default: 50000
+    maximum: 200000
+  max-polygonal-points:
+    default: 50
+    maximum: 50
+  max-radius: 150
+  max-super-pickaxe-size: 10
+  max-brush-radius: 15
+  butcher-radius:
+    default: 200
+    maximum: 500
+  disallowed-blocks: [7, 46]
+
+# ========== WORLDEDIT - OUTRAS OPCOES ==========
+use-inventory:
+  enable: false
+  allow-override: true
+  creative-mode-overrides: true
+
+logging:
+  log-commands: true
+  file: worldedit.log
+
+super-pickaxe:
+  drop-items: false
+  many-drop-items: false
+
+snapshots:
+  directory: snapshots
+
+navigation-wand:
+  item: 345
+  max-distance: 250
+
+scripting:
+  timeout: 10000
+  dir: craftscripts
+
+saving:
+  dir: schematics
+
+files:
+  allow-symbolic-links: false
+
+history:
+  size: 50
+  expiration: 60
+
+wand-item: 271
+shell-save-type:
+no-double-slash: false
+no-op-permissions: false
+debug: false
+show-help-on-first-use: true

@@ -93,6 +93,7 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 - **BUILDER** — Verde
 - **STAFF** — Azul
 - **ADMIN** — Vermelho
+- **Joia** — Ciano
 - **PP** — Nome rosa claro itálico
 
 ---
@@ -141,11 +142,14 @@ plugins/Builds/
 
 ## Configuração (config.yml)
 
-- **messages** — Personalize todas as mensagens do plugin
-- **bypass** — Habilite/desabilite bypass de kick (`spartabuilds.bypass`)
-- **allowed-worlds** — Lista de mundos permitidos (vazio = todos)
-- **database** — MySQL: tags, cargos e playtime na tabela `builds` (execute `database.sql` antes)
-- **scoreboard** — Scoreboard lateral com cargo, tag, mundo, posição, tempo de sessão, tempo total e online
+Config unificada: plugin + WorldEdit em um único arquivo.
+
+- **messages** — Mensagens do plugin
+- **bypass** — Bypass de kick (`spartabuilds.bypass`)
+- **allowed-worlds** — Mundos permitidos (vazio = todos)
+- **database** — MySQL: tags, cargos e playtime (execute `database.sql` antes)
+- **scoreboard** — Scoreboard lateral
+- **limits, use-inventory, scripting, etc.** — Opções do WorldEdit
 
 ---
 

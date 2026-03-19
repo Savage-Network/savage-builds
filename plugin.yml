@@ -207,6 +207,7 @@ permissions:
       spartabuilds.setcargo: true
       spartabuilds.tag.admin: true
       spartabuilds.tag.master: true
+      spartabuilds.tag.joia: true
 
   spartabuilds.setcargo:
     description: Definir cargos (staff=builder apenas, admin=todos)
@@ -282,4 +283,7 @@ permissions:
     default: false
   spartabuilds.tag.builder:
     description: "Tag: BUILDER (verde)"
+    default: false
+  spartabuilds.tag.joia:
+    description: "Tag: Joia (ciano)"
     default: false
