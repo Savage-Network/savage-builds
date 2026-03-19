@@ -1,0 +1,48 @@
+# SpartaMC Builds - Configuracao do Plugin
+# (c) 2026 Sparta Network. - zrfadev
+# https://spartamc.com.br
+
+# ========== MENSAGENS ==========
+messages:
+  prefix: "&8[&6&lBuilds&8] &7"
+  no-permission: "&cVoce nao tem permissao para usar este comando."
+  no-permission-tag: "&cVoce nao tem permissao para usar esta tag."
+  tag-changed: "&aTag alterada para: %tag%"
+  tag-membro: "&aTag alterada para: &7MEMBRO"
+  cargo-set: "&aCargo de &e%player% &adefinido para: %cargo%"
+  cargo-removed: "&aCargo de &e%player% &aremovido."
+  cargo-removed-target: "&eSeu cargo foi removido por %sender%."
+  cargo-changed-target: "&eSeu cargo foi alterado para: %cargo% &epor %sender%."
+  player-not-online: "&cJogador &e%player% &cnao esta online."
+  invalid-cargo: "&cCargo invalido. Use: &eadmin&c, &estaff&c, &ebuilder &cou &enone"
+  staff-cannot-set: "&c&lSpartaMC &cApenas Admins podem definir cargo Admin ou Staff."
+  staff-can-builder: "&77Staff pode promover jogadores a &72Builder&77."
+  reload-success: "&aConfiguracao recarregada com sucesso!"
+  offline-cargo-set: "&aCargo de &e%player% &a sera aplicado quando entrar no servidor."
+
+# Mensagem exibida ao kickar jogador sem permissao
+kick-no-permission: |
+  &c&lSPARTA BUILDS
+
+  &7Voce nao tem permissao para entrar
+  &7neste servidor. Contate um admin.
+
+  &8spartamc.com.br
+
+# ========== BYPASS ==========
+# Jogadores com permissao de bypass podem entrar sem cargo
+bypass:
+  enabled: true
+  permission: "spartabuilds.bypass"
+  op-bypass: true
+
+# ========== MUNDOS ==========
+# Lista de mundos onde o plugin funciona. Vazio = todos os mundos
+allowed-worlds: []
+
+# ========== SCOREBOARD ==========
+scoreboard:
+  enabled: true
+  title: "&6&lSPARTA"  # max 32 caracteres (1.8)
+  footer: "&6spartamc.com.br"  # ou IP do servidor
+  update-interval: 10  # ticks (2 segundos)

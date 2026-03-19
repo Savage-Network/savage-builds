@@ -96,8 +96,9 @@ public class PluginConfig {
     }
 
     public String getScoreboardTitle() {
-        String s = config.getString("scoreboard.title", "&6&l✦ &e&lSPARTA &6&lBUILDS &6&l✦");
-        return s != null ? s.replace("&", "\u00A7") : "\u00A76\u00A7l✦ \u00A7e\u00A7lSPARTA \u00A76\u00A7lBUILDS \u00A76\u00A7l✦";
+        String s = config.getString("scoreboard.title", "&6&lSPARTA &e&lBUILDS");
+        String title = s != null ? s.replace("&", "\u00A7") : "\u00A76\u00A7lSPARTA";
+        return title.length() > 32 ? title.substring(0, 32) : title;
     }
 
     public String getScoreboardFooter() {

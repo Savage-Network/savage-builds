@@ -272,7 +272,7 @@ permissions:
 
   # ---- TAGS ----
   spartabuilds.tag.master:
-    description: "Tag: MASTER (azul italico) - acesso total"
+    description: "Tag: PP (rosa claro italico) - acesso total"
     default: false
   spartabuilds.tag.admin:
     description: "Tag: ADMIN (vermelho)"

@@ -93,7 +93,7 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 - **BUILDER** — Verde
 - **STAFF** — Azul
 - **ADMIN** — Vermelho
-- **MASTER** — Nome azul itálico
+- **PP** — Nome rosa claro itálico
 
 ---
 

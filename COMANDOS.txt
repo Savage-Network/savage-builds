@@ -126,6 +126,17 @@ COMANDOS AVANCADOS (Cargo: STAFF)
   Exemplo: /bs cylinder stone 8 15 true
   Alias: /cylinder, /cilindro, /cyl
 
+/bs pyramid <bloco> <tamanho> [preenchido]
+  Desenha uma piramide 3D na posicao do jogador.
+  Exemplo: /bs pyramid stone 10 true
+  Alias: /pyramid, /piramide
+
+/bs ellipsoid <bloco> <rx> <ry> <rz> [preenchido]
+  Desenha um elipsoide 3D na posicao do jogador.
+  rx, ry, rz = raios nos eixos X, Y, Z.
+  Exemplo: /bs ellipsoid stone 10 5 10 true
+  Alias: /ellipsoid, /elipsoide
+
 /bs save <nome>
   Salva a selecao atual como schematic.
   Exemplo: /bs save minha_construcao
@@ -171,23 +182,34 @@ SISTEMA DE TAGS/PREFIXOS
 
 /tag <nome>
   Define sua tag/prefixo no chat.
-  Opcoes: membro, builder, staff, admin, master
-  membro = sem prefixo (padrao)
+  Opcoes: membro, builder, staff, admin, pp
+  membro = sem prefixo (padrao), pp = rosa claro italico
   Exemplo: /tag builder
   Alias: /tags
 
+/tag set <nick> <tag>
+  (Admin) Define a tag de outro jogador.
+  Exemplo: /tag set Jogador pp
+
+/tag lista
+  (Staff) Lista jogadores online e suas tags.
+
 
 --------------------------------------------------------------------------------
-GERENCIAMENTO DE CARGOS
+GERENCIAMENTO (ADMIN)
 --------------------------------------------------------------------------------
 
 /setcargo <nick> <admin|staff|builder|none>
   Define o cargo de um jogador.
   ADMIN: pode definir qualquer cargo (admin, staff, builder, none)
   STAFF: pode definir apenas builder ou none (promover/remover builder)
-  O jogador precisa estar online.
+  Funciona com jogadores offline (cargo aplicado ao entrar).
   Exemplo: /setcargo Jogador builder
   Alias: /cargos set <nick> <cargo>
+
+/sbreload
+  Recarrega a configuracao do plugin (config.yml).
+  Requer: Admin
 
 
 --------------------------------------------------------------------------------
@@ -195,11 +217,12 @@ CARGO E PERMISSOES
 --------------------------------------------------------------------------------
 
 spartabuilds.build   - Construtor (comandos basicos + walls, floor, replace)
-spartabuilds.staff   - Staff (comandos avancados + sphere, cylinder + pode promover a builder)
+spartabuilds.staff   - Staff (comandos avancados + sphere, cylinder, pyramid, ellipsoid + promover builder)
 spartabuilds.admin   - Admin (acesso total, pode definir qualquer cargo)
 
 spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
 spartabuilds.setcargo - Definir cargos (staff=builder, admin=todos)
+spartabuilds.bypass  - Bypass: entrar no servidor sem cargo (configuravel em config.yml)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
 
@@ -213,6 +236,7 @@ DICAS
 - O comando // e um alias rapido para /bs.
 - Use /sb para ver a ajuda completa no jogo.
 - Use /cargos para ver seu cargo e o que voce pode fazer.
+- A scoreboard lateral mostra tag, mundo, posicao, tempo de sessao e online (configuravel em config.yml).
 
 ================================================================================
                     SpartaMC - https://spartamc.com.br

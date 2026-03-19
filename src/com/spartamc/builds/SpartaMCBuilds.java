@@ -41,13 +41,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+
+import fr.mrmicky.fastboard.FastBoard;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +58,7 @@ import java.util.stream.Collectors;
 public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     public enum Tag {
-        MASTER  ("MASTER",  "\u00A79\u00A7o", "\u00A79", "spartabuilds.tag.master"),
+        MASTER  ("PP",      "\u00A7d\u00A7o", "\u00A7d", "spartabuilds.tag.master"),
         ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "spartabuilds.tag.admin"),
         STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "spartabuilds.tag.staff"),
         BUILDER ("BUILDER", "\u00A72\u00A7l", "\u00A72", "spartabuilds.tag.builder");
@@ -209,6 +210,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private File cargosFile;
     private File playtimeFile;
     private Scoreboard scoreboard;
+    private final Map<UUID, FastBoard> fastBoards = new HashMap<>();
     private PluginConfig pluginConfig;
     private int scoreboardTaskId = -1;
 
@@ -260,7 +262,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                         }
                     }
                 }
-            }, interval, interval);
+            }, 40L, interval);
         }
 
         getLogger().info("SpartaMC Builds carregado!");
@@ -273,6 +275,10 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (scoreboardTaskId != -1) {
             Bukkit.getScheduler().cancelTask(scoreboardTaskId);
         }
+        for (FastBoard board : fastBoards.values()) {
+            if (board != null && !board.isDeleted()) board.delete();
+        }
+        fastBoards.clear();
         saveTags();
         saveCargos();
         savePlaytime();
@@ -406,7 +412,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         createTeam("sb_admin",   "\u00A74\u00A7lADMIN \u00A7r\u00A74", "\u00A7r");
         createTeam("sb_staff",   "\u00A79\u00A7lSTAFF \u00A7r\u00A79", "\u00A7r");
         createTeam("sb_builder", "\u00A72\u00A7lBUILDER \u00A7r\u00A72", "\u00A7r");
-        createTeam("sb_master",  "\u00A79\u00A7o", "\u00A7r");
+        createTeam("sb_master",  "\u00A7d\u00A7o", "\u00A7r");
         createTeam("sb_default", "\u00A77", "\u00A7r");
     }
 
@@ -447,13 +453,10 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private void applyPrefix(Player player) {
         if (pluginConfig.isScoreboardEnabled()) {
-            Scoreboard playerBoard = player.getScoreboard();
-            if (playerBoard == scoreboard || playerBoard.getObjective("sb_main") == null) {
-                applyScoreboard(player);
-            } else {
-                setupTeamOnBoard(playerBoard, player);
-            }
+            applyScoreboard(player);
         } else {
+            FastBoard fb = fastBoards.remove(player.getUniqueId());
+            if (fb != null && !fb.isDeleted()) fb.delete();
             if (player.getScoreboard() != scoreboard) {
                 player.setScoreboard(scoreboard);
             }
@@ -481,7 +484,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 case "sb_admin":   team.setPrefix("\u00A74\u00A7lADMIN \u00A7r\u00A74"); break;
                 case "sb_staff":   team.setPrefix("\u00A79\u00A7lSTAFF \u00A7r\u00A79"); break;
                 case "sb_builder": team.setPrefix("\u00A72\u00A7lBUILDER \u00A7r\u00A72"); break;
-                case "sb_master":  team.setPrefix("\u00A79\u00A7o"); break;
+                case "sb_master":  team.setPrefix("\u00A7d\u00A7o"); break;
                 default:           team.setPrefix("\u00A77"); break;
             }
             team.setSuffix("\u00A7r");
@@ -490,25 +493,24 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void applyScoreboard(Player player) {
-        Scoreboard board = player.getScoreboard();
-        if (board == scoreboard || board.getObjective("sb_main") == null) {
-            board = Bukkit.getScoreboardManager().getNewScoreboard();
-            setupTeamOnBoard(board, player);
-            player.setScoreboard(board);
-        }
-        Objective obj = board.getObjective("sb_main");
-        if (obj == null) {
-            obj = board.registerNewObjective("sb_main", "dummy");
-            obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-        }
-        obj.setDisplayName(pluginConfig.getScoreboardTitle());
+        FastBoard old = fastBoards.remove(player.getUniqueId());
+        if (old != null && !old.isDeleted()) old.delete();
+
+        player.setScoreboard(scoreboard);
+        setupTeamOnBoard(scoreboard, player);
+
+        FastBoard board = new FastBoard(player);
+        board.updateTitle(pluginConfig.getScoreboardTitle());
+        fastBoards.put(player.getUniqueId(), board);
         updateScoreboard(player);
     }
 
     private void updateScoreboard(Player player) {
-        Scoreboard board = player.getScoreboard();
-        Objective obj = board.getObjective(DisplaySlot.SIDEBAR);
-        if (obj == null || !obj.getName().equals("sb_main")) return;
+        FastBoard board = fastBoards.get(player.getUniqueId());
+        if (board == null || board.isDeleted()) {
+            applyScoreboard(player);
+            return;
+        }
 
         Tag tag = getPlayerTag(player);
         String tagStr = tag != null ? tag.displayName : "MEMBRO";
@@ -525,25 +527,22 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
         long totalSec = totalPlayTime.getOrDefault(player.getUniqueId(), 0L) + sessionSec;
 
-        obj.unregister();
-        obj = board.registerNewObjective("sb_main", "dummy");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-        obj.setDisplayName(pluginConfig.getScoreboardTitle());
-
         String lb = "\u00A77";
         String vl = "\u00A7f";
 
-        setScore(obj, "\u00A78 ", 16);
-        setScore(obj, lb + "Tag: " + vl + tagStr, 15);
-        setScore(obj, "\u00A78  ", 14);
-        setScore(obj, vl + truncate(world, 14), 13);
-        setScore(obj, vl + x + ", " + y + ", " + z, 12);
-        setScore(obj, "\u00A78   ", 11);
-        setScore(obj, lb + "Sessao: " + vl + formatTime(sessionSec), 10);
-        setScore(obj, lb + "Total: " + vl + formatTime(totalSec), 9);
-        setScore(obj, lb + "Online: " + vl + online, 8);
-        setScore(obj, "\u00A78    ", 7);
-        setScore(obj, pluginConfig.getScoreboardFooter(), 6);
+        board.updateLines(
+            "\u00A78 ",
+            lb + "Tag: " + vl + tagStr,
+            "\u00A78  ",
+            lb + "Mundo: " + vl + truncate(world, 14),
+            lb + "Coords: " + vl + x + ", " + y + ", " + z,
+            "\u00A78   ",
+            lb + "Sessao: " + vl + formatTime(sessionSec),
+            lb + "Total: " + vl + formatTime(totalSec),
+            lb + "Online: " + vl + online,
+            "\u00A78    ",
+            pluginConfig.getScoreboardFooter()
+        );
     }
 
     private String formatTime(long seconds) {
@@ -557,12 +556,6 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         long d = h / 24;
         h = h % 24;
         return d + "d" + (h > 0 ? " " + h + "h" : "") + (min > 0 ? " " + min + "m" : "");
-    }
-
-    private void setScore(Objective obj, String text, int value) {
-        String key = text.length() > 40 ? text.substring(0, 40) : text;
-        String unique = "\u00A7" + (value % 16) + "\u00A7r" + key;
-        obj.getScore(unique).setScore(value);
     }
 
     private String truncate(String s, int max) {
@@ -593,9 +586,23 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     @EventHandler
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        if (pluginConfig.isScoreboardEnabled()) {
+            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+                @Override
+                public void run() {
+                    applyScoreboard(event.getPlayer());
+                }
+            }, 5L);
+        }
+    }
+
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
+        FastBoard fb = fastBoards.remove(uuid);
+        if (fb != null && !fb.isDeleted()) fb.delete();
         Long start = sessionStartTime.remove(uuid);
         if (start != null) {
             long sessionSec = (System.currentTimeMillis() - start) / 1000;
@@ -782,7 +789,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private String tagJsonStyle(Tag tag) {
         switch (tag) {
-            case MASTER:  return "\"color\":\"blue\",\"italic\":true,\"bold\":false";
+            case MASTER:  return "\"color\":\"light_purple\",\"italic\":true,\"bold\":false";
             case ADMIN:   return "\"color\":\"dark_red\",\"bold\":true";
             case STAFF:   return "\"color\":\"blue\",\"bold\":true";
             case BUILDER: return "\"color\":\"dark_green\",\"bold\":true";
@@ -1039,7 +1046,13 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         if (!isCustom) return super.onCommand(sender, command, label, args);
 
-        if (cmd.equals("sb")) { sendHelp(sender); return true; }
+        if (cmd.equals("sb")) {
+            sendHelp(sender);
+            if (sender instanceof Player && pluginConfig.isScoreboardEnabled()) {
+                applyScoreboard((Player) sender);
+            }
+            return true;
+        }
         if (cmd.equals("sbreload")) return handleReload(sender);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
@@ -1198,7 +1211,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 sender.sendMessage("  \u00A74\u00A7lADMIN \u00A74Nick \u00A7f- /tag admin");
             }
             if (sender.hasPermission("spartabuilds.tag.master")) {
-                sender.sendMessage("  \u00A79\u00A7oNick \u00A7f- /tag master");
+                sender.sendMessage("  \u00A7d\u00A7oPP \u00A7f- /tag master");
             }
             sender.sendMessage("");
         }
