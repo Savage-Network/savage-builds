@@ -113,6 +113,7 @@ history:
   expiration: 60
 
 wand-item: 271
+wand-name: "&dMachado Magico"
 shell-save-type:
 no-double-slash: false
 no-op-permissions: false

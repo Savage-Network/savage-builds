@@ -1,3 +1,4 @@
+-- Active: 1773958783804@@mysql52-farm1.kinghost.net@3306@zrfa01
 # SpartaMC Builds
 
 Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no WorldEdit com ferramentas extras de build, sistema de cargos, tags e prefixos no chat.
@@ -111,6 +112,7 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 
 | Comando | Descrição |
 |---------|-----------|
+| `/sudo <jogador> <comando>` | Força o jogador a executar o comando (saída vai para ele) |
 | `/setcargo <nick> <admin\|staff\|builder\|none>` | Definir cargo (funciona com jogadores offline) |
 | `/sbreload` | Recarregar configuração do plugin |
 

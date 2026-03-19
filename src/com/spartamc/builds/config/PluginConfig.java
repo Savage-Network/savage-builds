@@ -142,4 +142,13 @@ public class PluginConfig {
     public boolean isDatabaseUseSSL() {
         return config.getBoolean("database.use-ssl", false);
     }
+
+    public int getWandItemId() {
+        return config.getInt("wand-item", 271);
+    }
+
+    public String getWandItemName() {
+        String s = config.getString("wand-name", "&dMachado Magico");
+        return s != null ? s.replace("&", "\u00A7") : "\u00A7dMachado Magico";
+    }
 }

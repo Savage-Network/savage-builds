@@ -214,6 +214,12 @@ GERENCIAMENTO (ADMIN)
   Recarrega a configuracao do plugin (config.yml).
   Requer: Admin
 
+/sudo <jogador> <comando>
+  Forca um jogador a executar um comando como se ele tivesse digitado.
+  A saida/resultado vai para o proprio jogador alvo.
+  Requer: Admin (spartabuilds.sudo)
+  Exemplo: /sudo zRafa67 say Ola
+
 
 --------------------------------------------------------------------------------
 CARGO E PERMISSOES
@@ -222,6 +228,7 @@ CARGO E PERMISSOES
 spartabuilds.build   - Construtor (comandos basicos + walls, floor, replace)
 spartabuilds.staff   - Staff (comandos avancados + sphere, cylinder, pyramid, ellipsoid + promover builder)
 spartabuilds.admin   - Admin (acesso total, pode definir qualquer cargo)
+spartabuilds.sudo    - Sudo: forcar jogador a executar comando (admin tem por padrao)
 
 spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
 spartabuilds.setcargo - Definir cargos (staff=builder, admin=todos)

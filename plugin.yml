@@ -144,6 +144,10 @@ commands:
     description: Recarrega a configuracao do plugin (admin)
     usage: /sbreload
     permission: spartabuilds.admin
+  sudo:
+    description: Forca um jogador a executar um comando (como se ele tivesse digitado)
+    usage: /sudo <jogador> <comando>
+    permission: spartabuilds.sudo
   pyramid:
     description: Desenha piramide 3D
     usage: /pyramid <bloco> <tamanho> [preenchido]
@@ -209,12 +213,16 @@ permissions:
     children:
       spartabuilds.staff: true
       spartabuilds.setcargo: true
+      spartabuilds.sudo: true
       spartabuilds.tag.admin: true
       spartabuilds.tag.master: true
       spartabuilds.tag.joia: true
 
   spartabuilds.setcargo:
     description: Definir cargos (staff=builder apenas, admin=todos)
+    default: false
+  spartabuilds.sudo:
+    description: Forcar jogador a executar comando (/sudo)
     default: false
   spartabuilds.bypass:
     description: Entrar no servidor sem cargo (bypass do kick)

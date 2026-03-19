@@ -40,10 +40,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.Material;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scoreboard.Scoreboard;
@@ -100,7 +104,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         "randomfill", "colorswap", "terraform", "heightmap",
         "measure", "palette", "circle", "sphere", "cylinder", "pyramid", "ellipsoid",
         "walls", "floor", "replace",
-        "sb", "tag", "setcargo", "cargos", "sbreload", "top"
+        "sb", "tag", "setcargo", "cargos", "sbreload", "top", "sudo"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
@@ -685,6 +689,53 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         event.disallow(PlayerLoginEvent.Result.KICK_OTHER, pluginConfig.getKickMessage());
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        String[] parts = event.getMessage().trim().split("\\s+");
+        if (parts.length == 0) return;
+        String cmd = parts[0].toLowerCase();
+        boolean isWandCmd = cmd.equals("//wand") || cmd.equals("/wand");
+        if (!isWandCmd && (cmd.equals("/tool") || cmd.equals("//tool")) && parts.length > 1) {
+            isWandCmd = parts[1].equalsIgnoreCase("selwand");
+        }
+        if (isWandCmd) {
+            final Player player = event.getPlayer();
+            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+                @Override
+                public void run() {
+                    applyWandName(player);
+                }
+            }, 2L);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void applyWandName(Player player) {
+        if (player == null || !player.isOnline()) return;
+        int wandId = pluginConfig.getWandItemId();
+        Material wandMat = Material.getMaterial(wandId);
+        if (wandMat == null) return;
+
+        String wandName = pluginConfig.getWandItemName();
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack != null && stack.getType() == wandMat) {
+                ItemMeta meta = stack.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(wandName);
+                    stack.setItemMeta(meta);
+                }
+            }
+        }
+        ItemStack held = player.getInventory().getItemInHand();
+        if (held != null && held.getType() == wandMat) {
+            ItemMeta meta = held.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(wandName);
+                held.setItemMeta(meta);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -883,6 +934,31 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             }
         }
         sender.sendMessage(pluginConfig.getMessage("reload-success", "\u00A7aConfiguracao recarregada com sucesso!"));
+        return true;
+    }
+
+    private boolean handleSudo(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("spartabuilds.sudo") && !sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
+            return true;
+        }
+        if (args.length < 2) {
+            sender.sendMessage("\u00A7cUso: /sudo <jogador> <comando>");
+            sender.sendMessage("\u00A77Exemplo: /sudo zRafa67 say Ola");
+            return true;
+        }
+        String targetName = args[0];
+        String cmdLine = String.join(" ", Arrays.copyOfRange(args, 1, args.length)).trim();
+        if (cmdLine.startsWith("/")) cmdLine = cmdLine.substring(1);
+
+        Player target = Bukkit.getPlayer(targetName);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado ou offline.").replace("%player%", targetName));
+            return true;
+        }
+
+        target.performCommand(cmdLine);
+        sender.sendMessage(pluginConfig.getPrefix() + "\u00A7aComando executado como \u00A7e" + target.getName() + "\u00A7a.");
         return true;
     }
 
@@ -1183,6 +1259,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             return true;
         }
         if (cmd.equals("sbreload")) return handleReload(sender);
+        if (cmd.equals("sudo")) return handleSudo(sender, args);
         if (cmd.equals("top")) return handleTop(sender, args);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
@@ -1389,6 +1466,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("cargos")) return tabCargos(sender, args, current);
         if (cmd.equals("bs")) return tabBs(sender, args, current);
         if (cmd.equals("top")) return args.length == 1 ? filter(Arrays.asList("5", "10", "15", "20"), current) : Collections.emptyList();
+        if (cmd.equals("sudo")) return tabSudo(sender, args, current);
         if (cmd.equals("sbreload")) return Collections.emptyList();
 
         return tabForScript(cmd, args, current);
@@ -1421,6 +1499,16 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             options.add("membro");
             for (Tag tag : Tag.values()) options.add(tag.name().toLowerCase());
             return filter(options, current);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> tabSudo(CommandSender sender, String[] args, String current) {
+        if (!sender.hasPermission("spartabuilds.sudo") && !sender.hasPermission("spartabuilds.admin")) return Collections.emptyList();
+        if (args.length == 1) {
+            List<String> names = new ArrayList<>();
+            for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+            return filter(names, current);
         }
         return Collections.emptyList();
     }
