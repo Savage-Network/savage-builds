@@ -183,16 +183,19 @@ SISTEMA DE TAGS/PREFIXOS
 /tag <nome>
   Define sua tag/prefixo no chat.
   Opcoes: membro, builder, staff, admin, joia, pp
-  membro = sem prefixo (padrao), pp = rosa claro italico
-  Exemplo: /tag builder
+  membro = sem prefixo (padrao)
+  joia = ciano | pp = rosa claro italico
+  Exemplo: /tag joia
   Alias: /tags
 
 /tag set <nick> <tag>
   (Admin) Define a tag de outro jogador.
-  Exemplo: /tag set Jogador pp
+  Exemplo: /tag set Jogador joia
 
 /tag lista
   (Staff) Lista jogadores online e suas tags.
+
+Tags disponiveis: MEMBRO, BUILDER, STAFF, ADMIN, Joia (ciano), PP (rosa italico)
 
 
 --------------------------------------------------------------------------------
@@ -222,7 +225,10 @@ spartabuilds.admin   - Admin (acesso total, pode definir qualquer cargo)
 
 spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
 spartabuilds.setcargo - Definir cargos (staff=builder, admin=todos)
-spartabuilds.bypass  - Bypass: entrar no servidor sem cargo (configuravel em config.yml)
+spartabuilds.bypass  - Bypass: entrar no servidor sem cargo (config.yml)
+
+Tags: spartabuilds.tag.builder, spartabuilds.tag.staff, spartabuilds.tag.admin,
+      spartabuilds.tag.joia, spartabuilds.tag.master (pp)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
 
@@ -236,7 +242,9 @@ DICAS
 - O comando // e um alias rapido para /bs.
 - Use /sb para ver a ajuda completa no jogo.
 - Use /cargos para ver seu cargo e o que voce pode fazer.
-- A scoreboard lateral mostra tag, mundo, posicao, tempo de sessao e online (configuravel em config.yml).
+- A scoreboard lateral mostra tag, mundo, coords, sessao, total e online (atualiza a cada 0.5s).
+- Config unificada: config.yml com plugin + WorldEdit em um unico arquivo.
+- Banco MySQL: tags, cargos e playtime na tabela 'builds' (execute database.sql).
 
 ================================================================================
                     SpartaMC - https://spartamc.com.br
