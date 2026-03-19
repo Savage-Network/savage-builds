@@ -195,7 +195,7 @@ SISTEMA DE TAGS/PREFIXOS
 /tag lista
   (Staff) Lista jogadores online e suas tags.
 
-Tags disponiveis: MEMBRO, BUILDER, STAFF, ADMIN, Joia (ciano), PP (rosa italico)
+Tags disponiveis: MEMBRO, BUILDER, STAFF, ADMIN, JOIA (ciano), PP (rosa italico)
 
 
 --------------------------------------------------------------------------------
@@ -231,6 +231,7 @@ Tags: spartabuilds.tag.builder, spartabuilds.tag.staff, spartabuilds.tag.admin,
       spartabuilds.tag.joia, spartabuilds.tag.master (pp)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
+  config.yml: open-to-all: true = servidor aberto para todos.
 
 
 --------------------------------------------------------------------------------

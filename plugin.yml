@@ -132,6 +132,10 @@ commands:
     usage: /cargos [list|info <nick>|set <nick> <cargo>]
     aliases: [meucargo]
     permission: spartabuilds.cargos
+  top:
+    description: Ver top jogadores por tempo de jogo
+    usage: /top [quantidade]
+    aliases: [toptime, toptempo]
   sb:
     description: Lista todos os comandos e cargos do SpartaMC Builds
     usage: /sb
@@ -285,5 +289,5 @@ permissions:
     description: "Tag: BUILDER (verde)"
     default: false
   spartabuilds.tag.joia:
-    description: "Tag: Joia (ciano)"
+    description: "Tag: JOIA (ciano)"
     default: false

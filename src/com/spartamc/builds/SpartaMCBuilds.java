@@ -100,7 +100,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         "randomfill", "colorswap", "terraform", "heightmap",
         "measure", "palette", "circle", "sphere", "cylinder", "pyramid", "ellipsoid",
         "walls", "floor", "replace",
-        "sb", "tag", "setcargo", "cargos", "sbreload"
+        "sb", "tag", "setcargo", "cargos", "sbreload", "top"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
@@ -455,7 +455,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         createTeam("sb_staff",   "\u00A79\u00A7lSTAFF \u00A7r\u00A79", "\u00A7r");
         createTeam("sb_builder", "\u00A72\u00A7lBUILDER \u00A7r\u00A72", "\u00A7r");
         createTeam("sb_master",  "\u00A7d\u00A7o", "\u00A7r");
-        createTeam("sb_joia",    "\u00A7b\u00A7lJoia \u00A7r\u00A7b", "\u00A7r");
+        createTeam("sb_joia",    "\u00A7b\u00A7lJOIA \u00A7r\u00A7b", "\u00A7r");
         createTeam("sb_default", "\u00A77", "\u00A7r");
     }
 
@@ -529,7 +529,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 case "sb_staff":   team.setPrefix("\u00A79\u00A7lSTAFF \u00A7r\u00A79"); break;
                 case "sb_builder": team.setPrefix("\u00A72\u00A7lBUILDER \u00A7r\u00A72"); break;
                 case "sb_master":  team.setPrefix("\u00A7d\u00A7o"); break;
-                case "sb_joia":    team.setPrefix("\u00A7b\u00A7lJoia \u00A7r\u00A7b"); break;
+                case "sb_joia":    team.setPrefix("\u00A7b\u00A7lJOIA \u00A7r\u00A7b"); break;
                 default:           team.setPrefix("\u00A77"); break;
             }
             team.setSuffix("\u00A7r");
@@ -667,6 +667,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
+
+        if (pluginConfig.isOpenToAll()) return;
 
         Player player = event.getPlayer();
 
@@ -882,6 +884,69 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
         sender.sendMessage(pluginConfig.getMessage("reload-success", "\u00A7aConfiguracao recarregada com sucesso!"));
         return true;
+    }
+
+    private boolean handleTop(CommandSender sender, String[] args) {
+        int limit = 10;
+        if (args.length > 0) {
+            try {
+                limit = Math.max(1, Math.min(Integer.parseInt(args[0]), 20));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        List<DatabaseManager.TopPlaytimeEntry> top;
+        if (database != null) {
+            top = database.getTopPlaytime(limit);
+        } else {
+            top = getTopPlaytimeFromMemory(limit);
+        }
+
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lTop Tempo \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+
+        if (top.isEmpty()) {
+            sender.sendMessage("\u00A77 Nenhum dado de tempo registrado.");
+        } else {
+            for (int i = 0; i < top.size(); i++) {
+                DatabaseManager.TopPlaytimeEntry e = top.get(i);
+                String tagName = e.tagName;
+                if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                if ("FP".equalsIgnoreCase(tagName)) tagName = "JOIA";
+                Tag tag = tagName != null ? Tag.fromName(tagName) : null;
+                String tagStr = tag != null ? (tag.style + tag.displayName + "\u00A7r") : "\u00A77MEMBRO";
+                String line = "\u00A7e#" + (i + 1) + " " + tagStr + " " + e.username + " \u00A78\u00BB \u00A7a" + formatTime(e.playtimeSeconds);
+                sender.sendMessage(line);
+            }
+        }
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+        return true;
+    }
+
+    private List<DatabaseManager.TopPlaytimeEntry> getTopPlaytimeFromMemory(int limit) {
+        Map<UUID, Long> withSession = new HashMap<>(totalPlayTime);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Long start = sessionStartTime.get(p.getUniqueId());
+            if (start != null) {
+                long sessionSec = (System.currentTimeMillis() - start) / 1000;
+                long total = totalPlayTime.getOrDefault(p.getUniqueId(), 0L) + sessionSec;
+                withSession.put(p.getUniqueId(), total);
+            }
+        }
+        List<Map.Entry<UUID, Long>> sorted = new ArrayList<>(withSession.entrySet());
+        sorted.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+
+        List<DatabaseManager.TopPlaytimeEntry> result = new ArrayList<>();
+        for (int i = 0; i < Math.min(limit, sorted.size()); i++) {
+            Map.Entry<UUID, Long> ent = sorted.get(i);
+            OfflinePlayer op = Bukkit.getOfflinePlayer(ent.getKey());
+            String name = op.getName();
+            if (name == null || name.isEmpty()) name = "?";
+            Tag tag = playerTags.get(ent.getKey());
+            String tagName = tag != null ? tag.name() : null;
+            result.add(new DatabaseManager.TopPlaytimeEntry(ent.getKey(), name, tagName, ent.getValue()));
+        }
+        return result;
     }
 
     private boolean handleSetCargo(CommandSender sender, String[] args) {
@@ -1118,6 +1183,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             return true;
         }
         if (cmd.equals("sbreload")) return handleReload(sender);
+        if (cmd.equals("top")) return handleTop(sender, args);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
 
@@ -1322,6 +1388,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("setcargo")) return tabSetCargo(sender, args, current);
         if (cmd.equals("cargos")) return tabCargos(sender, args, current);
         if (cmd.equals("bs")) return tabBs(sender, args, current);
+        if (cmd.equals("top")) return args.length == 1 ? filter(Arrays.asList("5", "10", "15", "20"), current) : Collections.emptyList();
         if (cmd.equals("sbreload")) return Collections.emptyList();
 
         return tabForScript(cmd, args, current);

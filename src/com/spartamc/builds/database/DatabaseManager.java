@@ -8,6 +8,8 @@ package com.spartamc.builds.database;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -350,5 +352,47 @@ public class DatabaseManager {
             plugin.getLogger().warning("Erro loadAllPlaytime: " + e.getMessage());
         }
         return map;
+    }
+
+    /**
+     * Retorna o top de jogadores por tempo de jogo (uuid, username, tag, playtime em segundos).
+     * Ordenado por playtime DESC. Limite padrao 10.
+     */
+    public List<TopPlaytimeEntry> getTopPlaytime(int limit) {
+        List<TopPlaytimeEntry> list = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(
+                "SELECT uuid, username, tag, playtime FROM " + TABLE +
+                " WHERE uuid NOT LIKE 'pending:%' AND playtime > 0 ORDER BY playtime DESC LIMIT ?")) {
+            ps.setInt(1, Math.max(1, Math.min(limit, 100)));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        String uuidStr = rs.getString("uuid");
+                        String username = rs.getString("username");
+                        String tagStr = rs.getString("tag");
+                        long playtime = rs.getLong("playtime");
+                        if (username == null) username = "?";
+                        list.add(new TopPlaytimeEntry(UUID.fromString(uuidStr), username, tagStr, playtime));
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Erro getTopPlaytime: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public static class TopPlaytimeEntry {
+        public final UUID uuid;
+        public final String username;
+        public final String tagName;
+        public final long playtimeSeconds;
+
+        public TopPlaytimeEntry(UUID uuid, String username, String tagName, long playtimeSeconds) {
+            this.uuid = uuid;
+            this.username = username != null ? username : "?";
+            this.tagName = tagName;
+            this.playtimeSeconds = playtimeSeconds;
+        }
     }
 }

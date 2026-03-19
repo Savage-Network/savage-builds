@@ -69,6 +69,10 @@ public class PluginConfig {
         return getMessage("kick-no-permission", "&c&lSpartaMC Builds\n\n&7Voce nao tem permissao para entrar neste servidor.\n&7Contate um administrador.");
     }
 
+    public boolean isOpenToAll() {
+        return config.getBoolean("open-to-all", false);
+    }
+
     public boolean isBypassEnabled() {
         return config.getBoolean("bypass.enabled", true);
     }

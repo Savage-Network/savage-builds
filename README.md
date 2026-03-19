@@ -15,7 +15,7 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 - **Schematics** — Salvar e carregar construções
 - **Sistema de cargos** — Admin, Staff, Builder com permissões hierárquicas
 - **Tags/Prefixos** — Prefixos coloridos no chat (ADMIN, STAFF, BUILDER, MASTER, MEMBRO)
-- **Acesso restrito** — Apenas jogadores com cargo podem entrar (com opção de bypass)
+- **Acesso** — Restrito (cargo/bypass) ou aberto para todos (`open-to-all`)
 - **Configurável** — Mensagens e opções em `config.yml`
 - **Scoreboard** — Cargo, tag, mundo, posição, tempo de sessão, tempo total e online na lateral
 
@@ -93,8 +93,17 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 - **BUILDER** — Verde
 - **STAFF** — Azul
 - **ADMIN** — Vermelho
-- **Joia** — Ciano
+- **JOIA** — Ciano
 - **PP** — Nome rosa claro itálico
+
+---
+
+## Top tempo
+
+| Comando | Descrição |
+|---------|-----------|
+| `/top [n]` | Ranking de jogadores por tempo de jogo (mostra tag) |
+| `/toptime`, `/toptempo` | Aliases de `/top` |
 
 ---
 
@@ -118,7 +127,7 @@ O cargo concede permissões automaticamente. Use `none` para remover. Cargos de 
 | `spartabuilds.admin` | Admin — acesso total |
 | `spartabuilds.bypass` | Bypass — entrar sem cargo (configurável) |
 
-**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `spartabuilds.bypass` para exceções.
+**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `spartabuilds.bypass` para exceções. Em `config.yml`, `open-to-all: true` abre o servidor para todos.
 
 ---
 
@@ -145,6 +154,7 @@ plugins/Builds/
 Config unificada: plugin + WorldEdit em um único arquivo.
 
 - **messages** — Mensagens do plugin
+- **open-to-all** — `true` = servidor aberto para todos; `false` = exige cargo/bypass
 - **bypass** — Bypass de kick (`spartabuilds.bypass`)
 - **allowed-worlds** — Mundos permitidos (vazio = todos)
 - **database** — MySQL: tags, cargos e playtime (execute `database.sql` antes)

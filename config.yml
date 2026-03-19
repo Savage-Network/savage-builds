@@ -29,6 +29,11 @@ kick-no-permission: |
 
   &8spartamc.com.br
 
+# ========== PLUGIN - ACESSO ==========
+# open-to-all: true = servidor aberto para todos (ignora cargo/bypass)
+# open-to-all: false = apenas jogadores com cargo ou bypass podem entrar
+open-to-all: false
+
 # ========== PLUGIN - BYPASS ==========
 bypass:
   enabled: true
