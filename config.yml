@@ -40,6 +40,17 @@ bypass:
 # Lista de mundos onde o plugin funciona. Vazio = todos os mundos
 allowed-worlds: []
 
+# ========== BANCO DE DADOS (MySQL) ==========
+# Armazena tags, cargos e playtime na tabela 'builds'
+database:
+  enabled: false
+  host: 'mysql52-farm1.kinghost.net'
+  port: 3306
+  username: 'zrfa0101_add2'
+  password: 'Sparta67DB'
+  database: 'zrfa01'
+  use-ssl: false
+
 # ========== SCOREBOARD ==========
 scoreboard:
   enabled: true

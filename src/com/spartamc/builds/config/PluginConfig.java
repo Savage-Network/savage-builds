@@ -109,4 +109,33 @@ public class PluginConfig {
     public int getScoreboardUpdateInterval() {
         return config.getInt("scoreboard.update-interval", 40);
     }
+
+    public boolean isDatabaseEnabled() {
+        return config.getBoolean("database.enabled", false);
+    }
+
+
+    public String getDatabaseHost() {
+        return config.getString("database.host", "localhost");
+    }
+
+    public int getDatabasePort() {
+        return config.getInt("database.port", 3306);
+    }
+
+    public String getDatabaseName() {
+        return config.getString("database.database", "spartamc");
+    }
+
+    public String getDatabaseUsername() {
+        return config.getString("database.username", "root");
+    }
+
+    public String getDatabasePassword() {
+        return config.getString("database.password", "");
+    }
+
+    public boolean isDatabaseUseSSL() {
+        return config.getBoolean("database.use-ssl", false);
+    }
 }

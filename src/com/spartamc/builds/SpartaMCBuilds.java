@@ -28,6 +28,7 @@
 package com.spartamc.builds;
 
 import com.spartamc.builds.config.PluginConfig;
+import com.spartamc.builds.database.DatabaseManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import org.bukkit.Bukkit;
@@ -212,6 +213,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private Scoreboard scoreboard;
     private final Map<UUID, FastBoard> fastBoards = new HashMap<>();
     private PluginConfig pluginConfig;
+    private DatabaseManager database;
     private int scoreboardTaskId = -1;
 
     @Override
@@ -228,6 +230,20 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         getDataFolder().mkdirs();
         pluginConfig = new PluginConfig(this);
         pluginConfig.load();
+
+        if (pluginConfig.isDatabaseEnabled()) {
+            database = new DatabaseManager(this,
+                    pluginConfig.getDatabaseHost(),
+                    pluginConfig.getDatabasePort(),
+                    pluginConfig.getDatabaseName(),
+                    pluginConfig.getDatabaseUsername(),
+                    pluginConfig.getDatabasePassword(),
+                    pluginConfig.isDatabaseUseSSL());
+            if (!database.connect()) {
+                getLogger().warning("MySQL falhou. Usando arquivos YAML.");
+                database = null;
+            }
+        }
         loadTags();
         loadCargos();
         loadPlaytime();
@@ -279,16 +295,28 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             if (board != null && !board.isDeleted()) board.delete();
         }
         fastBoards.clear();
-        saveTags();
-        saveCargos();
-        savePlaytime();
+        if (database == null) {
+            saveTags();
+            saveCargos();
+            savePlaytime();
+        }
+        if (database != null) database.disconnect();
         super.onDisable();
     }
 
     private void loadTags() {
+        if (database != null) {
+            Map<UUID, String> data = database.loadAllTags();
+            for (Map.Entry<UUID, String> e : data.entrySet()) {
+                String tagName = e.getValue();
+                if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                Tag tag = Tag.fromName(tagName);
+                if (tag != null) playerTags.put(e.getKey(), tag);
+            }
+            return;
+        }
         tagsFile = new File(getDataFolder(), "tags.yml");
         if (!tagsFile.exists()) return;
-
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(tagsFile);
         for (String key : cfg.getKeys(false)) {
             try {
@@ -302,6 +330,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void saveTags() {
+        if (database != null) return;
         if (tagsFile == null) return;
         YamlConfiguration cfg = new YamlConfiguration();
         for (Map.Entry<UUID, Tag> entry : playerTags.entrySet()) {
@@ -312,9 +341,13 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void loadCargos() {
+        if (database != null) {
+            playerCargos.putAll(database.loadAllCargos());
+            cargosPendingByName.putAll(database.loadPendingCargos());
+            return;
+        }
         cargosFile = new File(getDataFolder(), "cargos.yml");
         if (!cargosFile.exists()) return;
-
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(cargosFile);
         if (cfg.contains("pending") && cfg.getConfigurationSection("pending") != null) {
             for (String name : cfg.getConfigurationSection("pending").getKeys(false)) {
@@ -346,9 +379,12 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void loadPlaytime() {
+        if (database != null) {
+            totalPlayTime.putAll(database.loadAllPlaytime());
+            return;
+        }
         playtimeFile = new File(getDataFolder(), "playtime.yml");
         if (!playtimeFile.exists()) return;
-
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(playtimeFile);
         for (String key : cfg.getKeys(false)) {
             try {
@@ -360,6 +396,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void savePlaytime() {
+        if (database != null) return;
         if (playtimeFile == null) return;
         YamlConfiguration cfg = new YamlConfiguration();
         for (Map.Entry<UUID, Long> entry : totalPlayTime.entrySet()) {
@@ -370,6 +407,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void saveCargos() {
+        if (database != null) return;
         if (cargosFile == null) return;
         YamlConfiguration cfg = new YamlConfiguration();
         for (Map.Entry<UUID, String> entry : playerCargos.entrySet()) {
@@ -406,6 +444,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         PermissionAttachment old = cargoAttachments.remove(player.getUniqueId());
         if (old != null) player.removeAttachment(old);
         playerCargos.remove(player.getUniqueId());
+        if (database != null) database.setCargo(player.getUniqueId(), player.getName(), null);
     }
 
     private void setupTeams() {
@@ -575,7 +614,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 String pending = cargosPendingByName.remove(player.getName().toLowerCase());
                 if (pending != null) {
                     playerCargos.put(player.getUniqueId(), pending);
-                    saveCargos();
+                    if (database != null) database.migratePendingToPlayer(player.getName(), player.getUniqueId());
+                    else saveCargos();
                 }
                 applyCargo(player);
                 applyPrefix(player);
@@ -608,7 +648,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             long sessionSec = (System.currentTimeMillis() - start) / 1000;
             long total = totalPlayTime.getOrDefault(uuid, 0L) + sessionSec;
             totalPlayTime.put(uuid, total);
-            savePlaytime();
+            if (database != null) database.setPlaytime(uuid, player.getName(), total);
+            else savePlaytime();
         }
     }
 
@@ -626,6 +667,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (player.hasPermission("spartabuilds.staff")) return;
         if (player.hasPermission("spartabuilds.build")) return;
         if (playerCargos.containsKey(player.getUniqueId())) return;
+        if (cargosPendingByName.containsKey(player.getName().toLowerCase())) return;
 
         event.disallow(PlayerLoginEvent.Result.KICK_OTHER, pluginConfig.getKickMessage());
     }
@@ -656,8 +698,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         if (sub.equals("membro")) {
             playerTags.remove(player.getUniqueId());
+            if (database != null) database.setTag(player.getUniqueId(), player.getName(), null);
+            else saveTags();
             applyPrefix(player);
-            saveTags();
             player.sendMessage(pluginConfig.getMessage("tag-membro", "\u00A7aTag alterada para: \u00A77MEMBRO"));
             return true;
         }
@@ -674,8 +717,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         playerTags.put(player.getUniqueId(), tag);
+        if (database != null) database.setTag(player.getUniqueId(), player.getName(), tag.name());
+        else saveTags();
         applyPrefix(player);
-        saveTags();
         player.sendMessage(pluginConfig.getMessage("tag-changed", "\u00A7aTag alterada para: %tag%").replace("%tag%", tag.formatted()));
         return true;
     }
@@ -699,8 +743,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         String tagArg = args[1].toLowerCase();
         if (tagArg.equals("membro")) {
             playerTags.remove(target.getUniqueId());
+            if (database != null) database.setTag(target.getUniqueId(), target.getName(), null);
+            else saveTags();
             applyPrefix(target);
-            saveTags();
             sender.sendMessage("\u00A7aTag de \u00A7e" + target.getName() + " \u00A7aremovida (MEMBRO).");
             target.sendMessage(pluginConfig.getMessage("tag-membro", "\u00A7aTag alterada para: \u00A77MEMBRO"));
             return true;
@@ -713,8 +758,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         playerTags.put(target.getUniqueId(), tag);
+        if (database != null) database.setTag(target.getUniqueId(), target.getName(), tag.name());
+        else saveTags();
         applyPrefix(target);
-        saveTags();
         sender.sendMessage("\u00A7aTag de \u00A7e" + target.getName() + " \u00A7adefinida para: " + tag.formatted());
         target.sendMessage(pluginConfig.getMessage("tag-changed", "\u00A7aTag alterada para: %tag%").replace("%tag%", tag.formatted()));
         return true;
@@ -855,17 +901,20 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 boolean removed = false;
                 if (found != null) {
                     playerCargos.remove(found);
+                    if (database != null) database.setCargo(found, targetName, null);
                     removed = true;
                 }
-                if (cargosPendingByName.remove(targetName.toLowerCase()) != null) removed = true;
+                if (cargosPendingByName.remove(targetName.toLowerCase()) != null) {
+                    if (database != null) database.removePendingCargo(targetName);
+                    removed = true;
+                }
                 if (removed) {
-                    saveCargos();
+                    if (database == null) saveCargos();
                     sender.sendMessage(pluginConfig.getMessage("cargo-removed", "\u00A7aCargo removido.").replace("%player%", targetName));
                 } else {
                     sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado.").replace("%player%", targetName));
                 }
             }
-            saveCargos();
             return true;
         }
 
@@ -884,20 +933,23 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         if (target != null) {
             playerCargos.put(target.getUniqueId(), cargo);
+            if (database != null) database.setCargo(target.getUniqueId(), target.getName(), cargo);
             applyCargo(target);
             applyPrefix(target);
         } else {
             UUID uuid = findUUIDByName(targetName);
             if (uuid != null && !uuid.toString().equals("00000000-0000-0000-0000-000000000000")) {
                 playerCargos.put(uuid, cargo);
+                if (database != null) database.setCargo(uuid, targetName, cargo);
                 sender.sendMessage(pluginConfig.getMessage("offline-cargo-set", "\u00A7aCargo sera aplicado quando entrar.").replace("%player%", targetName));
             } else {
                 cargosPendingByName.put(targetName.toLowerCase(), cargo);
+                if (database != null) database.setPendingCargo(targetName, cargo);
                 sender.sendMessage(pluginConfig.getMessage("offline-cargo-set", "\u00A7aCargo sera aplicado quando entrar.").replace("%player%", targetName));
             }
         }
 
-        saveCargos();
+        if (database == null) saveCargos();
 
         String cargoDisplay;
         switch (cargo) {

@@ -144,6 +144,7 @@ plugins/Builds/
 - **messages** — Personalize todas as mensagens do plugin
 - **bypass** — Habilite/desabilite bypass de kick (`spartabuilds.bypass`)
 - **allowed-worlds** — Lista de mundos permitidos (vazio = todos)
+- **database** — MySQL: tags, cargos e playtime na tabela `builds` (execute `database.sql` antes)
 - **scoreboard** — Scoreboard lateral com cargo, tag, mundo, posição, tempo de sessão, tempo total e online
 
 ---
