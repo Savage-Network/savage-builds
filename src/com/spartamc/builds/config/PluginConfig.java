@@ -107,7 +107,7 @@ public class PluginConfig {
     }
 
     public int getScoreboardUpdateInterval() {
-        return config.getInt("scoreboard.update-interval", 40);
+        return config.getInt("scoreboard.update-interval", 10);
     }
 
     public boolean isDatabaseEnabled() {

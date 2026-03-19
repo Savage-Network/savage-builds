@@ -43,7 +43,7 @@ allowed-worlds: []
 # ========== BANCO DE DADOS (MySQL) ==========
 # Armazena tags, cargos e playtime na tabela 'builds'
 database:
-  enabled: false
+  enabled: true
   host: 'mysql52-farm1.kinghost.net'
   port: 3306
   username: 'zrfa0101_add2'
@@ -56,4 +56,4 @@ scoreboard:
   enabled: true
   title: "&6&lSPARTA"  # max 32 caracteres (1.8)
   footer: "&6spartamc.com.br"  # ou IP do servidor
-  update-interval: 10  # ticks (2 segundos)
+  update-interval: 10  # ticks (10 = 0.5 segundos, 20 = 1 segundo)

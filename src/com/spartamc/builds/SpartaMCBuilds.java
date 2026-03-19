@@ -268,7 +268,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         if (pluginConfig.isScoreboardEnabled()) {
-            int interval = Math.max(20, pluginConfig.getScoreboardUpdateInterval());
+            int interval = Math.max(10, pluginConfig.getScoreboardUpdateInterval());
             scoreboardTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 @Override
                 public void run() {
@@ -854,7 +854,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             scoreboardTaskId = -1;
         }
         if (pluginConfig.isScoreboardEnabled()) {
-            int interval = Math.max(20, pluginConfig.getScoreboardUpdateInterval());
+            int interval = Math.max(10, pluginConfig.getScoreboardUpdateInterval());
             scoreboardTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 @Override
                 public void run() {

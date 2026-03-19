@@ -46,7 +46,11 @@ public class DatabaseManager {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             String url = "jdbc:mysql://" + host + ":" + port + "/" + database
-                    + "?useSSL=" + useSSL + "&autoReconnect=true&characterEncoding=UTF-8";
+                    + "?useSSL=" + useSSL
+                    + "&autoReconnect=true"
+                    + "&characterEncoding=UTF-8"
+                    + "&allowPublicKeyRetrieval=true"
+                    + "&serverTimezone=America/Sao_Paulo";
             connection = DriverManager.getConnection(url, username, password);
             createTable();
             plugin.getLogger().info("[SpartaBuilds] Conectado ao MySQL.");
@@ -86,7 +90,7 @@ public class DatabaseManager {
                 "tag VARCHAR(20) DEFAULT NULL," +
                 "cargo VARCHAR(20) DEFAULT NULL," +
                 "playtime BIGINT DEFAULT 0" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
         try (Statement st = connection.createStatement()) {
             st.executeUpdate(sql);
         }
