@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Gradient Fill
  * Uso: /bs gradient <bloco1> <bloco2> [v|h|d]
  *   v = vertical (padrao), h = horizontal (eixo X), d = profundidade (eixo Z)

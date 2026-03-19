@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Checkerboard Pattern
  * Uso: /bs checkerboard <bloco1> <bloco2> [tamanho]
  * Exemplo: /bs checkerboard 35:0 35:15 2

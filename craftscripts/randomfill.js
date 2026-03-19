@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Random Fill
  * Uso: /cs randomfill <bloco1> <peso1> <bloco2> <peso2> [...]
  * Preenche a selecao com blocos aleatorios usando pesos configurados.

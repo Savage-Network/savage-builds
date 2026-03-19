@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Stripes (Listras)
  * Uso: /bs stripes <bloco1> <bloco2> [largura] [eixo]
  *   largura = tamanho de cada listra (padrao: 1)

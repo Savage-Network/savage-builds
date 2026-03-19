@@ -2,6 +2,8 @@
 
 Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no WorldEdit com ferramentas extras de build, sistema de cargos, tags e prefixos no chat.
 
+**(c) 2026 Sparta Network. - zrfadev**
+
 **SpartaMC** — [spartamc.com.br](https://spartamc.com.br)
 
 ---
@@ -9,11 +11,13 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 ## Funcionalidades
 
 - **Comandos de construção** — Gradiente, xadrez, listras, contorno, troca de cores, paletas
-- **Ferramentas avançadas** — Preenchimento aleatório, terraform, heightmap, círculos
+- **Ferramentas avançadas** — Preenchimento aleatório, terraform, heightmap, círculos, esferas, cilindros, pirâmides, elipsoides
 - **Schematics** — Salvar e carregar construções
 - **Sistema de cargos** — Admin, Staff, Builder com permissões hierárquicas
-- **Tags/Prefixos** — Prefixos coloridos no chat (ADMIN, STAFF, BUILDER, LIRU, MEMBRO)
-- **Acesso restrito** — Apenas jogadores com cargo podem entrar no servidor
+- **Tags/Prefixos** — Prefixos coloridos no chat (ADMIN, STAFF, BUILDER, MASTER, MEMBRO)
+- **Acesso restrito** — Apenas jogadores com cargo podem entrar (com opção de bypass)
+- **Configurável** — Mensagens e opções em `config.yml`
+- **Scoreboard** — Cargo, tag, mundo, posição, tempo de sessão, tempo total e online na lateral
 
 ---
 
@@ -65,6 +69,10 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 | `/bs terraform [camadas]` | Naturalizar terreno | `// terraform 3` |
 | `/bs heightmap <raise\|lower\|smooth> [força]` | Moldar altura do terreno | `// heightmap smooth 10` |
 | `/bs circle <bloco> <raio> [preenchido]` | Círculo horizontal | `// circle stone 15 true` |
+| `/bs sphere <bloco> <raio> [preenchido]` | Esfera 3D | `// sphere 35:14 10 true` |
+| `/bs cylinder <bloco> <raio> <altura> [preenchido]` | Cilindro vertical | `// cylinder stone 8 10 true` |
+| `/bs pyramid <bloco> <tamanho> [preenchido]` | Pirâmide 3D | `// pyramid stone 10 true` |
+| `/bs ellipsoid <bloco> <rx> <ry> <rz> [preenchido]` | Elipsoide 3D | `// ellipsoid stone 10 5 10 true` |
 | `/bs save <nome>` | Salvar schematic | `// save castelo` |
 | `/bs load <nome>` | Carregar schematic | `// load castelo` |
 | `/bs list` | Listar schematics | `// list` |
@@ -76,14 +84,16 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 | Comando | Descrição |
 |---------|-----------|
 | `/tag` | Menu interativo — clique nas tags para trocar |
-| `/tag <nome>` | Definir prefixo (membro, builder, staff, admin, liru) |
+| `/tag <nome>` | Definir prefixo (membro, builder, staff, admin, master) |
+| `/tag set <nick> <tag>` | (Admin) Definir tag de outro jogador |
+| `/tag lista` | (Staff) Listar jogadores com tag |
 
 **Tags disponíveis:**
 - **MEMBRO** — Sem prefixo (padrão)
 - **BUILDER** — Verde
 - **STAFF** — Azul
 - **ADMIN** — Vermelho
-- **LIRU** — Nome amarelo itálico
+- **MASTER** — Nome azul itálico
 
 ---
 
@@ -91,9 +101,10 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 
 | Comando | Descrição |
 |---------|-----------|
-| `/setcargo <nick> <admin\|staff\|builder\|none>` | Definir cargo de um jogador online |
+| `/setcargo <nick> <admin\|staff\|builder\|none>` | Definir cargo (funciona com jogadores offline) |
+| `/sbreload` | Recarregar configuração do plugin |
 
-O cargo concede permissões automaticamente. Use `none` para remover.
+O cargo concede permissões automaticamente. Use `none` para remover. Cargos de jogadores offline são aplicados quando entrarem.
 
 ---
 
@@ -104,8 +115,9 @@ O cargo concede permissões automaticamente. Use `none` para remover.
 | `spartabuilds.build` | Construtor — comandos básicos |
 | `spartabuilds.staff` | Staff — comandos avançados + build |
 | `spartabuilds.admin` | Admin — acesso total |
+| `spartabuilds.bypass` | Bypass — entrar sem cargo (configurável) |
 
-**Importante:** Apenas jogadores com cargo ou permissão podem entrar no servidor.
+**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `spartabuilds.bypass` para exceções.
 
 ---
 
@@ -121,12 +133,20 @@ O cargo concede permissões automaticamente. Use `none` para remover.
 ## Estrutura de arquivos
 
 ```
-plugins/SpartaBuilds/
-├── config.yml    (WorldEdit)
+plugins/Builds/
+├── config.yml    (Config do plugin - mensagens, bypass, etc.)
 ├── tags.yml      (tags dos jogadores)
 └── cargos.yml    (cargos definidos via /setcargo)
 ```
 
+## Configuração (config.yml)
+
+- **messages** — Personalize todas as mensagens do plugin
+- **bypass** — Habilite/desabilite bypass de kick (`spartabuilds.bypass`)
+- **allowed-worlds** — Lista de mundos permitidos (vazio = todos)
+- **scoreboard** — Scoreboard lateral com cargo, tag, mundo, posição, tempo de sessão, tempo total e online
+
 ---
 
-SpartaMC Builds · Versão 3.0-SpartaMC
+SpartaMC Builds · Versão 3.0-SpartaMC  
+**(c) 2026 Sparta Network. - zrfadev**

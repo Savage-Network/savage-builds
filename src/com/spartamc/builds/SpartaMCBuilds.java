@@ -23,10 +23,11 @@
  * Qualquer uso não autorizado poderá resultar em medidas
  * legais conforme a legislação aplicável.
  *
- * Sparta Network © 2026
+ * (c) 2026 Sparta Network. - zrfadev
  */
 package com.spartamc.builds;
 
+import com.spartamc.builds.config.PluginConfig;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import org.bukkit.Bukkit;
@@ -40,7 +41,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -52,7 +57,7 @@ import java.util.stream.Collectors;
 public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     public enum Tag {
-        LIRU    ("LIRU",    "\u00A7e\u00A7o", "\u00A7e", "spartabuilds.tag.liru"),
+        MASTER  ("MASTER",  "\u00A79\u00A7o", "\u00A79", "spartabuilds.tag.master"),
         ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "spartabuilds.tag.admin"),
         STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "spartabuilds.tag.staff"),
         BUILDER ("BUILDER", "\u00A72\u00A7l", "\u00A72", "spartabuilds.tag.builder");
@@ -90,15 +95,17 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private static final String[] CUSTOM_COMMANDS = {
         "bs", "gradient", "checkerboard", "stripes", "outline",
         "randomfill", "colorswap", "terraform", "heightmap",
-        "measure", "palette", "circle", "sphere", "cylinder", "walls", "floor", "replace",
-        "sb", "tag", "setcargo", "cargos"
+        "measure", "palette", "circle", "sphere", "cylinder", "pyramid", "ellipsoid",
+        "walls", "floor", "replace",
+        "sb", "tag", "setcargo", "cargos", "sbreload"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
         "gradient", "checkerboard", "stripes", "outline",
         "randomfill", "colorswap", "terraform", "heightmap",
         "measure", "palette", "circle",
-        "sphere", "cylinder", "walls", "floor", "replace"
+        "sphere", "cylinder", "pyramid", "ellipsoid",
+        "walls", "floor", "replace"
     );
 
     private static final List<String> BS_UTILS = Arrays.asList(
@@ -136,6 +143,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         PERM_MAP.put("walls", "spartabuilds.build");
         PERM_MAP.put("floor", "spartabuilds.build");
         PERM_MAP.put("replace", "spartabuilds.build");
+        PERM_MAP.put("pyramid", "spartabuilds.staff");
+        PERM_MAP.put("ellipsoid", "spartabuilds.staff");
         PERM_MAP.put("save", "spartabuilds.schematic.save");
         PERM_MAP.put("load", "spartabuilds.schematic.load");
         PERM_MAP.put("list", "spartabuilds.schematic.list");
@@ -191,11 +200,17 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private final Map<UUID, Tag> playerTags = new HashMap<>();
     private final Map<UUID, String> playerCargos = new HashMap<>();
+    private final Map<String, String> cargosPendingByName = new HashMap<>();
     private final Map<UUID, PermissionAttachment> cargoAttachments = new HashMap<>();
+    private final Map<UUID, Long> sessionStartTime = new HashMap<>();
+    private final Map<UUID, Long> totalPlayTime = new HashMap<>();
 
     private File tagsFile;
     private File cargosFile;
+    private File playtimeFile;
     private Scoreboard scoreboard;
+    private PluginConfig pluginConfig;
+    private int scoreboardTaskId = -1;
 
     @Override
     public void onEnable() {
@@ -209,8 +224,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         super.onEnable();
 
         getDataFolder().mkdirs();
+        pluginConfig = new PluginConfig(this);
+        pluginConfig.load();
         loadTags();
         loadCargos();
+        loadPlaytime();
 
         for (String cmd : CUSTOM_COMMANDS) {
             if (getCommand(cmd) != null) {
@@ -227,6 +245,22 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             applyCargo(p);
             applyPrefix(p);
+            if (pluginConfig.isScoreboardEnabled()) applyScoreboard(p);
+            sessionStartTime.put(p.getUniqueId(), System.currentTimeMillis());
+        }
+
+        if (pluginConfig.isScoreboardEnabled()) {
+            int interval = Math.max(20, pluginConfig.getScoreboardUpdateInterval());
+            scoreboardTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+                @Override
+                public void run() {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (p.isOnline() && pluginConfig.isScoreboardEnabled()) {
+                            updateScoreboard(p);
+                        }
+                    }
+                }
+            }, interval, interval);
         }
 
         getLogger().info("SpartaMC Builds carregado!");
@@ -236,8 +270,12 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if (scoreboardTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(scoreboardTaskId);
+        }
         saveTags();
         saveCargos();
+        savePlaytime();
         super.onDisable();
     }
 
@@ -249,7 +287,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         for (String key : cfg.getKeys(false)) {
             try {
                 UUID uuid = UUID.fromString(key);
-                Tag tag = Tag.fromName(cfg.getString(key));
+                String tagName = cfg.getString(key);
+                if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                Tag tag = Tag.fromName(tagName);
                 if (tag != null) playerTags.put(uuid, tag);
             } catch (IllegalArgumentException ignored) {}
         }
@@ -270,7 +310,16 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (!cargosFile.exists()) return;
 
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(cargosFile);
+        if (cfg.contains("pending") && cfg.getConfigurationSection("pending") != null) {
+            for (String name : cfg.getConfigurationSection("pending").getKeys(false)) {
+                String cargo = cfg.getString("pending." + name);
+                if (cargo != null && VALID_CARGOS.contains(cargo.toLowerCase())) {
+                    cargosPendingByName.put(name.toLowerCase(), cargo.toLowerCase());
+                }
+            }
+        }
         for (String key : cfg.getKeys(false)) {
+            if (key.equals("pending")) continue;
             try {
                 UUID uuid = UUID.fromString(key);
                 String cargo = cfg.getString(key);
@@ -281,11 +330,47 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
     }
 
+    private UUID findUUIDByName(String name) {
+        for (UUID uuid : playerCargos.keySet()) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+            if (op.getName() != null && op.getName().equalsIgnoreCase(name)) return uuid;
+        }
+        OfflinePlayer op = Bukkit.getOfflinePlayer(name);
+        return (op.getUniqueId() != null && !op.getUniqueId().toString().equals("00000000-0000-0000-0000-000000000000")) ? op.getUniqueId() : null;
+    }
+
+    private void loadPlaytime() {
+        playtimeFile = new File(getDataFolder(), "playtime.yml");
+        if (!playtimeFile.exists()) return;
+
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(playtimeFile);
+        for (String key : cfg.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                long seconds = cfg.getLong(key, 0L);
+                if (seconds > 0) totalPlayTime.put(uuid, seconds);
+            } catch (IllegalArgumentException ignored) {}
+        }
+    }
+
+    private void savePlaytime() {
+        if (playtimeFile == null) return;
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<UUID, Long> entry : totalPlayTime.entrySet()) {
+            cfg.set(entry.getKey().toString(), entry.getValue());
+        }
+        try { cfg.save(playtimeFile); }
+        catch (IOException e) { getLogger().warning("Erro ao salvar playtime: " + e.getMessage()); }
+    }
+
     private void saveCargos() {
         if (cargosFile == null) return;
         YamlConfiguration cfg = new YamlConfiguration();
         for (Map.Entry<UUID, String> entry : playerCargos.entrySet()) {
             cfg.set(entry.getKey().toString(), entry.getValue());
+        }
+        for (Map.Entry<String, String> entry : cargosPendingByName.entrySet()) {
+            cfg.set("pending." + entry.getKey(), entry.getValue());
         }
         try { cfg.save(cargosFile); }
         catch (IOException e) { getLogger().warning("Erro ao salvar cargos: " + e.getMessage()); }
@@ -321,7 +406,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         createTeam("sb_admin",   "\u00A74\u00A7lADMIN \u00A7r\u00A74", "\u00A7r");
         createTeam("sb_staff",   "\u00A79\u00A7lSTAFF \u00A7r\u00A79", "\u00A7r");
         createTeam("sb_builder", "\u00A72\u00A7lBUILDER \u00A7r\u00A72", "\u00A7r");
-        createTeam("sb_liru",    "\u00A7e\u00A7o", "\u00A7r");
+        createTeam("sb_master",  "\u00A79\u00A7o", "\u00A7r");
         createTeam("sb_default", "\u00A77", "\u00A7r");
     }
 
@@ -346,7 +431,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             case ADMIN:   return "sb_admin";
             case STAFF:   return "sb_staff";
             case BUILDER: return "sb_builder";
-            case LIRU:    return "sb_liru";
+            case MASTER:  return "sb_master";
             default:      return "sb_default";
         }
     }
@@ -354,23 +439,138 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private String buildFullDisplay(Player player) {
         Tag tag = getPlayerTag(player);
         if (tag != null) {
-            if (tag == Tag.LIRU) return tag.style + player.getName() + "\u00A7r";
+            if (tag == Tag.MASTER) return tag.style + player.getName() + "\u00A7r";
             return tag.style + tag.displayName + " " + tag.color + player.getName() + "\u00A7r";
         }
         return PREFIX_DEFAULT + player.getName() + "\u00A7r";
     }
 
     private void applyPrefix(Player player) {
-        for (Team t : scoreboard.getTeams()) {
-            if (t.getName().startsWith("sb_")) t.removeEntry(player.getName());
+        if (pluginConfig.isScoreboardEnabled()) {
+            Scoreboard playerBoard = player.getScoreboard();
+            if (playerBoard == scoreboard || playerBoard.getObjective("sb_main") == null) {
+                applyScoreboard(player);
+            } else {
+                setupTeamOnBoard(playerBoard, player);
+            }
+        } else {
+            if (player.getScoreboard() != scoreboard) {
+                player.setScoreboard(scoreboard);
+            }
+            for (Team t : scoreboard.getTeams()) {
+                if (t.getName().startsWith("sb_")) t.removeEntry(player.getName());
+            }
+            Team team = scoreboard.getTeam(getTeamName(player));
+            if (team != null) team.addEntry(player.getName());
         }
-
-        Team team = scoreboard.getTeam(getTeamName(player));
-        if (team != null) team.addEntry(player.getName());
 
         String display = buildFullDisplay(player);
         player.setDisplayName(display);
         player.setPlayerListName(display);
+    }
+
+    private void setupTeamOnBoard(Scoreboard board, Player player) {
+        for (Team t : board.getTeams()) {
+            if (t.getName().startsWith("sb_")) t.removeEntry(player.getName());
+        }
+        String teamName = getTeamName(player);
+        Team team = board.getTeam(teamName);
+        if (team == null) {
+            team = board.registerNewTeam(teamName);
+            switch (teamName) {
+                case "sb_admin":   team.setPrefix("\u00A74\u00A7lADMIN \u00A7r\u00A74"); break;
+                case "sb_staff":   team.setPrefix("\u00A79\u00A7lSTAFF \u00A7r\u00A79"); break;
+                case "sb_builder": team.setPrefix("\u00A72\u00A7lBUILDER \u00A7r\u00A72"); break;
+                case "sb_master":  team.setPrefix("\u00A79\u00A7o"); break;
+                default:           team.setPrefix("\u00A77"); break;
+            }
+            team.setSuffix("\u00A7r");
+        }
+        team.addEntry(player.getName());
+    }
+
+    private void applyScoreboard(Player player) {
+        Scoreboard board = player.getScoreboard();
+        if (board == scoreboard || board.getObjective("sb_main") == null) {
+            board = Bukkit.getScoreboardManager().getNewScoreboard();
+            setupTeamOnBoard(board, player);
+            player.setScoreboard(board);
+        }
+        Objective obj = board.getObjective("sb_main");
+        if (obj == null) {
+            obj = board.registerNewObjective("sb_main", "dummy");
+            obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+        obj.setDisplayName(pluginConfig.getScoreboardTitle());
+        updateScoreboard(player);
+    }
+
+    private void updateScoreboard(Player player) {
+        Scoreboard board = player.getScoreboard();
+        Objective obj = board.getObjective(DisplaySlot.SIDEBAR);
+        if (obj == null || !obj.getName().equals("sb_main")) return;
+
+        Tag tag = getPlayerTag(player);
+        String tagStr = tag != null ? tag.displayName : "MEMBRO";
+        String world = player.getWorld().getName();
+        int x = player.getLocation().getBlockX();
+        int y = player.getLocation().getBlockY();
+        int z = player.getLocation().getBlockZ();
+        int online = Bukkit.getOnlinePlayers().size();
+
+        long sessionSec = 0;
+        Long start = sessionStartTime.get(player.getUniqueId());
+        if (start != null) {
+            sessionSec = (System.currentTimeMillis() - start) / 1000;
+        }
+        long totalSec = totalPlayTime.getOrDefault(player.getUniqueId(), 0L) + sessionSec;
+
+        obj.unregister();
+        obj = board.registerNewObjective("sb_main", "dummy");
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        obj.setDisplayName(pluginConfig.getScoreboardTitle());
+
+        String lb = "\u00A77";
+        String vl = "\u00A7f";
+
+        setScore(obj, "\u00A78 ", 16);
+        setScore(obj, lb + "Tag: " + vl + tagStr, 15);
+        setScore(obj, "\u00A78  ", 14);
+        setScore(obj, vl + truncate(world, 14), 13);
+        setScore(obj, vl + x + ", " + y + ", " + z, 12);
+        setScore(obj, "\u00A78   ", 11);
+        setScore(obj, lb + "Sessao: " + vl + formatTime(sessionSec), 10);
+        setScore(obj, lb + "Total: " + vl + formatTime(totalSec), 9);
+        setScore(obj, lb + "Online: " + vl + online, 8);
+        setScore(obj, "\u00A78    ", 7);
+        setScore(obj, pluginConfig.getScoreboardFooter(), 6);
+    }
+
+    private String formatTime(long seconds) {
+        if (seconds < 60) return seconds + "s";
+        long min = seconds / 60;
+        long sec = seconds % 60;
+        if (min < 60) return min + "m" + (sec > 0 ? " " + sec + "s" : "");
+        long h = min / 60;
+        min = min % 60;
+        if (h < 24) return h + "h" + (min > 0 ? " " + min + "m" : "");
+        long d = h / 24;
+        h = h % 24;
+        return d + "d" + (h > 0 ? " " + h + "h" : "") + (min > 0 ? " " + min + "m" : "");
+    }
+
+    private void setScore(Objective obj, String text, int value) {
+        String key = text.length() > 40 ? text.substring(0, 40) : text;
+        String unique = "\u00A7" + (value % 16) + "\u00A7r" + key;
+        obj.getScore(unique).setScore(value);
+    }
+
+    private String truncate(String s, int max) {
+        return s.length() > max ? s.substring(0, max) : s;
+    }
+
+    private String getSelectionInfo(Player player) {
+        return null;
     }
 
     @EventHandler
@@ -379,10 +579,30 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         Bukkit.getScheduler().runTaskLater(this, new Runnable() {
             @Override
             public void run() {
+                String pending = cargosPendingByName.remove(player.getName().toLowerCase());
+                if (pending != null) {
+                    playerCargos.put(player.getUniqueId(), pending);
+                    saveCargos();
+                }
                 applyCargo(player);
                 applyPrefix(player);
+                if (pluginConfig.isScoreboardEnabled()) applyScoreboard(player);
+                sessionStartTime.put(player.getUniqueId(), System.currentTimeMillis());
             }
         }, 5L);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        Long start = sessionStartTime.remove(uuid);
+        if (start != null) {
+            long sessionSec = (System.currentTimeMillis() - start) / 1000;
+            long total = totalPlayTime.getOrDefault(uuid, 0L) + sessionSec;
+            totalPlayTime.put(uuid, total);
+            savePlaytime();
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -391,14 +611,16 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         Player player = event.getPlayer();
 
-        if (player.isOp()) return;
+        if (pluginConfig.isBypassEnabled()) {
+            if (pluginConfig.isOpBypass() && player.isOp()) return;
+            if (player.hasPermission(pluginConfig.getBypassPermission())) return;
+        }
         if (player.hasPermission("spartabuilds.admin")) return;
         if (player.hasPermission("spartabuilds.staff")) return;
         if (player.hasPermission("spartabuilds.build")) return;
         if (playerCargos.containsKey(player.getUniqueId())) return;
 
-        event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
-            "\u00A7c\u00A7lSpartaMC Builds\n\n\u00A77Voce nao tem permissao para entrar neste servidor.\n\u00A77Contate um administrador.");
+        event.disallow(PlayerLoginEvent.Result.KICK_OTHER, pluginConfig.getKickMessage());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -407,7 +629,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         Tag tag = getPlayerTag(player);
 
         if (tag != null) {
-            if (tag == Tag.LIRU) {
+            if (tag == Tag.MASTER) {
                 event.setFormat(tag.style + player.getName() + "\u00A7r\u00A77: \u00A7f%2$s");
             } else {
                 event.setFormat(tag.style + tag.displayName + " " + tag.color + player.getName() + "\u00A7r\u00A77: \u00A7f%2$s");
@@ -429,7 +651,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             playerTags.remove(player.getUniqueId());
             applyPrefix(player);
             saveTags();
-            player.sendMessage("\u00A7aTag alterada para: \u00A77MEMBRO");
+            player.sendMessage(pluginConfig.getMessage("tag-membro", "\u00A7aTag alterada para: \u00A77MEMBRO"));
             return true;
         }
 
@@ -440,14 +662,76 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         if (!player.hasPermission(tag.permission) && !player.hasPermission("spartabuilds.admin")) {
-            player.sendMessage("\u00A7cVoce nao tem permissao para usar esta tag.");
+            player.sendMessage(pluginConfig.getMessage("no-permission-tag", "\u00A7cVoce nao tem permissao para usar esta tag."));
             return true;
         }
 
         playerTags.put(player.getUniqueId(), tag);
         applyPrefix(player);
         saveTags();
-        player.sendMessage("\u00A7aTag alterada para: " + tag.formatted());
+        player.sendMessage(pluginConfig.getMessage("tag-changed", "\u00A7aTag alterada para: %tag%").replace("%tag%", tag.formatted()));
+        return true;
+    }
+
+    private boolean handleTagSet(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
+            return true;
+        }
+        if (args.length < 2) {
+            sender.sendMessage("\u00A7cUso: /tag set <nick> <tag|membro>");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null) {
+            sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao esta online.").replace("%player%", args[0]));
+            return true;
+        }
+
+        String tagArg = args[1].toLowerCase();
+        if (tagArg.equals("membro")) {
+            playerTags.remove(target.getUniqueId());
+            applyPrefix(target);
+            saveTags();
+            sender.sendMessage("\u00A7aTag de \u00A7e" + target.getName() + " \u00A7aremovida (MEMBRO).");
+            target.sendMessage(pluginConfig.getMessage("tag-membro", "\u00A7aTag alterada para: \u00A77MEMBRO"));
+            return true;
+        }
+
+        Tag tag = Tag.fromName(tagArg);
+        if (tag == null) {
+            sender.sendMessage("\u00A7cTag invalida. Use: membro, builder, staff, admin, master");
+            return true;
+        }
+
+        playerTags.put(target.getUniqueId(), tag);
+        applyPrefix(target);
+        saveTags();
+        sender.sendMessage("\u00A7aTag de \u00A7e" + target.getName() + " \u00A7adefinida para: " + tag.formatted());
+        target.sendMessage(pluginConfig.getMessage("tag-changed", "\u00A7aTag alterada para: %tag%").replace("%tag%", tag.formatted()));
+        return true;
+    }
+
+    private boolean handleTagLista(CommandSender sender) {
+        if (!sender.hasPermission("spartabuilds.staff")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
+            return true;
+        }
+
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lJogadores com Tag \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        int count = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Tag tag = getPlayerTag(p);
+            if (tag != null) {
+                sender.sendMessage("\u00A78  \u00A77" + tag.formatted() + " \u00A78\u00BB \u00A7f" + p.getName());
+                count++;
+            }
+        }
+        if (count == 0) sender.sendMessage("\u00A78  \u00A77Nenhum jogador com tag online.");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
         return true;
     }
 
@@ -498,12 +782,41 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private String tagJsonStyle(Tag tag) {
         switch (tag) {
-            case LIRU:    return "\"color\":\"yellow\",\"italic\":true,\"bold\":false";
+            case MASTER:  return "\"color\":\"blue\",\"italic\":true,\"bold\":false";
             case ADMIN:   return "\"color\":\"dark_red\",\"bold\":true";
             case STAFF:   return "\"color\":\"blue\",\"bold\":true";
             case BUILDER: return "\"color\":\"dark_green\",\"bold\":true";
             default:      return "\"color\":\"gray\",\"bold\":false";
         }
+    }
+
+    private boolean handleReload(CommandSender sender) {
+        if (!sender.hasPermission("spartabuilds.admin")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
+            return true;
+        }
+        pluginConfig.reload();
+        if (scoreboardTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(scoreboardTaskId);
+            scoreboardTaskId = -1;
+        }
+        if (pluginConfig.isScoreboardEnabled()) {
+            int interval = Math.max(20, pluginConfig.getScoreboardUpdateInterval());
+            scoreboardTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+                @Override
+                public void run() {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (p.isOnline() && pluginConfig.isScoreboardEnabled()) updateScoreboard(p);
+                    }
+                }
+            }, interval, interval);
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                applyPrefix(p);
+                if (pluginConfig.isScoreboardEnabled()) applyScoreboard(p);
+            }
+        }
+        sender.sendMessage(pluginConfig.getMessage("reload-success", "\u00A7aConfiguracao recarregada com sucesso!"));
+        return true;
     }
 
     private boolean handleSetCargo(CommandSender sender, String[] args) {
@@ -516,44 +829,68 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         boolean isStaff = sender.hasPermission("spartabuilds.staff");
 
         if (!isAdmin && !isStaff) {
-            sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cVoce nao tem permissao para definir cargos.");
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para definir cargos."));
             return true;
         }
 
-        Player target = Bukkit.getPlayer(args[0]);
+        String targetName = args[0];
         String cargo = args[1].toLowerCase();
-
-        if (target == null) {
-            sender.sendMessage("\u00A7cJogador \u00A7e" + args[0] + " \u00A7cnao esta online.");
-            return true;
-        }
+        Player target = Bukkit.getPlayer(targetName);
 
         if (cargo.equals("none") || cargo.equals("remover") || cargo.equals("nenhum")) {
-            removeCargo(target);
+            if (target != null) {
+                removeCargo(target);
+                applyPrefix(target);
+                sender.sendMessage(pluginConfig.getMessage("cargo-removed", "\u00A7aCargo removido.").replace("%player%", target.getName()));
+                target.sendMessage(pluginConfig.getMessage("cargo-removed-target", "\u00A7eSeu cargo foi removido.").replace("%sender%", sender.getName()));
+            } else {
+                UUID found = findUUIDByName(targetName);
+                boolean removed = false;
+                if (found != null) {
+                    playerCargos.remove(found);
+                    removed = true;
+                }
+                if (cargosPendingByName.remove(targetName.toLowerCase()) != null) removed = true;
+                if (removed) {
+                    saveCargos();
+                    sender.sendMessage(pluginConfig.getMessage("cargo-removed", "\u00A7aCargo removido.").replace("%player%", targetName));
+                } else {
+                    sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado.").replace("%player%", targetName));
+                }
+            }
             saveCargos();
-            applyPrefix(target);
-            sender.sendMessage("\u00A7aCargo de \u00A7e" + target.getName() + " \u00A7aremovido.");
-            target.sendMessage("\u00A7eSeu cargo foi removido por " + sender.getName() + ".");
             return true;
         }
 
         if (!VALID_CARGOS.contains(cargo)) {
-            sender.sendMessage("\u00A7cCargo invalido. Use: \u00A7eadmin\u00A7c, \u00A7estaff\u00A7c, \u00A7ebuilder \u00A7cou \u00A7enone");
+            sender.sendMessage(pluginConfig.getMessage("invalid-cargo", "\u00A7cCargo invalido."));
             return true;
         }
 
         if (isStaff && !isAdmin) {
             if (cargo.equals("admin") || cargo.equals("staff")) {
-                sender.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cApenas Admins podem definir cargo Admin ou Staff.");
-                sender.sendMessage("\u00A77Staff pode promover jogadores a \u00A72Builder\u00A77.");
+                sender.sendMessage(pluginConfig.getMessage("staff-cannot-set", "\u00A7cApenas Admins podem definir Admin ou Staff."));
+                sender.sendMessage(pluginConfig.getMessage("staff-can-builder", "\u00A77Staff pode promover a Builder."));
                 return true;
             }
         }
 
-        playerCargos.put(target.getUniqueId(), cargo);
-        applyCargo(target);
+        if (target != null) {
+            playerCargos.put(target.getUniqueId(), cargo);
+            applyCargo(target);
+            applyPrefix(target);
+        } else {
+            UUID uuid = findUUIDByName(targetName);
+            if (uuid != null && !uuid.toString().equals("00000000-0000-0000-0000-000000000000")) {
+                playerCargos.put(uuid, cargo);
+                sender.sendMessage(pluginConfig.getMessage("offline-cargo-set", "\u00A7aCargo sera aplicado quando entrar.").replace("%player%", targetName));
+            } else {
+                cargosPendingByName.put(targetName.toLowerCase(), cargo);
+                sender.sendMessage(pluginConfig.getMessage("offline-cargo-set", "\u00A7aCargo sera aplicado quando entrar.").replace("%player%", targetName));
+            }
+        }
+
         saveCargos();
-        applyPrefix(target);
 
         String cargoDisplay;
         switch (cargo) {
@@ -563,8 +900,10 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             default:        cargoDisplay = cargo; break;
         }
 
-        sender.sendMessage("\u00A7aCargo de \u00A7e" + target.getName() + " \u00A7adefinido para: " + cargoDisplay);
-        target.sendMessage("\u00A7eSeu cargo foi alterado para: " + cargoDisplay + " \u00A7epor " + sender.getName() + ".");
+        sender.sendMessage(pluginConfig.getMessage("cargo-set", "\u00A7aCargo definido.").replace("%player%", targetName).replace("%cargo%", cargoDisplay));
+        if (target != null) {
+            target.sendMessage(pluginConfig.getMessage("cargo-changed-target", "\u00A7eSeu cargo foi alterado.").replace("%cargo%", cargoDisplay).replace("%sender%", sender.getName()));
+        }
         return true;
     }
 
@@ -616,57 +955,57 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         String role = getPlayerRole(p);
         Tag tag = getPlayerTag(p);
 
-        sender.sendMessage("\u00A76\u00A7l===== Meu Cargo =====");
-        sender.sendMessage("\u00A7eCargo: \u00A7f" + role.toUpperCase());
-        sender.sendMessage("\u00A7eTag no chat: \u00A7f" + (tag != null ? tag.formatted() : "\u00A77nenhuma"));
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lMeu Cargo \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A77 Cargo \u00A78\u00BB \u00A7f" + role.toUpperCase());
+        sender.sendMessage("\u00A77 Tag \u00A78\u00BB \u00A7f" + (tag != null ? tag.formatted() : "\u00A77nenhuma"));
         sender.sendMessage("");
 
         switch (role) {
             case "admin":
-                sender.sendMessage("\u00A74\u00A7lADMIN \u00A7f- Acesso total:");
-                sender.sendMessage("\u00A77  Todos os comandos de build, schematics, setcargo");
-                sender.sendMessage("\u00A77  Pode definir cargos de qualquer jogador");
+                sender.sendMessage("\u00A74\u00A7lADMIN \u00A78\u00BB \u00A7fAcesso total");
+                sender.sendMessage("\u00A78  \u00A77Todos os comandos, schematics, setcargo");
                 break;
             case "staff":
-                sender.sendMessage("\u00A79\u00A7lSTAFF \u00A7f- Ferramentas avancadas:");
-                sender.sendMessage("\u00A77  Comandos de build + randomfill, terraform, heightmap");
-                sender.sendMessage("\u00A77  Schematics (save/load), sphere, cylinder");
-                sender.sendMessage("\u00A77  Pode promover jogadores a \u00A72Builder");
+                sender.sendMessage("\u00A79\u00A7lSTAFF \u00A78\u00BB \u00A7fFerramentas avancadas");
+                sender.sendMessage("\u00A78  \u00A77randomfill, terraform, heightmap, sphere");
+                sender.sendMessage("\u00A78  \u00A77Pode promover a \u00A72Builder");
                 break;
             case "builder":
-                sender.sendMessage("\u00A72\u00A7lBUILDER \u00A7f- Ferramentas basicas:");
-                sender.sendMessage("\u00A77  gradient, checkerboard, stripes, outline, colorswap");
-                sender.sendMessage("\u00A77  palette, measure, walls, floor, replace");
-                sender.sendMessage("\u00A77  clear, undo, redo");
+                sender.sendMessage("\u00A72\u00A7lBUILDER \u00A78\u00BB \u00A7fFerramentas basicas");
+                sender.sendMessage("\u00A78  \u00A77gradient, checkerboard, outline, undo/redo");
                 break;
             default:
-                sender.sendMessage("\u00A77Sem cargo - contate um admin para acesso.");
+                sender.sendMessage("\u00A77Sem cargo - contate um admin.");
                 break;
         }
-        sender.sendMessage("\u00A76\u00A7l====================");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
         return true;
     }
 
     private boolean handleCargosList(CommandSender sender) {
-        sender.sendMessage("\u00A76\u00A7l===== Jogadores com Cargo =====");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lJogadores com Cargo \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
 
         int count = 0;
         for (Player p : Bukkit.getOnlinePlayers()) {
             String cargo = playerCargos.get(p.getUniqueId());
             if (cargo != null) {
                 String cargoColor = cargo.equals("admin") ? "\u00A74" : cargo.equals("staff") ? "\u00A79" : "\u00A72";
-                sender.sendMessage("  " + cargoColor + p.getName() + "\u00A7r \u00A77- " + cargo.toUpperCase());
+                sender.sendMessage("\u00A78  \u00A77" + cargoColor + p.getName() + "\u00A7r \u00A78\u00BB \u00A7f" + cargo.toUpperCase());
                 count++;
             } else if (p.hasPermission("spartabuilds.admin") || p.isOp()) {
-                sender.sendMessage("  \u00A74" + p.getName() + "\u00A7r \u00A77- ADMIN (OP)");
+                sender.sendMessage("\u00A78  \u00A77\u00A74" + p.getName() + "\u00A7r \u00A78\u00BB \u00A7fADMIN");
                 count++;
             }
         }
 
         if (count == 0) {
-            sender.sendMessage("\u00A77Nenhum jogador com cargo definido online.");
+            sender.sendMessage("\u00A78  \u00A77Nenhum jogador com cargo online.");
         }
-        sender.sendMessage("\u00A76\u00A7l====================");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
         return true;
     }
 
@@ -680,10 +1019,12 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         String cargo = playerCargos.get(target.getUniqueId());
         Tag tag = getPlayerTag(target);
 
-        sender.sendMessage("\u00A76\u00A7l===== Cargo de " + target.getName() + " =====");
-        sender.sendMessage("\u00A7eCargo: \u00A7f" + (cargo != null ? cargo.toUpperCase() : (target.isOp() ? "ADMIN (OP)" : "nenhum")));
-        sender.sendMessage("\u00A7eTag: \u00A7f" + (tag != null ? tag.formatted() : "nenhuma"));
-        sender.sendMessage("\u00A76\u00A7l====================");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lCargo de " + target.getName() + " \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
+        sender.sendMessage("\u00A77 Cargo \u00A78\u00BB \u00A7f" + (cargo != null ? cargo.toUpperCase() : (target.isOp() ? "ADMIN" : "nenhum")));
+        sender.sendMessage("\u00A77 Tag \u00A78\u00BB \u00A7f" + (tag != null ? tag.formatted() : "nenhuma"));
+        sender.sendMessage("\u00A78\u00A7m─────────────────────\u00A7r");
         return true;
     }
 
@@ -699,8 +1040,15 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (!isCustom) return super.onCommand(sender, command, label, args);
 
         if (cmd.equals("sb")) { sendHelp(sender); return true; }
+        if (cmd.equals("sbreload")) return handleReload(sender);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
+
+        if (cmd.equals("tag") && args.length > 0) {
+            String sub = args[0].toLowerCase();
+            if (sub.equals("set")) return handleTagSet(sender, Arrays.copyOfRange(args, 1, args.length));
+            if (sub.equals("lista") || sub.equals("list")) return handleTagLista(sender);
+        }
 
         if (!(sender instanceof Player)) {
             sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
@@ -782,7 +1130,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private String getRequiredRole(String subCommand) {
         switch (subCommand) {
             case "randomfill": case "terraform": case "heightmap": case "circle":
-            case "sphere": case "cylinder":
+            case "sphere": case "cylinder": case "pyramid": case "ellipsoid":
             case "save": case "load": case "list":
                 return "\u00A79\u00A7lSTAFF";
             default:
@@ -791,54 +1139,93 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage("\u00A76\u00A7l========= SpartaMC Builds =========");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lSPARTA \u00A76\u00A7lBUILDS \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m─────────────────────────────\u00A7r");
 
         if (sender instanceof Player) {
             Player p = (Player) sender;
             String role = getPlayerRole(p);
             Tag tag = getPlayerTag(p);
-            String tagInfo = tag != null ? " \u00A77| Prefixo: " + tag.style + tag.displayName + "\u00A7r" : " \u00A77| Prefixo: \u00A77nenhum";
-            sender.sendMessage("\u00A77Cargo: \u00A7e" + role.toUpperCase() + "\u00A7r" + tagInfo);
+            sender.sendMessage("\u00A77 Cargo \u00A78\u00BB \u00A7f" + role.toUpperCase() + "\u00A77  \u00A78| \u00A77 Tag \u00A78\u00BB \u00A7f" + (tag != null ? tag.displayName : "nenhuma"));
         }
         sender.sendMessage("");
 
-        sender.sendMessage("\u00A72\u00A7l[BUILDER] \u00A7fComandos de construcao:");
-        sender.sendMessage("\u00A7e  /bs gradient \u00A77<bloco1> <bloco2> [v|h|d]");
-        sender.sendMessage("\u00A7e  /bs checkerboard \u00A77<bloco1> <bloco2> [tam]");
-        sender.sendMessage("\u00A7e  /bs stripes \u00A77<bloco1> <bloco2> [larg] [eixo]");
-        sender.sendMessage("\u00A7e  /bs outline \u00A77<bloco>");
-        sender.sendMessage("\u00A7e  /bs colorswap \u00A77<cor_de> <cor_para>");
-        sender.sendMessage("\u00A7e  /bs palette \u00A77[wool|clay|glass]");
-        sender.sendMessage("\u00A7e  /bs measure \u00A77- Medir selecao");
-        sender.sendMessage("\u00A7e  /bs clear \u00A77- Limpar selecao");
-        sender.sendMessage("\u00A7e  /bs undo \u00A77[n] \u00A7f| \u00A7e/bs redo \u00A77[n]");
-        sender.sendMessage("");
+        boolean hasBuild = sender.hasPermission("spartabuilds.build");
+        boolean hasStaff = sender.hasPermission("spartabuilds.staff");
+        boolean hasAdmin = sender.hasPermission("spartabuilds.admin");
 
-        sender.sendMessage("\u00A79\u00A7l[STAFF] \u00A7fComandos avancados:");
-        sender.sendMessage("\u00A7e  /bs randomfill \u00A77<bloco> <peso> ...");
-        sender.sendMessage("\u00A7e  /bs terraform \u00A77[camadas]");
-        sender.sendMessage("\u00A7e  /bs heightmap \u00A77<raise|lower|smooth> [forca]");
-        sender.sendMessage("\u00A7e  /bs circle \u00A77<bloco> <raio> [preenchido]");
-        sender.sendMessage("\u00A7e  /bs save \u00A77<nome> \u00A7f| \u00A7e/bs load \u00A77<nome> \u00A7f| \u00A7e/bs list");
-        sender.sendMessage("");
-
-        sender.sendMessage("\u00A7d\u00A7l[PREFIXOS] \u00A7fEscolha seu prefixo:");
-        sender.sendMessage("\u00A7e  /tag \u00A77- Ver prefixos disponiveis");
-        sender.sendMessage("\u00A7e  /tag <nome> \u00A77- Trocar prefixo");
-        sender.sendMessage("");
-
-        sender.sendMessage("\u00A76\u00A7lPrefixos disponiveis:");
-        sender.sendMessage("  \u00A74\u00A7lADMIN \u00A74Nick \u00A7f- /tag admin");
-        sender.sendMessage("  \u00A79\u00A7lSTAFF \u00A79Nick \u00A7f- /tag staff");
-        sender.sendMessage("  \u00A72\u00A7lBUILDER \u00A72Nick \u00A7f- /tag builder");
-        sender.sendMessage("  \u00A7e\u00A7oNick \u00A7f- /tag liru");
-        sender.sendMessage("");
-
-        if (sender.hasPermission("spartabuilds.admin")) {
-            sender.sendMessage("\u00A74\u00A7l[ADMIN] \u00A7fGerenciamento:");
-            sender.sendMessage("\u00A7e  /setcargo <nick> <admin|staff|builder|none>");
+        if (hasBuild) {
+            sender.sendMessage("\u00A72\u00A7l\u2726 BUILDER \u00A78\u00BB \u00A7fComandos de construcao");
+            sender.sendMessage("\u00A7e  /bs gradient \u00A77<bloco1> <bloco2> [v|h|d]");
+            sender.sendMessage("\u00A7e  /bs checkerboard \u00A77<bloco1> <bloco2> [tam]");
+            sender.sendMessage("\u00A7e  /bs stripes \u00A77<bloco1> <bloco2> [larg] [eixo]");
+            sender.sendMessage("\u00A7e  /bs outline \u00A77<bloco>");
+            sender.sendMessage("\u00A7e  /bs colorswap \u00A77<cor_de> <cor_para>");
+            sender.sendMessage("\u00A7e  /bs palette \u00A77[wool|clay|glass]");
+            sender.sendMessage("\u00A7e  /bs measure \u00A77- Medir selecao");
+            sender.sendMessage("\u00A7e  /bs walls \u00A77<bloco> \u00A7f| \u00A7e/bs floor \u00A77<bloco> \u00A7f| \u00A7e/bs replace \u00A77<origem> <destino>");
+            sender.sendMessage("\u00A7e  /bs clear \u00A77- Limpar selecao");
+            sender.sendMessage("\u00A7e  /bs undo \u00A77[n] \u00A7f| \u00A7e/bs redo \u00A77[n]");
             sender.sendMessage("");
         }
+
+        if (hasStaff) {
+            sender.sendMessage("\u00A79\u00A7l\u2726 STAFF \u00A78\u00BB \u00A7fComandos avancados");
+            sender.sendMessage("\u00A7e  /bs randomfill \u00A77<bloco> <peso> ...");
+            sender.sendMessage("\u00A7e  /bs terraform \u00A77[camadas]");
+            sender.sendMessage("\u00A7e  /bs heightmap \u00A77<raise|lower|smooth> [forca]");
+            sender.sendMessage("\u00A7e  /bs circle \u00A77<bloco> <raio> [preenchido]");
+            sender.sendMessage("\u00A7e  /bs sphere \u00A77<bloco> <raio> [preenchido] \u00A7f| \u00A7e/bs cylinder \u00A77<bloco> <raio> <altura> [preenchido]");
+            sender.sendMessage("\u00A7e  /bs pyramid \u00A77<bloco> <tamanho> [preenchido] \u00A7f| \u00A7e/bs ellipsoid \u00A77<bloco> <rx> <ry> <rz> [preenchido]");
+            sender.sendMessage("\u00A7e  /bs save \u00A77<nome> \u00A7f| \u00A7e/bs load \u00A77<nome> \u00A7f| \u00A7e/bs list");
+            sender.sendMessage("");
+        }
+
+        if (hasBuild) {
+            sender.sendMessage("\u00A7d\u00A7l\u2726 PREFIXOS \u00A78\u00BB \u00A7f/tag para trocar");
+            sender.sendMessage("\u00A7e  /tag \u00A77- Ver prefixos disponiveis");
+            sender.sendMessage("\u00A7e  /tag <nome> \u00A77- Trocar prefixo");
+            sender.sendMessage("");
+            sender.sendMessage("\u00A76\u00A7lPrefixos disponiveis:");
+            if (sender.hasPermission("spartabuilds.tag.builder")) {
+                sender.sendMessage("  \u00A72\u00A7lBUILDER \u00A72Nick \u00A7f- /tag builder");
+            }
+            if (sender.hasPermission("spartabuilds.tag.staff")) {
+                sender.sendMessage("  \u00A79\u00A7lSTAFF \u00A79Nick \u00A7f- /tag staff");
+            }
+            if (sender.hasPermission("spartabuilds.tag.admin")) {
+                sender.sendMessage("  \u00A74\u00A7lADMIN \u00A74Nick \u00A7f- /tag admin");
+            }
+            if (sender.hasPermission("spartabuilds.tag.master")) {
+                sender.sendMessage("  \u00A79\u00A7oNick \u00A7f- /tag master");
+            }
+            sender.sendMessage("");
+        }
+
+        if (hasAdmin) {
+            sender.sendMessage("\u00A74\u00A7l\u2726 ADMIN \u00A78\u00BB \u00A7fGerenciamento");
+            sender.sendMessage("\u00A7e  /setcargo <nick> <admin|staff|builder|none> \u00A77- Funciona offline");
+            sender.sendMessage("\u00A7e  /cargos set <nick> <cargo>");
+            sender.sendMessage("\u00A7e  /tag set <nick> <tag> \u00A77- Definir tag de jogador");
+            sender.sendMessage("\u00A7e  /tag lista \u00A77- Listar jogadores com tag");
+            sender.sendMessage("\u00A7e  /sbreload \u00A77- Recarregar config");
+            sender.sendMessage("");
+        } else if (hasStaff) {
+            sender.sendMessage("\u00A79\u00A7l\u2726 STAFF \u00A78\u00BB \u00A7fGerenciamento");
+            sender.sendMessage("\u00A7e  /setcargo <nick> <builder|none> \u00A77- Promover a builder");
+            sender.sendMessage("\u00A7e  /cargos list \u00A77- Listar jogadores com cargo");
+            sender.sendMessage("\u00A7e  /cargos info <nick> \u00A77- Ver cargo de jogador");
+            sender.sendMessage("\u00A7e  /tag lista \u00A77- Listar jogadores com tag");
+            sender.sendMessage("");
+        }
+
+        if (!hasBuild && !hasStaff && !hasAdmin) {
+            sender.sendMessage("\u00A77Sem cargo - contate um administrador para acesso.");
+            sender.sendMessage("");
+        }
+
+        sender.sendMessage("\u00A78\u00A7m─────────────────────────────\u00A7r");
     }
 
     @Override
@@ -858,25 +1245,44 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("setcargo")) return tabSetCargo(sender, args, current);
         if (cmd.equals("cargos")) return tabCargos(sender, args, current);
         if (cmd.equals("bs")) return tabBs(sender, args, current);
+        if (cmd.equals("sbreload")) return Collections.emptyList();
 
         return tabForScript(cmd, args, current);
     }
 
     private List<String> tabTag(CommandSender sender, String[] args, String current) {
-        if (args.length != 1) return Collections.emptyList();
-
-        List<String> options = new ArrayList<>();
-        options.add("membro");
-        for (Tag tag : Tag.values()) {
-            if (sender.hasPermission(tag.permission) || sender.hasPermission("spartabuilds.admin")) {
-                options.add(tag.name().toLowerCase());
+        if (args.length == 1) {
+            List<String> options = new ArrayList<>();
+            if (sender.hasPermission("spartabuilds.admin")) {
+                options.add("set");
             }
+            if (sender.hasPermission("spartabuilds.staff")) {
+                options.add("lista");
+            }
+            options.add("membro");
+            for (Tag tag : Tag.values()) {
+                if (sender.hasPermission(tag.permission) || sender.hasPermission("spartabuilds.admin")) {
+                    options.add(tag.name().toLowerCase());
+                }
+            }
+            return filter(options, current);
         }
-        return filter(options, current);
+        if (args.length == 2 && args[0].equalsIgnoreCase("set") && sender.hasPermission("spartabuilds.admin")) {
+            List<String> names = new ArrayList<>();
+            for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+            return filter(names, current);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("set") && sender.hasPermission("spartabuilds.admin")) {
+            List<String> options = new ArrayList<>();
+            options.add("membro");
+            for (Tag tag : Tag.values()) options.add(tag.name().toLowerCase());
+            return filter(options, current);
+        }
+        return Collections.emptyList();
     }
 
     private List<String> tabSetCargo(CommandSender sender, String[] args, String current) {
-        if (!sender.hasPermission("spartabuilds.setcargo")) return Collections.emptyList();
+        if (!sender.hasPermission("spartabuilds.staff")) return Collections.emptyList();
 
         if (args.length == 1) {
             List<String> names = new ArrayList<>();
@@ -975,6 +1381,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             case "circle":       return tabCircle(args, current);
             case "sphere":       return tabSphere(args, current);
             case "cylinder":     return tabCylinder(args, current);
+            case "pyramid":      return tabPyramid(args, current);
+            case "ellipsoid":    return tabEllipsoid(args, current);
             case "walls":        return tabOutline(args, current);
             case "floor":        return tabOutline(args, current);
             case "replace":      return tabReplace(args, current);
@@ -1065,6 +1473,24 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private List<String> tabReplace(String[] a, String c) {
         return a.length <= 2 ? filter(ALL_BLOCKS, c) : Collections.emptyList();
+    }
+
+    private List<String> tabPyramid(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(ALL_BLOCKS, c);
+            case 2: return filter(RADIUS_NUMBERS, c);
+            case 3: return filter(BOOL_OPTIONS, c);
+            default: return Collections.emptyList();
+        }
+    }
+
+    private List<String> tabEllipsoid(String[] a, String c) {
+        switch (a.length) {
+            case 1: return filter(ALL_BLOCKS, c);
+            case 2: case 3: case 4: return filter(RADIUS_NUMBERS, c);
+            case 5: return filter(BOOL_OPTIONS, c);
+            default: return Collections.emptyList();
+        }
     }
 
     private List<String> filter(List<String> options, String input) {

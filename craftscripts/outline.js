@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Outline (Arestas)
  * Uso: /bs outline <bloco>
  * Desenha apenas as 12 arestas (bordas) da selecao cubica.

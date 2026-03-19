@@ -23,6 +23,7 @@
 # legais conforme a legislação aplicável.
 #
 # Sparta Network © 2026
+# Desenvolvido por: zrfadev
 
 name: Builds
 main: com.spartamc.builds.SpartaMCBuilds
@@ -135,6 +136,20 @@ commands:
     description: Lista todos os comandos e cargos do SpartaMC Builds
     usage: /sb
     aliases: [spartabuilds, spartab]
+  sbreload:
+    description: Recarrega a configuracao do plugin (admin)
+    usage: /sbreload
+    permission: spartabuilds.admin
+  pyramid:
+    description: Desenha piramide 3D
+    usage: /pyramid <bloco> <tamanho> [preenchido]
+    aliases: [piramide]
+    permission: spartabuilds.staff
+  ellipsoid:
+    description: Desenha elipsoide 3D
+    usage: /ellipsoid <bloco> <rx> <ry> <rz> [preenchido]
+    aliases: [elipsoide]
+    permission: spartabuilds.staff
 
 # =============================================
 # SISTEMA DE PERMISSOES
@@ -191,10 +206,13 @@ permissions:
       spartabuilds.staff: true
       spartabuilds.setcargo: true
       spartabuilds.tag.admin: true
-      spartabuilds.tag.liru: true
+      spartabuilds.tag.master: true
 
   spartabuilds.setcargo:
     description: Definir cargos (staff=builder apenas, admin=todos)
+    default: false
+  spartabuilds.bypass:
+    description: Entrar no servidor sem cargo (bypass do kick)
     default: false
   spartabuilds.cargos:
     description: Ver proprio cargo e info (/cargos, /meucargo)
@@ -253,8 +271,8 @@ permissions:
     default: false
 
   # ---- TAGS ----
-  spartabuilds.tag.liru:
-    description: "Tag: LIRU (amarelo italico) - acesso total"
+  spartabuilds.tag.master:
+    description: "Tag: MASTER (azul italico) - acesso total"
     default: false
   spartabuilds.tag.admin:
     description: "Tag: ADMIN (vermelho)"

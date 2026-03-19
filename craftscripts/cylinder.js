@@ -1,6 +1,5 @@
 /*
- * Sparta Network - Software Proprietario
- * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
+ * (c) 2026 Sparta Network. - zrfadev
  *
  * SpartaMC Builds - Cylinder (Cilindro) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs cylinder <bloco> <raio> <altura> [preenchido]

@@ -1,7 +1,7 @@
 ================================================================================
                     SPARTAMC BUILDS - GUIA DE COMANDOS
 ================================================================================
-Sparta Network (c) 2026 - Todos os direitos reservados.
+Sparta Network (c) 2026 - zrfadev. Todos os direitos reservados.
 
 Aliases do comando principal: /bs, /builds, //
 
@@ -171,7 +171,7 @@ SISTEMA DE TAGS/PREFIXOS
 
 /tag <nome>
   Define sua tag/prefixo no chat.
-  Opcoes: membro, builder, staff, admin, liru
+  Opcoes: membro, builder, staff, admin, master
   membro = sem prefixo (padrao)
   Exemplo: /tag builder
   Alias: /tags

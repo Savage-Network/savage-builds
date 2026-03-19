@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * Sparta Network - Software Proprietario
  * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
  *

@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Palette (Paleta de Cores)
  * Uso: /bs palette [wool|clay|glass]
  * Coloca uma parede com todas as 16 cores do tipo escolhido.

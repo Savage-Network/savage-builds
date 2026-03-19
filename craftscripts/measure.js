@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Measure (Medir Selecao)
  * Uso: /bs measure
  * Mostra as dimensoes, volume e area da selecao atual.

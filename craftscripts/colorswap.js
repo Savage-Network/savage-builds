@@ -1,4 +1,5 @@
 /*
+ * (c) 2026 Sparta Network. - zrfadev
  * SpartaMC Builds - Color Swap
  * Uso: /bs colorswap <cor_origem> <cor_destino>
  * Troca todas as cores em la, argila colorida, vidro colorido, paineis e carpete.
