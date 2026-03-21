@@ -1,0 +1,138 @@
+================================================================================
+                    SPARTAMC BUILDS - COMANDOS STAFF
+================================================================================
+Sparta Network (c) 2026 - zrfadev. Staff tem acesso a tudo do Builder + comandos abaixo.
+
+--------------------------------------------------------------------------------
+CARGOS E JOGADORES
+--------------------------------------------------------------------------------
+
+/cargos list
+  Lista jogadores online e seus cargos.
+
+/cargos info <nick>
+  Mostra cargo e tag de um jogador.
+
+/cargos set <nick> <builder|none>
+  Staff pode promover a Builder ou remover cargo (none).
+  Exemplo: /cargos set Jogador builder
+
+/setcargo <nick> <builder|none>
+  Alias de /cargos set. Staff so pode definir builder ou none.
+
+
+--------------------------------------------------------------------------------
+TAGS
+--------------------------------------------------------------------------------
+
+/tag lista
+  Lista jogadores online e suas tags.
+
+
+--------------------------------------------------------------------------------
+CONSTRUCAO AVANCADA (Staff)
+--------------------------------------------------------------------------------
+
+/bs randomfill <bloco1> <peso1> <bloco2> <peso2> [...]
+  Preenchimento aleatorio com pesos.
+  Exemplo: /bs randomfill 1 60 4 25 98 15
+
+/bs terraform [camadas]
+  Naturaliza o terreno. Exemplo: /bs terraform 3
+
+/bs heightmap <raise|lower|smooth> [intensidade]
+  Modifica altura do terreno. Exemplo: /bs heightmap smooth 10
+
+/bs circle <bloco> <raio> [preenchido]
+  Circulo horizontal. Exemplo: /bs circle stone 15 true
+
+/bs sphere <bloco> <raio> [preenchido]
+  Esfera 3D. Exemplo: /bs sphere 35:14 10 true
+
+/bs cylinder <bloco> <raio> <altura> [preenchido]
+  Cilindro vertical. Exemplo: /bs cylinder stone 8 10 true
+
+/bs pyramid <bloco> <tamanho> [preenchido]
+  Piramide 3D. Exemplo: /bs pyramid stone 10 true
+
+/bs ellipsoid <bloco> <rx> <ry> <rz> [preenchido]
+  Elipsoide 3D. Exemplo: /bs ellipsoid stone 10 5 10 true
+
+/bs save <nome>
+  Salva selecao como schematic.
+
+/bs load <nome>
+  Carrega schematic na posicao atual.
+
+/bs list
+  Lista schematics disponiveis.
+
+
+--------------------------------------------------------------------------------
+TELEPORTE (Bukkit + Multiverse)
+--------------------------------------------------------------------------------
+
+/tp <jogador>
+  Teleporta ate um jogador (Bukkit).
+
+/tp <jogador1> <jogador2>
+  Teleporta jogador1 ate jogador2.
+
+/mvtp <jogador> <mundo>
+  Teleporta jogador para outro mundo (Multiverse).
+
+/mv spawn [mundo]
+  Teleporta para o spawn do mundo.
+
+
+--------------------------------------------------------------------------------
+MULTIVERSE (Staff)
+--------------------------------------------------------------------------------
+
+/mv list
+  Lista mundos disponiveis.
+
+/mv who
+  Lista jogadores no mundo atual.
+
+/mv who -a
+  Lista jogadores em todos os mundos.
+
+/mv info <mundo>
+  Informacoes do mundo.
+
+/mv coord
+  Exibe suas coordenadas atuais.
+
+/mv confirm
+  Confirma operacoes perigosas (ex: delete).
+
+
+--------------------------------------------------------------------------------
+OUTROS
+--------------------------------------------------------------------------------
+
+/top [n]
+  Ranking por tempo de jogo.
+
+/topblocos [n]
+  Ranking por blocos colocados.
+
+/sb
+  Ajuda completa e comandos disponiveis.
+
+
+--------------------------------------------------------------------------------
+STAFF NAO PODE
+--------------------------------------------------------------------------------
+
+- Definir cargo Admin ou Staff (apenas Admin)
+- Definir tag de outros jogadores (apenas Admin)
+- /sbreload, /sudo
+- Criar/modificar/deletar mundos (Multiverse)
+- Ban, kick, give, op (Bukkit)
+
+
+================================================================================
+                    SpartaMC - https://spartamc.com.br
+================================================================================

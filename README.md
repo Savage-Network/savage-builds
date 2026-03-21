@@ -103,8 +103,8 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 
 | Comando | Descrição |
 |---------|-----------|
-| `/top [n]` | Ranking de jogadores por tempo de jogo (mostra tag) |
-| `/toptime`, `/toptempo` | Aliases de `/top` |
+| `/top [n]` | Ranking por tempo de jogo (mostra tag) |
+| `/topblocos [n]` | Ranking por blocos colocados (mostra tag) |
 
 ---
 
@@ -124,9 +124,9 @@ O cargo concede permissões automaticamente. Use `none` para remover. Cargos de 
 
 | Permissão | Descrição |
 |-----------|-----------|
-| `spartabuilds.build` | Construtor — comandos básicos |
-| `spartabuilds.staff` | Staff — comandos avançados + build |
-| `spartabuilds.admin` | Admin — acesso total |
+| `spartabuilds.build` | Builder — gamemode, WorldEdit, Multiverse (tp/spawn self) |
+| `spartabuilds.staff` | Staff — teleport, Multiverse tp/spawn outros |
+| `spartabuilds.admin` | Admin — give, ban, kick, op, Multiverse (create/modify/reload) |
 | `spartabuilds.bypass` | Bypass — entrar sem cargo (configurável) |
 
 **Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `spartabuilds.bypass` para exceções. Em `config.yml`, `open-to-all: true` abre o servidor para todos.

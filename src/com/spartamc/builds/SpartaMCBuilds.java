@@ -45,6 +45,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.Material;
@@ -104,7 +105,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         "randomfill", "colorswap", "terraform", "heightmap",
         "measure", "palette", "circle", "sphere", "cylinder", "pyramid", "ellipsoid",
         "walls", "floor", "replace",
-        "sb", "tag", "setcargo", "cargos", "sbreload", "top", "sudo"
+        "sb", "tag", "setcargo", "cargos", "sbreload", "top", "topblocos", "sudo"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
@@ -211,10 +212,12 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private final Map<UUID, PermissionAttachment> cargoAttachments = new HashMap<>();
     private final Map<UUID, Long> sessionStartTime = new HashMap<>();
     private final Map<UUID, Long> totalPlayTime = new HashMap<>();
+    private final Map<UUID, Long> blocksPlaced = new HashMap<>();
 
     private File tagsFile;
     private File cargosFile;
     private File playtimeFile;
+    private File blocksFile;
     private Scoreboard scoreboard;
     private final Map<UUID, FastBoard> fastBoards = new HashMap<>();
     private PluginConfig pluginConfig;
@@ -252,6 +255,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         loadTags();
         loadCargos();
         loadPlaytime();
+        loadBlocksPlaced();
 
         for (String cmd : CUSTOM_COMMANDS) {
             if (getCommand(cmd) != null) {
@@ -304,6 +308,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             saveTags();
             saveCargos();
             savePlaytime();
+            saveBlocksPlaced();
         }
         if (database != null) database.disconnect();
         super.onDisable();
@@ -400,6 +405,34 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 if (seconds > 0) totalPlayTime.put(uuid, seconds);
             } catch (IllegalArgumentException ignored) {}
         }
+    }
+
+    private void loadBlocksPlaced() {
+        if (database != null) {
+            blocksPlaced.putAll(database.loadAllBlocksPlaced());
+            return;
+        }
+        blocksFile = new File(getDataFolder(), "blocks.yml");
+        if (!blocksFile.exists()) return;
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(blocksFile);
+        for (String key : cfg.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                long count = cfg.getLong(key, 0L);
+                if (count > 0) blocksPlaced.put(uuid, count);
+            } catch (IllegalArgumentException ignored) {}
+        }
+    }
+
+    private void saveBlocksPlaced() {
+        if (database != null) return;
+        if (blocksFile == null) return;
+        YamlConfiguration cfg = new YamlConfiguration();
+        for (Map.Entry<UUID, Long> entry : blocksPlaced.entrySet()) {
+            cfg.set(entry.getKey().toString(), entry.getValue());
+        }
+        try { cfg.save(blocksFile); }
+        catch (IOException e) { getLogger().warning("Erro ao salvar blocos: " + e.getMessage()); }
     }
 
     private void savePlaytime() {
@@ -576,12 +609,15 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
         long totalSec = totalPlayTime.getOrDefault(player.getUniqueId(), 0L) + sessionSec;
 
+        long blocks = blocksPlaced.getOrDefault(player.getUniqueId(), 0L);
+
         String lb = "\u00A77";
         String tagColored = tag != null ? (tag.style + tagStr + "\u00A7r") : (lb + tagStr);
         String mundoVal = "\u00A7b" + truncate(world, 14);
         String coordsVal = "\u00A7b" + x + ", " + y + ", " + z;
         String sessaoVal = "\u00A7a" + formatTime(sessionSec);
         String totalVal = "\u00A7a" + formatTime(totalSec);
+        String blocosVal = "\u00A7d" + formatNumber(blocks);
         String onlineVal = "\u00A7e" + online;
 
         board.updateLines(
@@ -593,6 +629,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             "\u00A78   ",
             lb + "Sessao: " + sessaoVal,
             lb + "Total: " + totalVal,
+            lb + "Blocos: " + blocosVal,
             lb + "Online: " + onlineVal,
             "\u00A78    ",
             pluginConfig.getScoreboardFooter()
@@ -614,6 +651,13 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private String truncate(String s, int max) {
         return s.length() > max ? s.substring(0, max) : s;
+    }
+
+    private String formatNumber(long n) {
+        if (n < 1000) return String.valueOf(n);
+        if (n < 1_000_000) return String.format("%.1fK", n / 1000.0);
+        if (n < 1_000_000_000) return String.format("%.1fM", n / 1_000_000.0);
+        return String.format("%.1fB", n / 1_000_000_000.0);
     }
 
     private String getSelectionInfo(Player player) {
@@ -665,6 +709,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             totalPlayTime.put(uuid, total);
             if (database != null) database.setPlaytime(uuid, player.getName(), total);
             else savePlaytime();
+        }
+        long blocks = blocksPlaced.getOrDefault(uuid, 0L);
+        if (blocks > 0) {
+            if (database != null) database.setBlocksPlaced(uuid, player.getName(), blocks);
+            else saveBlocksPlaced();
         }
     }
 
@@ -734,6 +783,15 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 held.setItemMeta(meta);
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        if (player == null) return;
+        UUID uuid = player.getUniqueId();
+        long prev = blocksPlaced.getOrDefault(uuid, 0L);
+        blocksPlaced.put(uuid, prev + 1);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -999,6 +1057,60 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         return true;
     }
 
+    private boolean handleTopBlocos(CommandSender sender, String[] args) {
+        int limit = 10;
+        if (args.length > 0) {
+            try {
+                limit = Math.max(1, Math.min(Integer.parseInt(args[0]), 20));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        List<DatabaseManager.TopBlocksEntry> top;
+        if (database != null) {
+            top = database.getTopBlocks(limit);
+        } else {
+            top = getTopBlocksFromMemory(limit);
+        }
+
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lTop Blocos \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+
+        if (top.isEmpty()) {
+            sender.sendMessage("\u00A77 Nenhum dado de blocos registrado.");
+        } else {
+            for (int i = 0; i < top.size(); i++) {
+                DatabaseManager.TopBlocksEntry e = top.get(i);
+                String tagName = e.tagName;
+                if ("LIRU".equalsIgnoreCase(tagName)) tagName = "MASTER";
+                if ("FP".equalsIgnoreCase(tagName)) tagName = "JOIA";
+                Tag tag = tagName != null ? Tag.fromName(tagName) : null;
+                String tagStr = tag != null ? (tag.style + tag.displayName + "\u00A7r") : "\u00A77MEMBRO";
+                String line = "\u00A7e#" + (i + 1) + " " + tagStr + " " + e.username + " \u00A78\u00BB \u00A7d" + formatNumber(e.blocksPlaced);
+                sender.sendMessage(line);
+            }
+        }
+        sender.sendMessage("\u00A78\u00A7m────────────────────────────\u00A7r");
+        return true;
+    }
+
+    private List<DatabaseManager.TopBlocksEntry> getTopBlocksFromMemory(int limit) {
+        List<Map.Entry<UUID, Long>> sorted = new ArrayList<>(blocksPlaced.entrySet());
+        sorted.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+
+        List<DatabaseManager.TopBlocksEntry> result = new ArrayList<>();
+        for (int i = 0; i < Math.min(limit, sorted.size()); i++) {
+            Map.Entry<UUID, Long> ent = sorted.get(i);
+            OfflinePlayer op = Bukkit.getOfflinePlayer(ent.getKey());
+            String name = op.getName();
+            if (name == null || name.isEmpty()) name = "?";
+            Tag tag = playerTags.get(ent.getKey());
+            String tagName = tag != null ? tag.name() : null;
+            result.add(new DatabaseManager.TopBlocksEntry(ent.getKey(), name, tagName, ent.getValue()));
+        }
+        return result;
+    }
+
     private List<DatabaseManager.TopPlaytimeEntry> getTopPlaytimeFromMemory(int limit) {
         Map<UUID, Long> withSession = new HashMap<>(totalPlayTime);
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -1261,6 +1373,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("sbreload")) return handleReload(sender);
         if (cmd.equals("sudo")) return handleSudo(sender, args);
         if (cmd.equals("top")) return handleTop(sender, args);
+        if (cmd.equals("topblocos")) return handleTopBlocos(sender, args);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
 
@@ -1465,7 +1578,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("setcargo")) return tabSetCargo(sender, args, current);
         if (cmd.equals("cargos")) return tabCargos(sender, args, current);
         if (cmd.equals("bs")) return tabBs(sender, args, current);
-        if (cmd.equals("top")) return args.length == 1 ? filter(Arrays.asList("5", "10", "15", "20"), current) : Collections.emptyList();
+        if (cmd.equals("top") || cmd.equals("topblocos")) return args.length == 1 ? filter(Arrays.asList("5", "10", "15", "20"), current) : Collections.emptyList();
         if (cmd.equals("sudo")) return tabSudo(sender, args, current);
         if (cmd.equals("sbreload")) return Collections.emptyList();
 

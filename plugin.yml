@@ -136,6 +136,10 @@ commands:
     description: Ver top jogadores por tempo de jogo
     usage: /top [quantidade]
     aliases: [toptime, toptempo]
+  topblocos:
+    description: Ver top jogadores por blocos colocados
+    usage: /topblocos [quantidade]
+    aliases: [topblocks, topbloco]
   sb:
     description: Lista todos os comandos e cargos do SpartaMC Builds
     usage: /sb
@@ -191,6 +195,26 @@ permissions:
       spartabuilds.undo: true
       spartabuilds.redo: true
       spartabuilds.tag.builder: true
+      bukkit.command.gamemode: true
+      bukkit.command.gamemode.creative: true
+      bukkit.command.gamemode.survival: true
+      bukkit.command.gamemode.adventure: true
+      bukkit.command.gamemode.spectator: true
+      worldedit.*: true
+      multiverse.help: true
+      multiverse.teleport.self.w: true
+      multiverse.teleport.self.e: true
+      multiverse.teleport.self.pl: true
+      multiverse.teleport.self.p: true
+      multiverse.teleport.self.a: true
+      multiverse.teleport.self.b: true
+      multiverse.teleport.self.ca: true
+      multiverse.core.tp.self: true
+      multiverse.core.list.worlds: true
+      multiverse.core.list.environments: true
+      multiverse.core.spawn.self: true
+      multiverse.core.info: true
+      multiverse.core.coord: true
 
   spartabuilds.staff:
     description: Cargo Staff - ferramentas avancadas + tudo do Build
@@ -206,6 +230,19 @@ permissions:
       spartabuilds.schematic.load: true
       spartabuilds.schematic.list: true
       spartabuilds.tag.staff: true
+      bukkit.command.teleport: true
+      multiverse.teleport.other.w: true
+      multiverse.teleport.other.e: true
+      multiverse.teleport.other.pl: true
+      multiverse.teleport.other.p: true
+      multiverse.teleport.other.a: true
+      multiverse.teleport.other.b: true
+      multiverse.teleport.other.ca: true
+      multiverse.core.tp.other: true
+      multiverse.core.spawn.other: true
+      multiverse.core.list.who: true
+      multiverse.core.list.who.all: true
+      multiverse.core.confirm: true
 
   spartabuilds.admin:
     description: Cargo Admin - acesso total a todos os comandos
@@ -217,6 +254,60 @@ permissions:
       spartabuilds.tag.admin: true
       spartabuilds.tag.master: true
       spartabuilds.tag.joia: true
+      bukkit.command.give: true
+      bukkit.command.list: true
+      bukkit.command.say: true
+      bukkit.command.whitelist: true
+      bukkit.command.ban: true
+      bukkit.command.ban-ip: true
+      bukkit.command.pardon: true
+      bukkit.command.pardon-ip: true
+      bukkit.command.kick: true
+      bukkit.command.reload: true
+      bukkit.command.save: true
+      bukkit.command.save-on: true
+      bukkit.command.save-off: true
+      bukkit.command.time: true
+      bukkit.command.weather: true
+      bukkit.command.difficulty: true
+      bukkit.command.defaultgamemode: true
+      bukkit.command.gamerule: true
+      bukkit.command.clear: true
+      bukkit.command.effect: true
+      bukkit.command.enchant: true
+      bukkit.command.xp: true
+      bukkit.command.op: true
+      bukkit.command.deop: true
+      bukkit.command.plugins: true
+      bukkit.command.version: true
+      bukkit.command.help: true
+      bukkit.command.timings: true
+      worldedit.*: true
+      multiverse.core.create: true
+      multiverse.core.modify: true
+      multiverse.core.modify.add: true
+      multiverse.core.modify.remove: true
+      multiverse.core.modify.set: true
+      multiverse.core.modify.clear: true
+      multiverse.core.clone: true
+      multiverse.core.import: true
+      multiverse.core.reload: true
+      multiverse.core.delete: true
+      multiverse.core.remove: true
+      multiverse.core.unload: true
+      multiverse.core.load: true
+      multiverse.core.regen: true
+      multiverse.core.purge: true
+      multiverse.core.purgeall: true
+      multiverse.core.spawn.set: true
+      multiverse.core.config: true
+      multiverse.core.anchor: true
+      multiverse.core.anchor.create: true
+      multiverse.core.anchor.list: true
+      multiverse.core.anchor.delete: true
+      multiverse.core.entityspawnconfig.info: true
+      multiverse.core.entityspawnconfig.modify: true
+      multiverse.core.debug: true
 
   spartabuilds.setcargo:
     description: Definir cargos (staff=builder apenas, admin=todos)

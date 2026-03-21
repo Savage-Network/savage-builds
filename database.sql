@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS builds (
     username VARCHAR(16) NOT NULL DEFAULT '',
     tag VARCHAR(20) DEFAULT NULL,
     cargo VARCHAR(20) DEFAULT NULL,
-    playtime BIGINT DEFAULT 0
+    playtime BIGINT DEFAULT 0,
+    blocks_placed BIGINT DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

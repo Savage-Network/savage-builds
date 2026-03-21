@@ -13,6 +13,14 @@ COMANDO PRINCIPAL
   Lista todos os comandos disponiveis e mostra seu cargo/prefixo atual.
   Aliases: /spartabuilds, /spartab
 
+/top [quantidade]
+  Ranking dos jogadores com mais tempo de jogo (mostra tag).
+  Aliases: /toptime, /toptempo
+
+/topblocos [quantidade]
+  Ranking dos jogadores por blocos colocados (mostra tag).
+  Aliases: /topblocks, /topbloco
+
 
 --------------------------------------------------------------------------------
 COMANDOS DE CONSTRUCAO (Cargo: BUILDER)
@@ -225,9 +233,9 @@ GERENCIAMENTO (ADMIN)
 CARGO E PERMISSOES
 --------------------------------------------------------------------------------
 
-spartabuilds.build   - Construtor (comandos basicos + walls, floor, replace)
-spartabuilds.staff   - Staff (comandos avancados + sphere, cylinder, pyramid, ellipsoid + promover builder)
-spartabuilds.admin   - Admin (acesso total, pode definir qualquer cargo)
+spartabuilds.build   - Builder: gamemode, WorldEdit completo, Multiverse (tp/spawn self)
+spartabuilds.staff   - Staff: bukkit tp, Multiverse tp other, spawn other, confirm
+spartabuilds.admin   - Admin: give, ban, kick, save, op, Multiverse (create, modify, reload)
 spartabuilds.sudo    - Sudo: forcar jogador a executar comando (admin tem por padrao)
 
 spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
@@ -250,9 +258,9 @@ DICAS
 - O comando // e um alias rapido para /bs.
 - Use /sb para ver a ajuda completa no jogo.
 - Use /cargos para ver seu cargo e o que voce pode fazer.
-- A scoreboard lateral mostra tag, mundo, coords, sessao, total e online (atualiza a cada 0.5s).
+- A scoreboard lateral mostra tag, mundo, coords, sessao, total, blocos e online (atualiza a cada 0.5s).
 - Config unificada: config.yml com plugin + WorldEdit em um unico arquivo.
-- Banco MySQL: tags, cargos e playtime na tabela 'builds' (execute database.sql).
+- Banco MySQL: tags, cargos, playtime e blocks_placed na tabela 'builds' (execute database.sql).
 
 ================================================================================
                     SpartaMC - https://spartamc.com.br

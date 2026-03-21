@@ -91,10 +91,18 @@ public class DatabaseManager {
                 "username VARCHAR(16) NOT NULL DEFAULT ''," +
                 "tag VARCHAR(20) DEFAULT NULL," +
                 "cargo VARCHAR(20) DEFAULT NULL," +
-                "playtime BIGINT DEFAULT 0" +
+                "playtime BIGINT DEFAULT 0," +
+                "blocks_placed BIGINT DEFAULT 0" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
         try (Statement st = connection.createStatement()) {
             st.executeUpdate(sql);
+            try {
+                st.executeUpdate("ALTER TABLE " + TABLE + " ADD COLUMN blocks_placed BIGINT DEFAULT 0");
+            } catch (SQLException e) {
+                if (e.getMessage() == null || !e.getMessage().toLowerCase().contains("duplicate")) {
+                    plugin.getLogger().warning("Migration blocks_placed: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -393,6 +401,91 @@ public class DatabaseManager {
             this.username = username != null ? username : "?";
             this.tagName = tagName;
             this.playtimeSeconds = playtimeSeconds;
+        }
+    }
+
+    public long getBlocksPlaced(UUID uuid) {
+        try (PreparedStatement ps = getConnection().prepareStatement(
+                "SELECT blocks_placed FROM " + TABLE + " WHERE uuid = ?")) {
+            ps.setString(1, uuid.toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getLong("blocks_placed");
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Erro getBlocksPlaced: " + e.getMessage());
+        }
+        return 0L;
+    }
+
+    public void setBlocksPlaced(UUID uuid, String username, long blocks) {
+        runAsync(() -> {
+            try {
+                String sql = "INSERT INTO " + TABLE + " (uuid, username, tag, cargo, playtime, blocks_placed) VALUES (?,?,NULL,NULL,0,?) " +
+                        "ON DUPLICATE KEY UPDATE blocks_placed = VALUES(blocks_placed), username = VALUES(username)";
+                try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+                    ps.setString(1, uuid.toString());
+                    ps.setString(2, username != null ? username : "");
+                    ps.setLong(3, blocks);
+                    ps.executeUpdate();
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().warning("Erro setBlocksPlaced: " + e.getMessage());
+            }
+        });
+    }
+
+    public java.util.Map<UUID, Long> loadAllBlocksPlaced() {
+        java.util.Map<UUID, Long> map = new java.util.HashMap<>();
+        try (Statement st = getConnection().createStatement();
+             ResultSet rs = st.executeQuery("SELECT uuid, blocks_placed FROM " + TABLE + " WHERE uuid NOT LIKE 'pending:%' AND blocks_placed > 0")) {
+            while (rs.next()) {
+                try {
+                    long bp = rs.getLong("blocks_placed");
+                    if (bp > 0) {
+                        map.put(UUID.fromString(rs.getString("uuid")), bp);
+                    }
+                } catch (IllegalArgumentException ignored) {}
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Erro loadAllBlocksPlaced: " + e.getMessage());
+        }
+        return map;
+    }
+
+    public List<TopBlocksEntry> getTopBlocks(int limit) {
+        List<TopBlocksEntry> list = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(
+                "SELECT uuid, username, tag, blocks_placed FROM " + TABLE +
+                " WHERE uuid NOT LIKE 'pending:%' AND blocks_placed > 0 ORDER BY blocks_placed DESC LIMIT ?")) {
+            ps.setInt(1, Math.max(1, Math.min(limit, 100)));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        String uuidStr = rs.getString("uuid");
+                        String username = rs.getString("username");
+                        String tagStr = rs.getString("tag");
+                        long blocks = rs.getLong("blocks_placed");
+                        if (username == null) username = "?";
+                        list.add(new TopBlocksEntry(UUID.fromString(uuidStr), username, tagStr, blocks));
+                    } catch (IllegalArgumentException ignored) {}
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Erro getTopBlocks: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public static class TopBlocksEntry {
+        public final UUID uuid;
+        public final String username;
+        public final String tagName;
+        public final long blocksPlaced;
+
+        public TopBlocksEntry(UUID uuid, String username, String tagName, long blocksPlaced) {
+            this.uuid = uuid;
+            this.username = username != null ? username : "?";
+            this.tagName = tagName;
+            this.blocksPlaced = blocksPlaced;
         }
     }
 }
