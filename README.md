@@ -51,9 +51,23 @@ SavageMC é uma plataforma de servidor Minecraft (1.8–1.21) construída sobre 
 
 Em `config.yml`, `open-to-all: true` abre o servidor a todos; caso contrário, exige cargo ou bypass.
 
-## Compilar
+## Compilar (IntelliJ IDEA + Gradle)
 
-No Windows, execute `build.bat` na raiz do projeto. O JAR gerado é `savagebuilds.jar`.
+O projeto usa **Gradle** (`build.gradle.kts`). Código-fonte: `src/main/java`.
+
+1. **Abrir o projeto:** *File → Open* na pasta do repositório (deteta `build.gradle.kts`).
+2. **JDK para o Gradle:** use **JDK 17+** (ou o JDK que o IntelliJ associar ao Gradle). O **bytecode do plugin** continua **Java 8** (`build.gradle.kts`).
+3. **Sync Gradle:** aguarde o ícone do elefante / *Import* terminar.
+4. **Gerar o JAR:** painel **Gradle** → *savagebuilds* → *Tasks* → *build* → **`build`**, ou terminal: `gradlew.bat build`.
+5. **Saída:** `build/libs/savagebuilds.jar` (`build.bat` copia também `savagebuilds.jar` para a raiz).
+
+### Linha de comandos
+
+```text
+gradlew.bat clean build
+```
+
+**Dependências:** Spigot API e WorldEdit são `compileOnly` (servidor fornece em runtime). FastBoard e MySQL Connector vão no JAR. Na primeira vez é preciso **internet** (Gradle + dependências).
 
 ---
 

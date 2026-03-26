@@ -229,20 +229,20 @@ SISTEMA DE TAGS/PREFIXOS
 
 /tag <nome>
   Define sua tag/prefixo no chat.
-  Opcoes: membro, builder, staff, admin, joia, pp
+  Opcoes: membro, builder, staff, admin, chefia, pp
   membro = sem prefixo (padrao)
-  joia = ciano | pp = rosa claro italico
-  Exemplo: /tag joia
+  chefia = vermelho escuro (&4) | pp = rosa claro italico
+  Exemplo: /tag chefia
   Alias: /tags
 
 /tag set <nick> <tag>
   (Admin) Define a tag de outro jogador.
-  Exemplo: /tag set Jogador joia
+  Exemplo: /tag set Jogador chefia
 
 /tag lista
   (Staff) Lista jogadores online e suas tags.
 
-Tags disponiveis: MEMBRO, BUILDER, STAFF, ADMIN, JOIA (ciano), PP (rosa italico)
+Tags disponiveis: MEMBRO, BUILDER, STAFF, ADMIN, CHEFIA (&4 vermelho escuro), PP (rosa italico)
 
 
 --------------------------------------------------------------------------------
@@ -283,7 +283,7 @@ savagebuilds.fun     - Comandos de brincadeira (slap, rocket, hat, hug, kiss, co
 savagebuilds.bypass  - Bypass: entrar no servidor sem cargo (config.yml)
 
 Tags: savagebuilds.tag.builder, savagebuilds.tag.staff, savagebuilds.tag.admin,
-      savagebuilds.tag.joia, savagebuilds.tag.master (pp)
+      savagebuilds.tag.chefia, savagebuilds.tag.master (pp)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
   config.yml: open-to-all: true = servidor aberto para todos.

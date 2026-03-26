@@ -1,0 +1,22 @@
+# Gradle
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Compilacao antiga na raiz (javac manual)
+com/
+fr/
+javax/
+net/
+nmsblocks/
+META-INF/
+
+# Logs / OS
+*.log
+.DS_Store
+Thumbs.db

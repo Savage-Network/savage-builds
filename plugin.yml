@@ -284,7 +284,7 @@ permissions:
       savagebuilds.sudo: true
       savagebuilds.tag.admin: true
       savagebuilds.tag.master: true
-      savagebuilds.tag.joia: true
+      savagebuilds.tag.chefia: true
       bukkit.command.give: true
       bukkit.command.list: true
       bukkit.command.say: true
@@ -421,6 +421,6 @@ permissions:
   savagebuilds.tag.builder:
     description: "Tag: BUILDER (verde)"
     default: false
-  savagebuilds.tag.joia:
-    description: "Tag: JOIA (ciano)"
+  savagebuilds.tag.chefia:
+    description: "Tag: CHEFIA (vermelho escuro)"
     default: false
