@@ -1,169 +1,60 @@
--- Active: 1773958783804@@mysql52-farm1.kinghost.net@3306@zrfa01
-# SavageMC Builds
+# SavageMC
 
-Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no WorldEdit com ferramentas extras de build, sistema de cargos, tags e prefixos no chat.
-
-**(c) 2026 Savage Network. - zrfadev**
-
-**SavageMC** — [savagemc.net](https://savagemc.net)
+> **SavageMC LTDA** — Servidor de Minecraft competitivo e arcade desenvolvido do zero em Java.  
+> Produzido por: **henqks**, **desenhar** e **zrafa**
 
 ---
 
-## Funcionalidades
+## Sobre o projeto
 
-- **Comandos de construção** — Gradiente, xadrez, listras, contorno, troca de cores, paletas
-- **Ferramentas avançadas** — Preenchimento aleatório, terraform, heightmap, círculos, esferas, cilindros, pirâmides, elipsoides
-- **Schematics** — Salvar e carregar construções
-- **Sistema de cargos** — Admin, Staff, Builder com permissões hierárquicas
-- **Tags/Prefixos** — Prefixos coloridos no chat (ADMIN, STAFF, BUILDER, MASTER, MEMBRO)
-- **Acesso** — Restrito (cargo/bypass) ou aberto para todos (`open-to-all`)
-- **Configurável** — Mensagens e opções em `config.yml`
-- **Scoreboard** — Cargo, tag, mundo, posição, tempo de sessão, tempo total e online na lateral
+SavageMC é uma plataforma de servidor Minecraft (1.8–1.21) construída sobre BungeeCord + Bukkit (Spigot 1.8_R3). O ecossistema cobre desde a infraestrutura de proxy até gamemodes competitivos, com sistema de contas, clãs, ranks, cosméticos e mais — desenvolvido internamente.
+
+**Este repositório** contém o plugin **SavageMC Builds** (`savagebuilds.jar`): extensão do WorldEdit para o servidor de construção, com comandos extras (gradiente, xadrez, terraform, schematics, etc.), cargos (Admin / Staff / Builder), tags no chat, scoreboard, integração MySQL e configuração unificada com o WorldEdit.
+
+## Domínio
+
+**Site:** [savagemc.net](https://savagemc.net)  
+**Discord:** [discord.gg/savagemc](https://discord.gg/savagemc)
 
 ---
+
+## Requisitos (Builds)
+
+- Spigot / Bukkit **1.8** (bytecode Java 8)
+- **WorldEdit** no `plugins/` (este plugin estende `WorldEditPlugin`)
+- Ver `COMANDOS.txt` e `STAFF.txt` para a lista completa de comandos
 
 ## Instalação
 
-1. Coloque o arquivo `savagebuilds.jar` na pasta `plugins` do servidor
-2. Reinicie o servidor
-3. O plugin cria automaticamente a pasta `plugins/savagebuilds/` com arquivos de configuração
+1. Coloque `savagebuilds.jar` em `plugins/`
+2. Coloque o **WorldEdit** compatível com 1.8 no mesmo diretório
+3. Reinicie o servidor
+4. A pasta de dados do plugin segue o nome do plugin no `plugin.yml` (ex.: `plugins/Builds/`)
 
-**Requisitos:** Spigot ou Bukkit 1.8+
+## Funcionalidades principais
 
----
+| Área | Conteúdo |
+|------|----------|
+| Construção | `/bs` e `//` — gradiente, xadrez, listras, outline, colorswap, paleta, measure, clear, undo/redo |
+| Avançado (Staff) | randomfill, terraform, heightmap, esferas, cilindros, pirâmide, elipsoide, schematics |
+| Social | Cargos, tags, `/top`, `/topblocos`, comandos de brincadeira (`savagebuilds.fun`) |
+| Dados | MySQL opcional — execute `database.sql` se ativar no `config.yml` |
 
-## Comandos principais
+## Permissões (resumo)
 
-| Comando | Descrição |
-|---------|-----------|
-| `/bs` ou `//` | Comando principal (aliases: builds) |
-| `/sb` | Ajuda completa e lista de comandos |
+| Permissão | Uso |
+|-----------|-----|
+| `savagebuilds.build` | Builder — WorldEdit e ferramentas base |
+| `savagebuilds.staff` | Staff — ferramentas avançadas + extras |
+| `savagebuilds.admin` | Admin — acesso ampliado |
+| `savagebuilds.bypass` | Entrar sem cargo (se configurado) |
 
----
+Em `config.yml`, `open-to-all: true` abre o servidor a todos; caso contrário, exige cargo ou bypass.
 
-## Comandos de construção (BUILDER)
+## Compilar
 
-| Comando | Descrição | Exemplo |
-|---------|-----------|---------|
-| `/bs gradient <bloco1> <bloco2> [v\|h\|d]` | Gradiente entre blocos (v=vertical, h=horizontal, d=profundidade) | `// gradient 35:0 35:15 v` |
-| `/bs checkerboard <bloco1> <bloco2> [tam]` | Padrão xadrez | `// checkerboard stone brick 2` |
-| `/bs stripes <bloco1> <bloco2> [larg] [eixo]` | Listras alternadas | `// stripes wool:0 wool:15 2 y` |
-| `/bs outline <bloco>` | Arestas da seleção | `// outline stone` |
-| `/bs colorswap <cor_de> <cor_para>` | Troca cores em blocos coloridos (0–15) | `// colorswap 11 14` |
-| `/bs palette [wool\|clay\|glass]` | Paleta de cores de referência | `// palette wool` |
-| `/bs measure` | Medir dimensões da seleção | `// measure` |
-| `/bs clear` | Limpar seleção | `// clear` |
-| `/bs undo [n]` | Desfazer alterações | `// undo 5` |
-| `/bs redo [n]` | Refazer alterações | `// redo 3` |
-
-### Cores (colorswap)
-
-`0` branco · `1` laranja · `2` magenta · `3` azul claro · `4` amarelo · `5` verde claro · `6` rosa · `7` cinza · `8` cinza claro · `9` ciano · `10` roxo · `11` azul · `12` marrom · `13` verde · `14` vermelho · `15` preto
+No Windows, execute `build.bat` na raiz do projeto. O JAR gerado é `savagebuilds.jar`.
 
 ---
 
-## Comandos avançados (STAFF)
-
-| Comando | Descrição | Exemplo |
-|---------|-----------|---------|
-| `/bs randomfill <bloco> <peso> ...` | Preenchimento aleatório com pesos | `// randomfill 1 60 4 25 98 15` |
-| `/bs terraform [camadas]` | Naturalizar terreno | `// terraform 3` |
-| `/bs heightmap <raise\|lower\|smooth> [força]` | Moldar altura do terreno | `// heightmap smooth 10` |
-| `/bs circle <bloco> <raio> [preenchido]` | Círculo horizontal | `// circle stone 15 true` |
-| `/bs sphere <bloco> <raio> [preenchido]` | Esfera 3D | `// sphere 35:14 10 true` |
-| `/bs cylinder <bloco> <raio> <altura> [preenchido]` | Cilindro vertical | `// cylinder stone 8 10 true` |
-| `/bs pyramid <bloco> <tamanho> [preenchido]` | Pirâmide 3D | `// pyramid stone 10 true` |
-| `/bs ellipsoid <bloco> <rx> <ry> <rz> [preenchido]` | Elipsoide 3D | `// ellipsoid stone 10 5 10 true` |
-| `/bs save <nome>` | Salvar schematic | `// save castelo` |
-| `/bs load <nome>` | Carregar schematic | `// load castelo` |
-| `/bs list` | Listar schematics | `// list` |
-
----
-
-## Sistema de tags
-
-| Comando | Descrição |
-|---------|-----------|
-| `/tag` | Menu interativo — clique nas tags para trocar |
-| `/tag <nome>` | Definir prefixo (membro, builder, staff, admin, master) |
-| `/tag set <nick> <tag>` | (Admin) Definir tag de outro jogador |
-| `/tag lista` | (Staff) Listar jogadores com tag |
-
-**Tags disponíveis:**
-- **MEMBRO** — Sem prefixo (padrão)
-- **BUILDER** — Verde
-- **STAFF** — Azul
-- **ADMIN** — Vermelho
-- **JOIA** — Ciano
-- **PP** — Nome rosa claro itálico
-
----
-
-## Top tempo
-
-| Comando | Descrição |
-|---------|-----------|
-| `/top [n]` | Ranking por tempo de jogo (mostra tag) |
-| `/topblocos [n]` | Ranking por blocos colocados (mostra tag) |
-
----
-
-## Gerenciamento (ADMIN)
-
-| Comando | Descrição |
-|---------|-----------|
-| `/sudo <jogador> <comando>` | Força o jogador a executar o comando (saída vai para ele) |
-| `/setcargo <nick> <admin\|staff\|builder\|none>` | Definir cargo (funciona com jogadores offline) |
-| `/sbreload` | Recarregar configuração do plugin |
-
-O cargo concede permissões automaticamente. Use `none` para remover. Cargos de jogadores offline são aplicados quando entrarem.
-
----
-
-## Permissões
-
-| Permissão | Descrição |
-|-----------|-----------|
-| `savagebuilds.build` | Builder — gamemode, WorldEdit, Multiverse (tp/spawn self) |
-| `savagebuilds.staff` | Staff — teleport, Multiverse tp/spawn outros |
-| `savagebuilds.admin` | Admin — give, ban, kick, op, Multiverse (create/modify/reload) |
-| `savagebuilds.bypass` | Bypass — entrar sem cargo (configurável) |
-
-**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `savagebuilds.bypass` para exceções. Em `config.yml`, `open-to-all: true` abre o servidor para todos.
-
----
-
-## Dicas
-
-- Use o **bastão de madeira** (padrão) para selecionar regiões
-- Blocos: ID ou `ID:data` (ex: `35:14` = lã vermelha)
-- `//` é atalho rápido para `/bs`
-- Use `/sb` para ajuda completa no jogo
-
----
-
-## Estrutura de arquivos
-
-```
-plugins/Builds/
-├── config.yml    (Config do plugin - mensagens, bypass, etc.)
-├── tags.yml      (tags dos jogadores)
-└── cargos.yml    (cargos definidos via /setcargo)
-```
-
-## Configuração (config.yml)
-
-Config unificada: plugin + WorldEdit em um único arquivo.
-
-- **messages** — Mensagens do plugin
-- **open-to-all** — `true` = servidor aberto para todos; `false` = exige cargo/bypass
-- **bypass** — Bypass de kick (`savagebuilds.bypass`)
-- **allowed-worlds** — Mundos permitidos (vazio = todos)
-- **database** — MySQL: tags, cargos e playtime (execute `database.sql` antes)
-- **scoreboard** — Scoreboard lateral
-- **limits, use-inventory, scripting, etc.** — Opções do WorldEdit
-
----
-
-SavageMC Builds · Versão 3.0-SavageMC  
-**(c) 2026 Savage Network. - zrfadev**
+*© SavageMC LTDA — Todos os direitos reservados.*
