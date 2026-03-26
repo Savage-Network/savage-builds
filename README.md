@@ -16,6 +16,17 @@ SavageMC é uma plataforma de servidor Minecraft (1.8–1.21) construída sobre 
 **Site:** [savagemc.net](https://savagemc.net)  
 **Discord:** [discord.gg/savagemc](https://discord.gg/savagemc)
 
+## Documentação (site estático)
+
+Na pasta **`doc/`** há um site em HTML (instalação, comandos, permissões, desenvolvimento). Abra **`doc/index.html`** no navegador (duplo clique) ou sirva a pasta com um servidor HTTP local, por exemplo:
+
+```text
+cd doc
+python -m http.server 8080
+```
+
+Depois aceda a `http://localhost:8080`.
+
 ---
 
 ## Requisitos (Builds)
@@ -26,9 +37,11 @@ SavageMC é uma plataforma de servidor Minecraft (1.8–1.21) construída sobre 
 
 ## Instalação
 
-1. Coloque `savagebuilds.jar` em `plugins/`
-2. Coloque o **WorldEdit** compatível com 1.8 no mesmo diretório
+1. Coloque o **WorldEdit** (1.8 / WorldEdit 6.x) ou **FastAsyncWorldEdit** compatível em `plugins/` — o plugin verifica em `onEnable` (nome interno `WorldEdit` ou `FastAsyncWorldEdit` no `plugin.yml` do WorldEdit).
+2. Coloque `savagebuilds.jar` em `plugins/`
 3. Reinicie o servidor
+
+Se aparecer mensagem no log a pedir WorldEdit/FAWE, o JAR correspondente não está em `plugins/` ou não está a carregar (nome errado ou plugin desativado).
 4. A pasta de dados do plugin segue o nome do plugin no `plugin.yml` (ex.: `plugins/Builds/`)
 
 ## Funcionalidades principais

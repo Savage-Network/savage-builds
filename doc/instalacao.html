@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instalação — SavageMC Builds</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="doc-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      SavageMC Builds
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Abrir menu">Menu</button>
+  </header>
+
+  <div class="doc-shell">
+    <nav class="doc-nav" aria-label="Documentação">
+      <h2>Navegação</h2>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="instalacao.html" class="active">Instalação</a></li>
+        <li><a href="comandos.html">Comandos</a></li>
+        <li><a href="permissoes.html">Permissões</a></li>
+        <li><a href="desenvolvimento.html">Desenvolvimento</a></li>
+      </ul>
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://savagemc.net" target="_blank" rel="noopener">savagemc.net</a></li>
+        <li><a href="https://discord.gg/savagemc" target="_blank" rel="noopener">Discord</a></li>
+      </ul>
+    </nav>
+
+    <main class="doc-main">
+      <h1>Instalação</h1>
+      <p class="lead">Requisitos e passos para colocar o servidor de builds a funcionar.</p>
+
+      <h2>Requisitos</h2>
+      <ul>
+        <li>Servidor <strong>Spigot / Bukkit 1.8</strong> (bytecode Java 8 no plugin).</li>
+        <li><strong>WorldEdit</strong> na pasta <code>plugins/</code> — o plugin estende <code>WorldEditPlugin</code> e partilha a configuração.</li>
+        <li>Ficheiro <code>savagebuilds.jar</code> gerado pelo build (Gradle).</li>
+      </ul>
+
+      <div class="callout warn">
+        Sem o WorldEdit correto, o plugin não carrega. Use uma build compatível com 1.8.8 (WorldEdit 6.x para Bukkit).
+      </div>
+
+      <div class="callout">
+        O plugin precisa de <strong>WorldEdit</strong> (nome interno <code>WorldEdit</code>) ou
+        <strong>FastAsyncWorldEdit</strong> (<code>FastAsyncWorldEdit</code>) em <code>plugins/</code>.
+        Sem isso, o Builds desativa ao iniciar com mensagem no log. O build já não depende de
+        <code>depend: [WorldEdit]</code> no Bukkit — só tens de ter o JAR do WE/FAWE instalado.
+      </div>
+
+      <h2>Passos</h2>
+      <ol>
+        <li>Coloque primeiro o <code>WorldEdit.jar</code> em <code>plugins/</code> (obrigatório).</li>
+        <li>Copie <code>savagebuilds.jar</code> para <code>plugins/</code>.</li>
+        <li>Reinicie o servidor.</li>
+        <li>A pasta de dados do plugin segue o nome em <code>plugin.yml</code> (ex.: <code>plugins/Builds/</code>) com <code>config.yml</code>, tags e cargos.</li>
+      </ol>
+
+      <h2>MySQL (opcional)</h2>
+      <p>
+        Se ativar a base de dados em <code>config.yml</code>, execute o script <code>database.sql</code> no seu MySQL antes
+        ou deixe o plugin criar a estrutura conforme a implementação. A tabela <code>builds</code> guarda tags, cargos,
+        tempo de jogo e blocos colocados.
+      </p>
+
+      <h2>Acesso ao servidor</h2>
+      <p>
+        Por defeito, apenas jogadores com cargo ou permissão de bypass podem entrar. Em <code>config.yml</code>,
+        <code>open-to-all: true</code> abre o servidor a todos (útil para testes).
+      </p>
+
+      <footer class="doc-footer">
+        <a href="index.html">← Início</a>
+
+        · © SavageMC LTDA
+      </footer>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

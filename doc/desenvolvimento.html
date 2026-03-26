@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desenvolvimento — SavageMC Builds</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="doc-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      SavageMC Builds
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Abrir menu">Menu</button>
+  </header>
+
+  <div class="doc-shell">
+    <nav class="doc-nav" aria-label="Documentação">
+      <h2>Navegação</h2>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="instalacao.html">Instalação</a></li>
+        <li><a href="comandos.html">Comandos</a></li>
+        <li><a href="permissoes.html">Permissões</a></li>
+        <li><a href="desenvolvimento.html" class="active">Desenvolvimento</a></li>
+      </ul>
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://savagemc.net" target="_blank" rel="noopener">savagemc.net</a></li>
+        <li><a href="https://discord.gg/savagemc" target="_blank" rel="noopener">Discord</a></li>
+      </ul>
+    </nav>
+
+    <main class="doc-main">
+      <h1>Desenvolvimento</h1>
+      <p class="lead">Build com <strong>Gradle</strong> (<code>build.gradle.kts</code>). Código em <code>src/main/java</code>.</p>
+
+      <h2>Requisitos</h2>
+      <ul>
+        <li><strong>JDK 17+</strong> (ou superior) para executar o Gradle 9.x.</li>
+        <li>O plugin compila para <strong>bytecode Java 8</strong> (compatível com Spigot 1.8).</li>
+        <li>Internet na primeira vez — download do Gradle (wrapper) e dependências Maven.</li>
+      </ul>
+
+      <h2>IntelliJ IDEA</h2>
+      <ol>
+        <li><em>File → Open</em> na pasta do repositório (deteta <code>build.gradle.kts</code>).</li>
+        <li>Aguardar sync Gradle.</li>
+        <li>Painel <strong>Gradle</strong> → <em>savagebuilds</em> → <em>Tasks</em> → <em>build</em> → <strong>build</strong>.</li>
+      </ol>
+
+      <h2>Linha de comandos</h2>
+      <pre><code>gradlew.bat clean build</code></pre>
+      <p>Linux/macOS: <code>./gradlew clean build</code></p>
+      <p>O script <code>build.bat</code> na raiz do projeto executa o Gradle e copia o JAR para a raiz como <code>savagebuilds.jar</code>.</p>
+
+      <h2>Artefacto</h2>
+      <p>
+        Ficheiro final: <code>build/libs/savagebuilds.jar</code> — contém o plugin, FastBoard e MySQL Connector.
+        Spigot API e WorldEdit são <code>compileOnly</code> (fornecidos pelo servidor).
+      </p>
+
+      <h2>Estrutura útil</h2>
+      <ul>
+        <li><code>plugin.yml</code>, <code>config.yml</code> — empacotados no JAR</li>
+        <li><code>craftscripts/</code> — scripts WorldEdit usados pelo <code>/bs</code></li>
+        <li><code>database.sql</code> — esquema MySQL opcional</li>
+      </ul>
+
+      <footer class="doc-footer">
+        <a href="index.html">← Início</a> · © SavageMC LTDA
+      </footer>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

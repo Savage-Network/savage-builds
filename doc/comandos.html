@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Comandos — SavageMC Builds</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="doc-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      SavageMC Builds
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Abrir menu">Menu</button>
+  </header>
+
+  <div class="doc-shell">
+    <nav class="doc-nav" aria-label="Documentação">
+      <h2>Navegação</h2>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="instalacao.html">Instalação</a></li>
+        <li><a href="comandos.html" class="active">Comandos</a></li>
+        <li><a href="permissoes.html">Permissões</a></li>
+        <li><a href="desenvolvimento.html">Desenvolvimento</a></li>
+      </ul>
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://savagemc.net" target="_blank" rel="noopener">savagemc.net</a></li>
+        <li><a href="https://discord.gg/savagemc" target="_blank" rel="noopener">Discord</a></li>
+      </ul>
+    </nav>
+
+    <main class="doc-main">
+      <h1>Comandos</h1>
+      <p class="lead">
+        Comando principal: <code>/bs</code> e atalho <code>//</code>. Ajuda geral: <code>/sb</code>
+        (aliases: <code>/savagebuilds</code>, <code>/savageb</code>).
+      </p>
+
+      <h2>Geral</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/sb</code></td>
+              <td>Lista comandos, cargo e prefixo.</td>
+            </tr>
+            <tr>
+              <td><code>/top [n]</code></td>
+              <td>Ranking por tempo de jogo (com tag).</td>
+            </tr>
+            <tr>
+              <td><code>/topblocos [n]</code></td>
+              <td>Ranking por blocos colocados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Builder — construção</h2>
+      <p>Seleção com bastão (WorldEdit). Exemplos: <code>/bs gradient 35:0 35:15 v</code>, <code>// outline stone</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/bs gradient</code></td>
+              <td>Gradiente entre dois blocos; <code>v|h|d</code> para eixo.</td>
+            </tr>
+            <tr>
+              <td><code>/bs checkerboard</code></td>
+              <td>Padrão xadrez.</td>
+            </tr>
+            <tr>
+              <td><code>/bs stripes</code></td>
+              <td>Listras; eixo opcional x, y, z.</td>
+            </tr>
+            <tr>
+              <td><code>/bs outline</code></td>
+              <td>Arestas da seleção.</td>
+            </tr>
+            <tr>
+              <td><code>/bs colorswap</code></td>
+              <td>Troca cores em blocos coloridos (0–15).</td>
+            </tr>
+            <tr>
+              <td><code>/bs palette</code></td>
+              <td>Paleta wool, clay ou glass.</td>
+            </tr>
+            <tr>
+              <td><code>/bs measure</code>, <code>clear</code>, <code>undo</code>, <code>redo</code></td>
+              <td>Medir, limpar, histórico.</td>
+            </tr>
+            <tr>
+              <td><code>/bs walls</code>, <code>floor</code>, <code>replace</code></td>
+              <td>Paredes, chão, substituição.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Staff — avançado</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Área</th>
+              <th>Comandos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Terrain</td>
+              <td><code>/bs randomfill</code>, <code>terraform</code>, <code>heightmap</code></td>
+            </tr>
+            <tr>
+              <td>Formas</td>
+              <td><code>circle</code>, <code>sphere</code>, <code>cylinder</code>, <code>pyramid</code>, <code>ellipsoid</code></td>
+            </tr>
+            <tr>
+              <td>Schematics</td>
+              <td><code>/bs save</code>, <code>load</code>, <code>list</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Brincadeira</h2>
+      <p>Permissão <code>savagebuilds.fun</code> (incluída no cargo Builder na configuração padrão).</p>
+      <ul>
+        <li><code>/slap &lt;jogador&gt;</code>, <code>/rocket [jogador]</code>, <code>/hat</code></li>
+        <li><code>/hug</code>, <code>/kiss</code>, <code>/confetti</code>, <code>/flip</code></li>
+      </ul>
+
+      <h2>Cargos e tags</h2>
+      <ul>
+        <li><code>/cargos</code>, <code>/cargos list</code>, <code>/cargos info &lt;nick&gt;</code>, <code>/cargos set</code> (conforme cargo)</li>
+        <li><code>/tag</code> — menu; <code>/tag &lt;nome&gt;</code> — membro, builder, staff, admin, chefia, pp; <code>/tag lista</code> (staff)</li>
+        <li><code>/setcargo &lt;nick&gt; &lt;cargo&gt;</code> — admin/staff conforme permissões</li>
+      </ul>
+
+      <h2>Admin</h2>
+      <ul>
+        <li><code>/sbreload</code> — recarregar <code>config.yml</code></li>
+        <li><code>/sudo &lt;jogador&gt; &lt;comando&gt;</code> — executar como o jogador</li>
+      </ul>
+
+      <div class="callout">
+        Lista completa e exemplos detalhados: ficheiros <code>COMANDOS.txt</code> e <code>STAFF.txt</code> na raiz do repositório.
+      </div>
+
+      <footer class="doc-footer">
+        <a href="index.html">← Início</a> · © SavageMC LTDA
+      </footer>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

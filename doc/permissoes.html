@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Permissões — SavageMC Builds</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="doc-header">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      SavageMC Builds
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Abrir menu">Menu</button>
+  </header>
+
+  <div class="doc-shell">
+    <nav class="doc-nav" aria-label="Documentação">
+      <h2>Navegação</h2>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="instalacao.html">Instalação</a></li>
+        <li><a href="comandos.html">Comandos</a></li>
+        <li><a href="permissoes.html" class="active">Permissões</a></li>
+        <li><a href="desenvolvimento.html">Desenvolvimento</a></li>
+      </ul>
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://savagemc.net" target="_blank" rel="noopener">savagemc.net</a></li>
+        <li><a href="https://discord.gg/savagemc" target="_blank" rel="noopener">Discord</a></li>
+      </ul>
+    </nav>
+
+    <main class="doc-main">
+      <h1>Permissões</h1>
+      <p class="lead">Hierarquia típica: <strong>admin</strong> &gt; <strong>staff</strong> &gt; <strong>build</strong>. Definições completas em <code>plugin.yml</code>.</p>
+
+      <h2>Cargos principais</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Permissão</th>
+              <th>Função</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>savagebuilds.build</code></td>
+              <td>Builder — ferramentas de construção, WorldEdit, Multiverse (tp/spawn próprio), etc.</td>
+            </tr>
+            <tr>
+              <td><code>savagebuilds.staff</code></td>
+              <td>Staff — inclui build + ferramentas avançadas, teleporte a outros, schematics, etc.</td>
+            </tr>
+            <tr>
+              <td><code>savagebuilds.admin</code></td>
+              <td>Admin — acesso ampliado (comandos de servidor, sudo, tags de outros, etc.).</td>
+            </tr>
+            <tr>
+              <td><code>savagebuilds.bypass</code></td>
+              <td>Entrar sem cargo (quando o servidor exige cargo).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Outras permissões</h2>
+      <ul>
+        <li><code>savagebuilds.cargos</code> — ver próprio cargo (<code>/cargos</code>)</li>
+        <li><code>savagebuilds.setcargo</code> — definir cargos (staff limitado; admin completo)</li>
+        <li><code>savagebuilds.fun</code> — comandos de brincadeira</li>
+        <li><code>savagebuilds.sudo</code> — <code>/sudo</code></li>
+        <li><code>savagebuilds.tag.*</code> — tags por nome (builder, staff, admin, chefia, master/pp, …)</li>
+      </ul>
+
+      <h2>Tags</h2>
+      <p>
+        Cada tag tem permissão própria (ex.: <code>savagebuilds.tag.chefia</code>). No jogo, use <code>/tag</code> para
+        escolher entre as tags permitidas ao seu cargo.
+      </p>
+
+      <h2>LuckPerms / grupos</h2>
+      <p>
+        Atribua os nós <code>savagebuilds.*</code> aos grupos correspondentes no teu plugin de permissões.
+        Após alterar nomes de permissões, sincroniza os grupos com o <code>plugin.yml</code> atual.
+      </p>
+
+      <footer class="doc-footer">
+        <a href="index.html">← Início</a> · © SavageMC LTDA
+      </footer>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

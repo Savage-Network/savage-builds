@@ -31,9 +31,8 @@ version: "3.0-SavageMC"
 description: Plugin de construcao do SavageMC. WorldEdit + ferramentas de build, permissoes e prefixos.
 author: zrfadev
 website: https://savagemc.net
-# WorldEdit precisa estar em plugins/ (nome no plugin.yml do WE: WorldEdit).
-# Usamos softdepend para nao falhar se o nome do fork for outro; sem WorldEdit o plugin nao inicia.
-softdepend: [WorldEdit, Spout]
+# WorldEdit ou FAWE em runtime (verificado em onEnable). Carrega depois do WE se presente.
+softdepend: [WorldEdit, FastAsyncWorldEdit]
 
 commands:
   bs:
