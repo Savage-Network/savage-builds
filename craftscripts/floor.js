@@ -1,9 +1,9 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * Sparta Network - Software Proprietario
- * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * Savage Network - Software Proprietario
+ * Copyright (c) 2026 Savage Network. Todos os direitos reservados.
  *
- * SpartaMC Builds - Floor (Chao) - FUNCIONALIDADE EXTRA (nao na ajuda)
+ * SavageMC Builds - Floor (Chao) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs floor <bloco>
  * Preenche apenas o chao (face inferior Y minimo) da selecao.
  * Exemplo: /bs floor grass

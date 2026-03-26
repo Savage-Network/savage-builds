@@ -1,6 +1,6 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * SpartaMC Builds - Terraform (Naturalizar Terreno)
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * SavageMC Builds - Terraform (Naturalizar Terreno)
  * Uso: /bs terraform [camadas]
  * Aplica camadas naturais ao terreno na selecao:
  *   - Topo: grama (2)

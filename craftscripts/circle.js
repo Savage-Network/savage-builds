@@ -1,9 +1,9 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * Sparta Network - Software Proprietario
- * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * Savage Network - Software Proprietario
+ * Copyright (c) 2026 Savage Network. Todos os direitos reservados.
  *
- * SpartaMC Builds - Circle (Circulo)
+ * SavageMC Builds - Circle (Circulo)
  * Uso: /bs circle <bloco> <raio> [preenchido]
  * Desenha um circulo horizontal no chao na posicao do jogador.
  * preenchido: true = preenchido, false = apenas contorno (padrao)

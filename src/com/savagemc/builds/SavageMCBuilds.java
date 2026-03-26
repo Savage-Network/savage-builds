@@ -1,17 +1,17 @@
 /**
- * Sparta Network - Software Proprietário
- * Copyright (c) 2026 Sparta Network.
+ * Savage Network - Software Proprietário
+ * Copyright (c) 2026 Savage Network.
  * Todos os direitos reservados.
  *
  * Este software e seu código-fonte são propriedade intelectual
- * exclusiva da Sparta Network. O uso deste software é restrito
+ * exclusiva da Savage Network. O uso deste software é restrito
  * aos sistemas, serviços e infraestrutura autorizados pela
  * organização.
  *
  * Nenhuma parte deste software pode ser copiada, modificada,
  * distribuída, publicada, sublicenciada, vendida ou utilizada
  * para qualquer finalidade sem autorização prévia e expressa
- * da Sparta Network.
+ * da Savage Network.
  *
  * Este código pode conter sistemas internos, mecanismos de
  * segurança e tecnologias proprietárias desenvolvidas para a
@@ -23,12 +23,12 @@
  * Qualquer uso não autorizado poderá resultar em medidas
  * legais conforme a legislação aplicável.
  *
- * (c) 2026 Sparta Network. - zrfadev
+ * (c) 2026 Savage Network. - zrfadev
  */
-package com.spartamc.builds;
+package com.savagemc.builds;
 
-import com.spartamc.builds.config.PluginConfig;
-import com.spartamc.builds.database.DatabaseManager;
+import com.savagemc.builds.config.PluginConfig;
+import com.savagemc.builds.database.DatabaseManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import org.bukkit.Bukkit;
@@ -49,6 +49,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.Material;
+import org.bukkit.Effect;
+import org.bukkit.util.Vector;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scoreboard.Scoreboard;
@@ -61,14 +63,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
+public class SavageMCBuilds extends WorldEditPlugin implements Listener {
 
     public enum Tag {
-        JOIA    ("JOIA",    "\u00A7b\u00A7l", "\u00A7b", "spartabuilds.tag.joia"),
-        MASTER  ("PP",      "\u00A7d\u00A7o", "\u00A7d", "spartabuilds.tag.master"),
-        ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "spartabuilds.tag.admin"),
-        STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "spartabuilds.tag.staff"),
-        BUILDER ("BUILDER", "\u00A72\u00A7l", "\u00A72", "spartabuilds.tag.builder");
+        JOIA    ("JOIA",    "\u00A7b\u00A7l", "\u00A7b", "savagebuilds.tag.joia"),
+        MASTER  ("PP",      "\u00A7d\u00A7o", "\u00A7d", "savagebuilds.tag.master"),
+        ADMIN   ("ADMIN",   "\u00A74\u00A7l", "\u00A74", "savagebuilds.tag.admin"),
+        STAFF   ("STAFF",   "\u00A79\u00A7l", "\u00A79", "savagebuilds.tag.staff"),
+        BUILDER ("BUILDER", "\u00A72\u00A7l", "\u00A72", "savagebuilds.tag.builder");
 
         public final String displayName;
         public final String style;
@@ -105,7 +107,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         "randomfill", "colorswap", "terraform", "heightmap",
         "measure", "palette", "circle", "sphere", "cylinder", "pyramid", "ellipsoid",
         "walls", "floor", "replace",
-        "sb", "tag", "setcargo", "cargos", "sbreload", "top", "topblocos", "sudo"
+        "sb", "tag", "setcargo", "cargos", "sbreload", "top", "topblocos", "sudo",
+        "slap", "rocket", "hat", "hug", "kiss", "confetti", "flip"
     };
 
     private static final List<String> BS_SCRIPTS = Arrays.asList(
@@ -132,30 +135,30 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private static final Map<String, String> PERM_MAP = new LinkedHashMap<>();
 
     static {
-        PERM_MAP.put("gradient", "spartabuilds.gradient");
-        PERM_MAP.put("checkerboard", "spartabuilds.checkerboard");
-        PERM_MAP.put("stripes", "spartabuilds.stripes");
-        PERM_MAP.put("outline", "spartabuilds.outline");
-        PERM_MAP.put("colorswap", "spartabuilds.colorswap");
-        PERM_MAP.put("measure", "spartabuilds.measure");
-        PERM_MAP.put("palette", "spartabuilds.palette");
-        PERM_MAP.put("clear", "spartabuilds.clear");
-        PERM_MAP.put("undo", "spartabuilds.undo");
-        PERM_MAP.put("redo", "spartabuilds.redo");
-        PERM_MAP.put("randomfill", "spartabuilds.randomfill");
-        PERM_MAP.put("terraform", "spartabuilds.terraform");
-        PERM_MAP.put("heightmap", "spartabuilds.heightmap");
-        PERM_MAP.put("circle", "spartabuilds.circle");
-        PERM_MAP.put("sphere", "spartabuilds.staff");
-        PERM_MAP.put("cylinder", "spartabuilds.staff");
-        PERM_MAP.put("walls", "spartabuilds.build");
-        PERM_MAP.put("floor", "spartabuilds.build");
-        PERM_MAP.put("replace", "spartabuilds.build");
-        PERM_MAP.put("pyramid", "spartabuilds.staff");
-        PERM_MAP.put("ellipsoid", "spartabuilds.staff");
-        PERM_MAP.put("save", "spartabuilds.schematic.save");
-        PERM_MAP.put("load", "spartabuilds.schematic.load");
-        PERM_MAP.put("list", "spartabuilds.schematic.list");
+        PERM_MAP.put("gradient", "savagebuilds.gradient");
+        PERM_MAP.put("checkerboard", "savagebuilds.checkerboard");
+        PERM_MAP.put("stripes", "savagebuilds.stripes");
+        PERM_MAP.put("outline", "savagebuilds.outline");
+        PERM_MAP.put("colorswap", "savagebuilds.colorswap");
+        PERM_MAP.put("measure", "savagebuilds.measure");
+        PERM_MAP.put("palette", "savagebuilds.palette");
+        PERM_MAP.put("clear", "savagebuilds.clear");
+        PERM_MAP.put("undo", "savagebuilds.undo");
+        PERM_MAP.put("redo", "savagebuilds.redo");
+        PERM_MAP.put("randomfill", "savagebuilds.randomfill");
+        PERM_MAP.put("terraform", "savagebuilds.terraform");
+        PERM_MAP.put("heightmap", "savagebuilds.heightmap");
+        PERM_MAP.put("circle", "savagebuilds.circle");
+        PERM_MAP.put("sphere", "savagebuilds.staff");
+        PERM_MAP.put("cylinder", "savagebuilds.staff");
+        PERM_MAP.put("walls", "savagebuilds.build");
+        PERM_MAP.put("floor", "savagebuilds.build");
+        PERM_MAP.put("replace", "savagebuilds.build");
+        PERM_MAP.put("pyramid", "savagebuilds.staff");
+        PERM_MAP.put("ellipsoid", "savagebuilds.staff");
+        PERM_MAP.put("save", "savagebuilds.schematic.save");
+        PERM_MAP.put("load", "savagebuilds.schematic.load");
+        PERM_MAP.put("list", "savagebuilds.schematic.list");
     }
 
     private static final List<String> BLOCKS_BASIC = Arrays.asList(
@@ -228,9 +231,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     public void onEnable() {
         getLogger().info("===================================");
         getLogger().info("Desenvolvido por: zrfadev");
-        getLogger().info("Exclusivamente para (c) SpartaMC");
-        getLogger().info("https://spartamc.com.br");
-        getLogger().info("Copyright (c) 2026 Sparta Network.");
+        getLogger().info("Exclusivamente para (c) SavageMC");
+        getLogger().info("https://savagemc.net");
+        getLogger().info("Copyright (c) 2026 Savage Network.");
         getLogger().info("O uso deste plugin é restrito aos sistemas, serviços e infraestrutura autorizados pela organização.");
         getLogger().info("===================================");
         super.onEnable();
@@ -290,8 +293,8 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             }, 40L, interval);
         }
 
-        getLogger().info("SpartaMC Builds carregado!");
-        getLogger().info("Cargos: spartabuilds.admin | spartabuilds.staff | spartabuilds.build");
+        getLogger().info("SavageMC Builds carregado!");
+        getLogger().info("Cargos: savagebuilds.admin | savagebuilds.staff | savagebuilds.build");
         getLogger().info("Tags disponiveis: " + Tag.values().length);
     }
 
@@ -473,9 +476,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
         PermissionAttachment attach = player.addAttachment(this);
         switch (cargo) {
-            case "admin":   attach.setPermission("spartabuilds.admin", true); break;
-            case "staff":   attach.setPermission("spartabuilds.staff", true); break;
-            case "builder": attach.setPermission("spartabuilds.build", true); break;
+            case "admin":   attach.setPermission("savagebuilds.admin", true); break;
+            case "staff":   attach.setPermission("savagebuilds.staff", true); break;
+            case "builder": attach.setPermission("savagebuilds.build", true); break;
         }
         cargoAttachments.put(player.getUniqueId(), attach);
     }
@@ -504,9 +507,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private String getPlayerRole(Player player) {
-        if (player.hasPermission("spartabuilds.admin")) return "admin";
-        if (player.hasPermission("spartabuilds.staff")) return "staff";
-        if (player.hasPermission("spartabuilds.build")) return "builder";
+        if (player.hasPermission("savagebuilds.admin")) return "admin";
+        if (player.hasPermission("savagebuilds.staff")) return "staff";
+        if (player.hasPermission("savagebuilds.build")) return "builder";
         return "default";
     }
 
@@ -729,9 +732,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             if (pluginConfig.isOpBypass() && player.isOp()) return;
             if (player.hasPermission(pluginConfig.getBypassPermission())) return;
         }
-        if (player.hasPermission("spartabuilds.admin")) return;
-        if (player.hasPermission("spartabuilds.staff")) return;
-        if (player.hasPermission("spartabuilds.build")) return;
+        if (player.hasPermission("savagebuilds.admin")) return;
+        if (player.hasPermission("savagebuilds.staff")) return;
+        if (player.hasPermission("savagebuilds.build")) return;
         if (playerCargos.containsKey(player.getUniqueId())) return;
         if (cargosPendingByName.containsKey(player.getName().toLowerCase())) return;
 
@@ -833,7 +836,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             return true;
         }
 
-        if (!player.hasPermission(tag.permission) && !player.hasPermission("spartabuilds.admin")) {
+        if (!player.hasPermission(tag.permission) && !player.hasPermission("savagebuilds.admin")) {
             player.sendMessage(pluginConfig.getMessage("no-permission-tag", "\u00A7cVoce nao tem permissao para usar esta tag."));
             return true;
         }
@@ -847,7 +850,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean handleTagSet(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("spartabuilds.admin")) {
+        if (!sender.hasPermission("savagebuilds.admin")) {
             sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
             return true;
         }
@@ -889,7 +892,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean handleTagLista(CommandSender sender) {
-        if (!sender.hasPermission("spartabuilds.staff")) {
+        if (!sender.hasPermission("savagebuilds.staff")) {
             sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
             return true;
         }
@@ -930,7 +933,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         Tag[] tags = Tag.values();
         for (int i = tags.length - 1; i >= 0; i--) {
             Tag tag = tags[i];
-            boolean has = player.hasPermission(tag.permission) || player.hasPermission("spartabuilds.admin");
+            boolean has = player.hasPermission(tag.permission) || player.hasPermission("savagebuilds.admin");
             if (!has) continue;
 
             json.append(",{\"text\":\" | \",\"color\":\"dark_gray\",\"bold\":false}");
@@ -967,7 +970,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean handleReload(CommandSender sender) {
-        if (!sender.hasPermission("spartabuilds.admin")) {
+        if (!sender.hasPermission("savagebuilds.admin")) {
             sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
             return true;
         }
@@ -996,7 +999,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean handleSudo(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("spartabuilds.sudo") && !sender.hasPermission("spartabuilds.admin")) {
+        if (!sender.hasPermission("savagebuilds.sudo") && !sender.hasPermission("savagebuilds.admin")) {
             sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para usar este comando."));
             return true;
         }
@@ -1137,14 +1140,165 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         return result;
     }
 
+    private boolean handleSlap(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        if (args.length < 1) {
+            sender.sendMessage("\u00A7cUso: /slap <jogador>");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado.").replace("%player%", args[0]));
+            return true;
+        }
+        Vector dir;
+        if (sender instanceof Player) {
+            dir = target.getLocation().toVector().subtract(((Player)sender).getLocation().toVector());
+        } else {
+            dir = target.getLocation().getDirection().multiply(-1);
+        }
+        if (dir.lengthSquared() > 0) dir.normalize();
+        dir.setY(0.35);
+        target.setVelocity(dir.multiply(1.3));
+        Bukkit.broadcastMessage(pluginConfig.getPrefix() + "\u00A7e" + sender.getName() + " \u00A77deu um tapao em \u00A7e" + target.getName() + "\u00A77!");
+        return true;
+    }
+
+    private boolean handleRocket(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        Player target = sender instanceof Player ? (Player) sender : null;
+        if (args.length > 0) {
+            target = Bukkit.getPlayer(args[0]);
+        }
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage("\u00A7cUso: /rocket [jogador]");
+            return true;
+        }
+        target.setVelocity(new Vector(0, 1.8, 0));
+        target.getWorld().playEffect(target.getLocation(), Effect.SMOKE, 0);
+        sender.sendMessage(pluginConfig.getPrefix() + "\u00A7a" + target.getName() + " \u00A77foi lancado como foguete!");
+        return true;
+    }
+
+    private boolean handleHat(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
+            return true;
+        }
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        Player p = (Player) sender;
+        ItemStack hand = p.getItemInHand();
+        if (hand == null || hand.getType() == Material.AIR) {
+            p.sendMessage(pluginConfig.getPrefix() + "\u00A7cSegure um bloco ou item na mao!");
+            return true;
+        }
+        ItemStack oldHat = p.getInventory().getHelmet();
+        p.getInventory().setHelmet(hand.clone());
+        if (oldHat != null && oldHat.getType() != Material.AIR) {
+            p.setItemInHand(oldHat);
+        } else {
+            p.setItemInHand(new ItemStack(Material.AIR));
+        }
+        p.sendMessage(pluginConfig.getPrefix() + "\u00A7aChapéu colocado!");
+        return true;
+    }
+
+    private boolean handleHug(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        if (args.length < 1) {
+            sender.sendMessage("\u00A7cUso: /hug <jogador>");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado.").replace("%player%", args[0]));
+            return true;
+        }
+        Bukkit.broadcastMessage(pluginConfig.getPrefix() + "\u00A7d\u2764 \u00A7e" + sender.getName() + " \u00A77abraçou \u00A7e" + target.getName() + " \u00A7d\u2764");
+        return true;
+    }
+
+    private boolean handleKiss(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        if (args.length < 1) {
+            sender.sendMessage("\u00A7cUso: /kiss <jogador>");
+            return true;
+        }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(pluginConfig.getMessage("player-not-online", "\u00A7cJogador nao encontrado.").replace("%player%", args[0]));
+            return true;
+        }
+        Bukkit.broadcastMessage(pluginConfig.getPrefix() + "\u00A7c\u2764 \u00A7e" + sender.getName() + " \u00A77beijou \u00A7e" + target.getName() + " \u00A7c\u2764");
+        return true;
+    }
+
+    private boolean handleConfetti(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
+            return true;
+        }
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        Player p = (Player) sender;
+        for (int i = 0; i < 20; i++) {
+            final int ii = i;
+            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+                @Override
+                public void run() {
+                    org.bukkit.Location loc = p.getLocation().add((Math.random() - 0.5) * 2, Math.random() * 2, (Math.random() - 0.5) * 2);
+                    p.getWorld().playEffect(loc, Effect.HAPPY_VILLAGER, 0);
+                    p.getWorld().playEffect(loc, Effect.FIREWORKS_SPARK, 0);
+                }
+            }, i * 2L);
+        }
+        p.sendMessage(pluginConfig.getPrefix() + "\u00A7aConfete!");
+        return true;
+    }
+
+    private boolean handleFlip(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("\u00A7cApenas jogadores podem usar este comando.");
+            return true;
+        }
+        if (!sender.hasPermission("savagebuilds.fun")) {
+            sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao."));
+            return true;
+        }
+        Player p = (Player) sender;
+        org.bukkit.Location loc = p.getLocation();
+        loc.setYaw(loc.getYaw() + 180);
+        p.teleport(loc);
+        p.setVelocity(new Vector(0, 0.5, 0));
+        p.sendMessage(pluginConfig.getPrefix() + "\u00A7aFlip!");
+        return true;
+    }
+
     private boolean handleSetCargo(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sender.sendMessage("\u00A7cUso: /setcargo <nick> <admin|staff|builder|none>");
             return true;
         }
 
-        boolean isAdmin = sender.hasPermission("spartabuilds.admin");
-        boolean isStaff = sender.hasPermission("spartabuilds.staff");
+        boolean isAdmin = sender.hasPermission("savagebuilds.admin");
+        boolean isStaff = sender.hasPermission("savagebuilds.staff");
 
         if (!isAdmin && !isStaff) {
             sender.sendMessage(pluginConfig.getMessage("no-permission", "\u00A7cVoce nao tem permissao para definir cargos."));
@@ -1239,7 +1393,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         String sub = args[0].toLowerCase();
 
         if (sub.equals("list") || sub.equals("lista")) {
-            if (!sender.hasPermission("spartabuilds.staff")) {
+            if (!sender.hasPermission("savagebuilds.staff")) {
                 sender.sendMessage("\u00A7cApenas Staff ou Admin podem listar cargos.");
                 return true;
             }
@@ -1247,7 +1401,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         if (sub.equals("info")) {
-            if (!sender.hasPermission("spartabuilds.staff")) {
+            if (!sender.hasPermission("savagebuilds.staff")) {
                 sender.sendMessage("\u00A7cApenas Staff ou Admin podem ver info de cargos.");
                 return true;
             }
@@ -1264,7 +1418,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
 
         sender.sendMessage("\u00A7cSubcomando desconhecido. Use: \u00A7e/cargos\u00A7c, \u00A7e/cargos list\u00A7c, \u00A7e/cargos info <nick>");
-        if (sender.hasPermission("spartabuilds.admin")) {
+        if (sender.hasPermission("savagebuilds.admin")) {
             sender.sendMessage("\u00A7cOu \u00A7e/cargos set <nick> <cargo>\u00A7c para definir cargo.");
         }
         return true;
@@ -1320,7 +1474,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
                 String cargoColor = cargo.equals("admin") ? "\u00A74" : cargo.equals("staff") ? "\u00A79" : "\u00A72";
                 sender.sendMessage("\u00A78  \u00A77" + cargoColor + p.getName() + "\u00A7r \u00A78\u00BB \u00A7f" + cargo.toUpperCase());
                 count++;
-            } else if (p.hasPermission("spartabuilds.admin") || p.isOp()) {
+            } else if (p.hasPermission("savagebuilds.admin") || p.isOp()) {
                 sender.sendMessage("\u00A78  \u00A77\u00A74" + p.getName() + "\u00A7r \u00A78\u00BB \u00A7fADMIN");
                 count++;
             }
@@ -1374,6 +1528,12 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("sudo")) return handleSudo(sender, args);
         if (cmd.equals("top")) return handleTop(sender, args);
         if (cmd.equals("topblocos")) return handleTopBlocos(sender, args);
+        if (cmd.equals("slap")) return handleSlap(sender, args);
+        if (cmd.equals("rocket")) return handleRocket(sender, args);
+        if (cmd.equals("hat")) return handleHat(sender);
+        if (cmd.equals("hug")) return handleHug(sender, args);
+        if (cmd.equals("confetti")) return handleConfetti(sender);
+        if (cmd.equals("flip")) return handleFlip(sender);
         if (cmd.equals("setcargo")) return handleSetCargo(sender, args);
         if (cmd.equals("cargos") || cmd.equals("meucargo")) return handleCargos(sender, args);
 
@@ -1449,11 +1609,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private boolean checkPermission(Player player, String subCommand) {
-        if (player.hasPermission("spartabuilds.admin")) return true;
+        if (player.hasPermission("savagebuilds.admin")) return true;
 
         String perm = PERM_MAP.get(subCommand);
         if (perm != null && !player.hasPermission(perm)) {
-            player.sendMessage("\u00A7c\u00A7lSpartaMC \u00A7cVoce nao tem permissao para usar este comando.");
+            player.sendMessage("\u00A72\u00A7lSavageMC \u00A7cVoce nao tem permissao para usar este comando.");
             player.sendMessage("\u00A77Permissao: \u00A7e" + perm + " \u00A77| Cargo minimo: " + getRequiredRole(subCommand));
             return false;
         }
@@ -1473,7 +1633,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("\u00A78\u00A7m─────────────────────────────\u00A7r");
-        sender.sendMessage("\u00A76\u00A7l\u2726 \u00A7e\u00A7lSPARTA \u00A76\u00A7lBUILDS \u00A76\u00A7l\u2726");
+        sender.sendMessage("\u00A72\u00A7l\u2726 \u00A72\u00A7lSAVAGE BUILDS \u00A72\u00A7l\u2726");
         sender.sendMessage("\u00A78\u00A7m─────────────────────────────\u00A7r");
 
         if (sender instanceof Player) {
@@ -1484,9 +1644,9 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         }
         sender.sendMessage("");
 
-        boolean hasBuild = sender.hasPermission("spartabuilds.build");
-        boolean hasStaff = sender.hasPermission("spartabuilds.staff");
-        boolean hasAdmin = sender.hasPermission("spartabuilds.admin");
+        boolean hasBuild = sender.hasPermission("savagebuilds.build");
+        boolean hasStaff = sender.hasPermission("savagebuilds.staff");
+        boolean hasAdmin = sender.hasPermission("savagebuilds.admin");
 
         if (hasBuild) {
             sender.sendMessage("\u00A72\u00A7l\u2726 BUILDER \u00A78\u00BB \u00A7fComandos de construcao");
@@ -1521,16 +1681,16 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             sender.sendMessage("\u00A7e  /tag <nome> \u00A77- Trocar prefixo");
             sender.sendMessage("");
             sender.sendMessage("\u00A76\u00A7lPrefixos disponiveis:");
-            if (sender.hasPermission("spartabuilds.tag.builder")) {
+            if (sender.hasPermission("savagebuilds.tag.builder")) {
                 sender.sendMessage("  \u00A72\u00A7lBUILDER \u00A72Nick \u00A7f- /tag builder");
             }
-            if (sender.hasPermission("spartabuilds.tag.staff")) {
+            if (sender.hasPermission("savagebuilds.tag.staff")) {
                 sender.sendMessage("  \u00A79\u00A7lSTAFF \u00A79Nick \u00A7f- /tag staff");
             }
-            if (sender.hasPermission("spartabuilds.tag.admin")) {
+            if (sender.hasPermission("savagebuilds.tag.admin")) {
                 sender.sendMessage("  \u00A74\u00A7lADMIN \u00A74Nick \u00A7f- /tag admin");
             }
-            if (sender.hasPermission("spartabuilds.tag.master")) {
+            if (sender.hasPermission("savagebuilds.tag.master")) {
                 sender.sendMessage("  \u00A7d\u00A7oPP \u00A7f- /tag master");
             }
             sender.sendMessage("");
@@ -1582,32 +1742,49 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (cmd.equals("sudo")) return tabSudo(sender, args, current);
         if (cmd.equals("sbreload")) return Collections.emptyList();
 
+        if (cmd.equals("slap") || cmd.equals("hug") || cmd.equals("kiss")) {
+            if (args.length == 1 && sender.hasPermission("savagebuilds.fun")) {
+                List<String> names = new ArrayList<>();
+                for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+                return filter(names, current);
+            }
+            return Collections.emptyList();
+        }
+        if (cmd.equals("rocket")) {
+            if (args.length == 1 && sender.hasPermission("savagebuilds.fun")) {
+                List<String> names = new ArrayList<>();
+                for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
+                return filter(names, current);
+            }
+            return Collections.emptyList();
+        }
+
         return tabForScript(cmd, args, current);
     }
 
     private List<String> tabTag(CommandSender sender, String[] args, String current) {
         if (args.length == 1) {
             List<String> options = new ArrayList<>();
-            if (sender.hasPermission("spartabuilds.admin")) {
+            if (sender.hasPermission("savagebuilds.admin")) {
                 options.add("set");
             }
-            if (sender.hasPermission("spartabuilds.staff")) {
+            if (sender.hasPermission("savagebuilds.staff")) {
                 options.add("lista");
             }
             options.add("membro");
             for (Tag tag : Tag.values()) {
-                if (sender.hasPermission(tag.permission) || sender.hasPermission("spartabuilds.admin")) {
+                if (sender.hasPermission(tag.permission) || sender.hasPermission("savagebuilds.admin")) {
                     options.add(tag.name().toLowerCase());
                 }
             }
             return filter(options, current);
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("set") && sender.hasPermission("spartabuilds.admin")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("set") && sender.hasPermission("savagebuilds.admin")) {
             List<String> names = new ArrayList<>();
             for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
             return filter(names, current);
         }
-        if (args.length == 3 && args[0].equalsIgnoreCase("set") && sender.hasPermission("spartabuilds.admin")) {
+        if (args.length == 3 && args[0].equalsIgnoreCase("set") && sender.hasPermission("savagebuilds.admin")) {
             List<String> options = new ArrayList<>();
             options.add("membro");
             for (Tag tag : Tag.values()) options.add(tag.name().toLowerCase());
@@ -1617,7 +1794,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private List<String> tabSudo(CommandSender sender, String[] args, String current) {
-        if (!sender.hasPermission("spartabuilds.sudo") && !sender.hasPermission("spartabuilds.admin")) return Collections.emptyList();
+        if (!sender.hasPermission("savagebuilds.sudo") && !sender.hasPermission("savagebuilds.admin")) return Collections.emptyList();
         if (args.length == 1) {
             List<String> names = new ArrayList<>();
             for (Player p : Bukkit.getOnlinePlayers()) names.add(p.getName());
@@ -1627,7 +1804,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     }
 
     private List<String> tabSetCargo(CommandSender sender, String[] args, String current) {
-        if (!sender.hasPermission("spartabuilds.staff")) return Collections.emptyList();
+        if (!sender.hasPermission("savagebuilds.staff")) return Collections.emptyList();
 
         if (args.length == 1) {
             List<String> names = new ArrayList<>();
@@ -1637,7 +1814,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (args.length == 2) {
             List<String> cargos = new ArrayList<>();
             cargos.add("none");
-            if (sender.hasPermission("spartabuilds.admin")) {
+            if (sender.hasPermission("savagebuilds.admin")) {
                 cargos.add("admin");
                 cargos.add("staff");
             }
@@ -1650,11 +1827,11 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
     private List<String> tabCargos(CommandSender sender, String[] args, String current) {
         if (args.length == 1) {
             List<String> options = new ArrayList<>();
-            if (sender.hasPermission("spartabuilds.staff")) {
+            if (sender.hasPermission("savagebuilds.staff")) {
                 options.add("list");
                 options.add("info");
             }
-            if (sender.hasPermission("spartabuilds.setcargo")) {
+            if (sender.hasPermission("savagebuilds.setcargo")) {
                 options.add("set");
             }
             return filter(options, current);
@@ -1675,7 +1852,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
         if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
             List<String> cargos = new ArrayList<>();
             cargos.add("none");
-            if (sender.hasPermission("spartabuilds.admin")) {
+            if (sender.hasPermission("savagebuilds.admin")) {
                 cargos.add("admin");
                 cargos.add("staff");
             }
@@ -1690,7 +1867,7 @@ public class SpartaMCBuilds extends WorldEditPlugin implements Listener {
             List<String> available = new ArrayList<>();
             for (String sub : BS_ALL_SUBS) {
                 String perm = PERM_MAP.get(sub);
-                if (perm == null || sender.hasPermission(perm) || sender.hasPermission("spartabuilds.admin")) {
+                if (perm == null || sender.hasPermission(perm) || sender.hasPermission("savagebuilds.admin")) {
                     available.add(sub);
                 }
             }

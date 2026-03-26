@@ -1,7 +1,7 @@
 ================================================================================
-                    SPARTAMC BUILDS - COMANDOS STAFF
+                    SavageMC BUILDS - COMANDOS STAFF
 ================================================================================
-Sparta Network (c) 2026 - zrfadev. Staff tem acesso a tudo do Builder + comandos abaixo.
+Savage Network (c) 2026 - zrfadev. Staff tem acesso a tudo do Builder + comandos abaixo.
 
 --------------------------------------------------------------------------------
 CARGOS E JOGADORES
@@ -109,6 +109,32 @@ MULTIVERSE (Staff)
 
 
 --------------------------------------------------------------------------------
+COMANDOS DE BRINCADEIRA (Builder/Staff)
+--------------------------------------------------------------------------------
+
+/slap <jogador>
+  Da um tapao em um jogador (brincadeira).
+
+/rocket [jogador]
+  Lanca jogador como foguete. Sem arg = em si mesmo.
+
+/hat
+  Coloca item da mao na cabeca.
+
+/hug <jogador>
+  Abraca um jogador (mensagem em broadcast).
+
+/kiss <jogador>
+  Beija um jogador (mensagem em broadcast).
+
+/confetti
+  Particulas de confete ao redor.
+
+/flip
+  Flip/pirueta (gira 180 graus).
+
+
+--------------------------------------------------------------------------------
 OUTROS
 --------------------------------------------------------------------------------
 
@@ -134,5 +160,5 @@ STAFF NAO PODE
 
 
 ================================================================================
-                    SpartaMC - https://spartamc.com.br
+                    SavageMC - https://savagemc.net
 ================================================================================

@@ -1,9 +1,9 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * Sparta Network - Software Proprietario
- * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * Savage Network - Software Proprietario
+ * Copyright (c) 2026 Savage Network. Todos os direitos reservados.
  *
- * SpartaMC Builds - Walls (Paredes) - FUNCIONALIDADE EXTRA (nao na ajuda)
+ * SavageMC Builds - Walls (Paredes) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs walls <bloco>
  * Desenha apenas as 4 paredes laterais da selecao (sem teto e chao).
  * Exemplo: /bs walls stone

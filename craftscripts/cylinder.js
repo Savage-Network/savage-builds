@@ -1,7 +1,7 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
  *
- * SpartaMC Builds - Cylinder (Cilindro) - FUNCIONALIDADE EXTRA (nao na ajuda)
+ * SavageMC Builds - Cylinder (Cilindro) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs cylinder <bloco> <raio> <altura> [preenchido]
  * Desenha um cilindro vertical na posicao do jogador.
  * Exemplo: /bs cylinder stone 8 10 true

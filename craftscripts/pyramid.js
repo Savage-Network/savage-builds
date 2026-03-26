@@ -1,7 +1,7 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
  *
- * SpartaMC Builds - Pyramid (Piramide)
+ * SavageMC Builds - Pyramid (Piramide)
  * Uso: /bs pyramid <bloco> <tamanho> [preenchido]
  * Desenha uma piramide na posicao do jogador.
  * Exemplo: /bs pyramid 35:14 10 true

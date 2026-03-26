@@ -1,5 +1,5 @@
--- SpartaMC Builds - Tabela MySQL
--- (c) 2026 Sparta Network. - zrfadev
+﻿-- SavageMC Builds - Tabela MySQL
+-- (c) 2026 Savage Network. - zrfadev
 -- Execute este script no seu banco MySQL antes de ativar o plugin.
 -- O plugin cria a tabela automaticamente se nao existir.
 

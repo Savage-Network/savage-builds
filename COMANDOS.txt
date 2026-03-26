@@ -1,7 +1,7 @@
 ================================================================================
-                    SPARTAMC BUILDS - GUIA DE COMANDOS
+                    SavageMC BUILDS - GUIA DE COMANDOS
 ================================================================================
-Sparta Network (c) 2026 - zrfadev. Todos os direitos reservados.
+Savage Network (c) 2026 - zrfadev. Todos os direitos reservados.
 
 Aliases do comando principal: /bs, /builds, //
 
@@ -11,7 +11,7 @@ COMANDO PRINCIPAL
 
 /sb
   Lista todos os comandos disponiveis e mostra seu cargo/prefixo atual.
-  Aliases: /spartabuilds, /spartab
+  Aliases: /savagebuilds, /savageb
 
 /top [quantidade]
   Ranking dos jogadores com mais tempo de jogo (mostra tag).
@@ -158,6 +158,45 @@ COMANDOS AVANCADOS (Cargo: STAFF)
 
 
 --------------------------------------------------------------------------------
+COMANDOS DE BRINCADEIRA (Cargo: BUILDER)
+--------------------------------------------------------------------------------
+
+/slap <jogador>
+  Da um tapao em um jogador (knockback + mensagem em broadcast).
+  Exemplo: /slap Jogador
+  Requer: savagebuilds.fun (incluido no cargo Builder)
+
+/rocket [jogador]
+  Lanca o jogador como foguete para cima.
+  Sem argumento: aplica em voce mesmo.
+  Exemplo: /rocket Jogador
+  Requer: savagebuilds.fun
+
+/hat
+  Coloca o item que voce esta segurando na cabeca.
+  Exemplo: Segure um bloco e digite /hat
+  Requer: savagebuilds.fun
+
+/hug <jogador>
+  Abraca um jogador (mensagem em broadcast).
+  Exemplo: /hug Jogador
+  Requer: savagebuilds.fun
+
+/kiss <jogador>
+  Beija um jogador (mensagem em broadcast).
+  Exemplo: /kiss Jogador
+  Requer: savagebuilds.fun
+
+/confetti
+  Joga confete (particulas de celebracao ao seu redor).
+  Requer: savagebuilds.fun
+
+/flip
+  Da um flip/pirueta (gira 180 graus e impulso para cima).
+  Requer: savagebuilds.fun
+
+
+--------------------------------------------------------------------------------
 SISTEMA DE CARGOS
 --------------------------------------------------------------------------------
 
@@ -225,7 +264,7 @@ GERENCIAMENTO (ADMIN)
 /sudo <jogador> <comando>
   Forca um jogador a executar um comando como se ele tivesse digitado.
   A saida/resultado vai para o proprio jogador alvo.
-  Requer: Admin (spartabuilds.sudo)
+  Requer: Admin (savagebuilds.sudo)
   Exemplo: /sudo zRafa67 say Ola
 
 
@@ -233,17 +272,18 @@ GERENCIAMENTO (ADMIN)
 CARGO E PERMISSOES
 --------------------------------------------------------------------------------
 
-spartabuilds.build   - Builder: gamemode, WorldEdit completo, Multiverse (tp/spawn self)
-spartabuilds.staff   - Staff: bukkit tp, Multiverse tp other, spawn other, confirm
-spartabuilds.admin   - Admin: give, ban, kick, save, op, Multiverse (create, modify, reload)
-spartabuilds.sudo    - Sudo: forcar jogador a executar comando (admin tem por padrao)
+savagebuilds.build   - Builder: gamemode, WorldEdit completo, Multiverse (tp/spawn self)
+savagebuilds.staff   - Staff: bukkit tp, Multiverse tp other, spawn other, confirm
+savagebuilds.admin   - Admin: give, ban, kick, save, op, Multiverse (create, modify, reload)
+savagebuilds.sudo    - Sudo: forcar jogador a executar comando (admin tem por padrao)
 
-spartabuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
-spartabuilds.setcargo - Definir cargos (staff=builder, admin=todos)
-spartabuilds.bypass  - Bypass: entrar no servidor sem cargo (config.yml)
+savagebuilds.cargos  - Ver proprio cargo (/cargos, /meucargo)
+savagebuilds.setcargo - Definir cargos (staff=builder, admin=todos)
+savagebuilds.fun     - Comandos de brincadeira (slap, rocket, hat, hug, kiss, confetti, flip)
+savagebuilds.bypass  - Bypass: entrar no servidor sem cargo (config.yml)
 
-Tags: spartabuilds.tag.builder, spartabuilds.tag.staff, spartabuilds.tag.admin,
-      spartabuilds.tag.joia, spartabuilds.tag.master (pp)
+Tags: savagebuilds.tag.builder, savagebuilds.tag.staff, savagebuilds.tag.admin,
+      savagebuilds.tag.joia, savagebuilds.tag.master (pp)
 
 Apenas jogadores com cargo ou permissao podem entrar no servidor.
   config.yml: open-to-all: true = servidor aberto para todos.
@@ -263,5 +303,5 @@ DICAS
 - Banco MySQL: tags, cargos, playtime e blocks_placed na tabela 'builds' (execute database.sql).
 
 ================================================================================
-                    SpartaMC - https://spartamc.com.br
+                    SavageMC - https://savagemc.net
 ================================================================================

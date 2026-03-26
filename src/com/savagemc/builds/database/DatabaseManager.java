@@ -1,9 +1,9 @@
 /**
- * Sparta Network - Software Proprietário
- * Copyright (c) 2026 Sparta Network. - zrfadev
+ * Savage Network - Software Proprietário
+ * Copyright (c) 2026 Savage Network. - zrfadev
  * Todos os direitos reservados.
  */
-package com.spartamc.builds.database;
+package com.savagemc.builds.database;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Gerencia conexão e operações MySQL para a tabela builds.
- * (c) 2026 Sparta Network. - zrfadev
+ * (c) 2026 Savage Network. - zrfadev
  */
 public class DatabaseManager {
 
@@ -55,13 +55,13 @@ public class DatabaseManager {
                     + "&serverTimezone=America/Sao_Paulo";
             connection = DriverManager.getConnection(url, username, password);
             createTable();
-            plugin.getLogger().info("[SpartaBuilds] Conectado ao MySQL.");
+            plugin.getLogger().info("[savagebuilds] Conectado ao MySQL.");
             return true;
         } catch (ClassNotFoundException e) {
-            plugin.getLogger().severe("[SpartaBuilds] MySQL Connector nao encontrado. Adicione mysql-connector-j ao classpath.");
+            plugin.getLogger().severe("[savagebuilds] MySQL Connector nao encontrado. Adicione mysql-connector-j ao classpath.");
             return false;
         } catch (SQLException e) {
-            plugin.getLogger().severe("[SpartaBuilds] Erro ao conectar MySQL: " + e.getMessage());
+            plugin.getLogger().severe("[savagebuilds] Erro ao conectar MySQL: " + e.getMessage());
             return false;
         }
     }

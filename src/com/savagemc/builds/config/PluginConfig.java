@@ -1,9 +1,9 @@
 /**
- * Sparta Network - Software Proprietário
- * Copyright (c) 2026 Sparta Network. - zrfadev
+ * Savage Network - Software Proprietário
+ * Copyright (c) 2026 Savage Network. - zrfadev
  * Todos os direitos reservados.
  */
-package com.spartamc.builds.config;
+package com.savagemc.builds.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Configuração do plugin SpartaMC Builds.
+ * Configuração do plugin SavageMC Builds.
  */
 public class PluginConfig {
 
@@ -62,11 +62,11 @@ public class PluginConfig {
     }
 
     public String getPrefix() {
-        return getMessage("prefix", "&7[&6SpartaBuilds&7] ");
+        return getMessage("prefix", "&8[&2&lSavageBuilds&8] &7");
     }
 
     public String getKickMessage() {
-        return getMessage("kick-no-permission", "&c&lSpartaMC Builds\n\n&7Voce nao tem permissao para entrar neste servidor.\n&7Contate um administrador.");
+        return getMessage("kick-no-permission", "&2&lSAVAGE BUILDS\n\n&7Voce nao tem permissao para entrar neste servidor.\n&7Contate um administrador.\n&2savagemc.net");
     }
 
     public boolean isOpenToAll() {
@@ -78,7 +78,7 @@ public class PluginConfig {
     }
 
     public String getBypassPermission() {
-        return config.getString("bypass.permission", "spartabuilds.bypass");
+        return config.getString("bypass.permission", "savagebuilds.bypass");
     }
 
     public boolean isOpBypass() {
@@ -100,14 +100,14 @@ public class PluginConfig {
     }
 
     public String getScoreboardTitle() {
-        String s = config.getString("scoreboard.title", "&6&lSPARTA &e&lBUILDS");
-        String title = s != null ? s.replace("&", "\u00A7") : "\u00A76\u00A7lSPARTA";
+        String s = config.getString("scoreboard.title", "&2&lSAVAGE &a&lBUILDS");
+        String title = s != null ? s.replace("&", "\u00A7") : "\u00A72\u00A7lSAVAGE";
         return title.length() > 32 ? title.substring(0, 32) : title;
     }
 
     public String getScoreboardFooter() {
-        String s = config.getString("scoreboard.footer", "&6spartamc.com.br");
-        return s != null ? s.replace("&", "\u00A7") : "\u00A76spartamc.com.br";
+        String s = config.getString("scoreboard.footer", "&2savagemc.net");
+        return s != null ? s.replace("&", "\u00A7") : "\u00A72savagemc.net";
     }
 
     public int getScoreboardUpdateInterval() {
@@ -128,7 +128,7 @@ public class PluginConfig {
     }
 
     public String getDatabaseName() {
-        return config.getString("database.database", "spartamc");
+        return config.getString("database.database", "SavageMC");
     }
 
     public String getDatabaseUsername() {

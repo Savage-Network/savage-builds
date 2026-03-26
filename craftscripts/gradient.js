@@ -1,6 +1,6 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * SpartaMC Builds - Gradient Fill
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * SavageMC Builds - Gradient Fill
  * Uso: /bs gradient <bloco1> <bloco2> [v|h|d]
  *   v = vertical (padrao), h = horizontal (eixo X), d = profundidade (eixo Z)
  * Exemplo: /bs gradient 35:0 35:15 v

@@ -1,6 +1,6 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * SpartaMC Builds - Random Fill
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * SavageMC Builds - Random Fill
  * Uso: /cs randomfill <bloco1> <peso1> <bloco2> <peso2> [...]
  * Preenche a selecao com blocos aleatorios usando pesos configurados.
  * Exemplo: /cs randomfill 1 60 4 25 98 15

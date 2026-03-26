@@ -1,7 +1,7 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
  *
- * SpartaMC Builds - Sphere (Esfera) - FUNCIONALIDADE EXTRA (nao na ajuda)
+ * SavageMC Builds - Sphere (Esfera) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs sphere <bloco> <raio> [preenchido]
  * Desenha uma esfera 3D na posicao do jogador.
  * Exemplo: /bs sphere 35:14 10 true

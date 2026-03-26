@@ -1,6 +1,6 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * SpartaMC Builds - Heightmap Raise/Lower
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * SavageMC Builds - Heightmap Raise/Lower
  * Uso: /bs heightmap <raise|lower|smooth> [intensidade]
  *   raise = eleva o terreno no centro da selecao (formato de colina)
  *   lower = rebaixa o terreno no centro (formato de cratera)

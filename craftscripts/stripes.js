@@ -1,6 +1,6 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * SpartaMC Builds - Stripes (Listras)
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * SavageMC Builds - Stripes (Listras)
  * Uso: /bs stripes <bloco1> <bloco2> [largura] [eixo]
  *   largura = tamanho de cada listra (padrao: 1)
  *   eixo = x, z ou y (padrao: x)

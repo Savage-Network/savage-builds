@@ -1,11 +1,11 @@
 -- Active: 1773958783804@@mysql52-farm1.kinghost.net@3306@zrfa01
-# SpartaMC Builds
+# SavageMC Builds
 
 Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no WorldEdit com ferramentas extras de build, sistema de cargos, tags e prefixos no chat.
 
-**(c) 2026 Sparta Network. - zrfadev**
+**(c) 2026 Savage Network. - zrfadev**
 
-**SpartaMC** — [spartamc.com.br](https://spartamc.com.br)
+**SavageMC** — [savagemc.net](https://savagemc.net)
 
 ---
 
@@ -24,9 +24,9 @@ Plugin de construção para servidores Minecraft (Spigot/Bukkit 1.8). Baseado no
 
 ## Instalação
 
-1. Coloque o arquivo `SpartaBuilds.jar` na pasta `plugins` do servidor
+1. Coloque o arquivo `savagebuilds.jar` na pasta `plugins` do servidor
 2. Reinicie o servidor
-3. O plugin cria automaticamente a pasta `plugins/SpartaBuilds/` com arquivos de configuração
+3. O plugin cria automaticamente a pasta `plugins/savagebuilds/` com arquivos de configuração
 
 **Requisitos:** Spigot ou Bukkit 1.8+
 
@@ -124,12 +124,12 @@ O cargo concede permissões automaticamente. Use `none` para remover. Cargos de 
 
 | Permissão | Descrição |
 |-----------|-----------|
-| `spartabuilds.build` | Builder — gamemode, WorldEdit, Multiverse (tp/spawn self) |
-| `spartabuilds.staff` | Staff — teleport, Multiverse tp/spawn outros |
-| `spartabuilds.admin` | Admin — give, ban, kick, op, Multiverse (create/modify/reload) |
-| `spartabuilds.bypass` | Bypass — entrar sem cargo (configurável) |
+| `savagebuilds.build` | Builder — gamemode, WorldEdit, Multiverse (tp/spawn self) |
+| `savagebuilds.staff` | Staff — teleport, Multiverse tp/spawn outros |
+| `savagebuilds.admin` | Admin — give, ban, kick, op, Multiverse (create/modify/reload) |
+| `savagebuilds.bypass` | Bypass — entrar sem cargo (configurável) |
 
-**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `spartabuilds.bypass` para exceções. Em `config.yml`, `open-to-all: true` abre o servidor para todos.
+**Importante:** Apenas jogadores com cargo ou permissão podem entrar. Use `savagebuilds.bypass` para exceções. Em `config.yml`, `open-to-all: true` abre o servidor para todos.
 
 ---
 
@@ -157,7 +157,7 @@ Config unificada: plugin + WorldEdit em um único arquivo.
 
 - **messages** — Mensagens do plugin
 - **open-to-all** — `true` = servidor aberto para todos; `false` = exige cargo/bypass
-- **bypass** — Bypass de kick (`spartabuilds.bypass`)
+- **bypass** — Bypass de kick (`savagebuilds.bypass`)
 - **allowed-worlds** — Mundos permitidos (vazio = todos)
 - **database** — MySQL: tags, cargos e playtime (execute `database.sql` antes)
 - **scoreboard** — Scoreboard lateral
@@ -165,5 +165,5 @@ Config unificada: plugin + WorldEdit em um único arquivo.
 
 ---
 
-SpartaMC Builds · Versão 3.0-SpartaMC  
-**(c) 2026 Sparta Network. - zrfadev**
+SavageMC Builds · Versão 3.0-SavageMC  
+**(c) 2026 Savage Network. - zrfadev**

@@ -1,7 +1,7 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
  *
- * SpartaMC Builds - Ellipsoid (Elipsoide)
+ * SavageMC Builds - Ellipsoid (Elipsoide)
  * Uso: /bs ellipsoid <bloco> <raio_x> <raio_y> <raio_z> [preenchido]
  * Desenha um elipsoide na posicao do jogador.
  * Exemplo: /bs ellipsoid 35:14 10 5 10 true

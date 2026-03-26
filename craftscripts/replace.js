@@ -1,9 +1,9 @@
-/*
- * (c) 2026 Sparta Network. - zrfadev
- * Sparta Network - Software Proprietario
- * Copyright (c) 2026 Sparta Network. Todos os direitos reservados.
+﻿/*
+ * (c) 2026 Savage Network. - zrfadev
+ * Savage Network - Software Proprietario
+ * Copyright (c) 2026 Savage Network. Todos os direitos reservados.
  *
- * SpartaMC Builds - Replace (Substituir) - FUNCIONALIDADE EXTRA (nao na ajuda)
+ * SavageMC Builds - Replace (Substituir) - FUNCIONALIDADE EXTRA (nao na ajuda)
  * Uso: /bs replace <bloco_origem> <bloco_destino>
  * Substitui todos os blocos do tipo origem pelo destino na selecao.
  * Exemplo: /bs replace 1 4  (pedra por cobblestone)

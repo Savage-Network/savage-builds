@@ -1,16 +1,16 @@
-# Sparta Network - Software Proprietário
-# Copyright (c) 2026 Sparta Network.
+# Savage Network - Software Proprietário
+# Copyright (c) 2026 Savage Network.
 # Todos os direitos reservados.
 #
 # Este software e seu código-fonte são propriedade intelectual
-# exclusiva da Sparta Network. O uso deste software é restrito
+# exclusiva da Savage Network. O uso deste software é restrito
 # aos sistemas, serviços e infraestrutura autorizados pela
 # organização.
 #
 # Nenhuma parte deste software pode ser copiada, modificada,
 # distribuída, publicada, sublicenciada, vendida ou utilizada
 # para qualquer finalidade sem autorização prévia e expressa
-# da Sparta Network.
+# da Savage Network.
 #
 # Este código pode conter sistemas internos, mecanismos de
 # segurança e tecnologias proprietárias desenvolvidas para a
@@ -22,116 +22,118 @@
 # Qualquer uso não autorizado poderá resultar em medidas
 # legais conforme a legislação aplicável.
 #
-# Sparta Network © 2026
+# Savage Network © 2026
 # Desenvolvido por: zrfadev
 
 name: Builds
-main: com.spartamc.builds.SpartaMCBuilds
-version: "3.0-SpartaMC"
-description: Plugin de construcao do SpartaMC. WorldEdit + ferramentas de build, permissoes e prefixos.
+main: com.savagemc.builds.SavageMCBuilds
+version: "3.0-SavageMC"
+description: Plugin de construcao do SavageMC. WorldEdit + ferramentas de build, permissoes e prefixos.
 author: zrfadev
-website: https://spartamc.com.br
-softdepend: [Spout]
+website: https://savagemc.net
+# WorldEdit precisa estar em plugins/ (nome no plugin.yml do WE: WorldEdit).
+# Usamos softdepend para nao falhar se o nome do fork for outro; sem WorldEdit o plugin nao inicia.
+softdepend: [WorldEdit, Spout]
 
 commands:
   bs:
-    description: Comando principal do SpartaMC Builds
+    description: Comando principal do SavageMC Builds
     usage: /bs <subcomando> [args...]
     aliases: [builds, "//"]
   gradient:
     description: Gradiente entre dois blocos
     usage: /gradient <bloco1> <bloco2> [v|h|d]
     aliases: [grad]
-    permission: spartabuilds.gradient
+    permission: savagebuilds.gradient
   checkerboard:
     description: Padrao xadrez na selecao
     usage: /checkerboard <bloco1> <bloco2> [tamanho]
     aliases: [checker, xadrez]
-    permission: spartabuilds.checkerboard
+    permission: savagebuilds.checkerboard
   stripes:
     description: Listras alternadas na selecao
     usage: /stripes <bloco1> <bloco2> [largura] [eixo]
     aliases: [listras]
-    permission: spartabuilds.stripes
+    permission: savagebuilds.stripes
   outline:
     description: Desenha as arestas da selecao cubica
     usage: /outline <bloco>
     aliases: [contorno, arestas]
-    permission: spartabuilds.outline
+    permission: savagebuilds.outline
   colorswap:
     description: Troca paleta de cores em blocos coloridos
     usage: /colorswap <cor_origem 0-15> <cor_destino 0-15>
     aliases: [cswap, trocarcor]
-    permission: spartabuilds.colorswap
+    permission: savagebuilds.colorswap
   measure:
     description: Medir dimensoes da selecao
     usage: /measure
     aliases: [medir]
-    permission: spartabuilds.measure
+    permission: savagebuilds.measure
   palette:
     description: Coloca paleta de cores para referencia
     usage: /palette [wool|clay|glass]
     aliases: [paleta]
-    permission: spartabuilds.palette
+    permission: savagebuilds.palette
   randomfill:
     description: Preenchimento aleatorio com pesos
     usage: /randomfill <bloco1> <peso1> <bloco2> <peso2> ...
     aliases: [rfill, aleatorio]
-    permission: spartabuilds.randomfill
+    permission: savagebuilds.randomfill
   terraform:
     description: Naturaliza o terreno
     usage: /terraform [camadas_terra]
     aliases: [tf, naturalizar]
-    permission: spartabuilds.terraform
+    permission: savagebuilds.terraform
   heightmap:
     description: Modifica altura do terreno
     usage: /heightmap <raise|lower|smooth> [intensidade]
     aliases: [hmap, terreno]
-    permission: spartabuilds.heightmap
+    permission: savagebuilds.heightmap
   circle:
     description: Desenha circulo horizontal
     usage: /circle <bloco> <raio> [preenchido]
     aliases: [circulo]
-    permission: spartabuilds.circle
+    permission: savagebuilds.circle
   sphere:
     description: Esfera 3D (extra)
     usage: /sphere <bloco> <raio> [preenchido]
     aliases: [esfera]
-    permission: spartabuilds.staff
+    permission: savagebuilds.staff
   cylinder:
     description: Cilindro vertical (extra)
     usage: /cylinder <bloco> <raio> <altura> [preenchido]
     aliases: [cilindro, cyl]
-    permission: spartabuilds.staff
+    permission: savagebuilds.staff
   walls:
     description: Apenas paredes da selecao (extra)
     usage: /walls <bloco>
     aliases: [paredes]
-    permission: spartabuilds.build
+    permission: savagebuilds.build
   floor:
     description: Apenas chao da selecao (extra)
     usage: /floor <bloco>
     aliases: [chao]
-    permission: spartabuilds.build
+    permission: savagebuilds.build
   replace:
     description: Substituir blocos na selecao (extra)
     usage: /replace <bloco_origem> <bloco_destino>
     aliases: [substituir]
-    permission: spartabuilds.build
+    permission: savagebuilds.build
   tag:
     description: Selecionar ou ver tags disponiveis
     usage: /tag [nome|list|off]
     aliases: [tags]
-    permission: spartabuilds.build
+    permission: savagebuilds.build
   setcargo:
     description: Definir cargo de um jogador (admin=qualquer, staff=builder)
     usage: /setcargo <nick> <admin|staff|builder|none>
-    permission: spartabuilds.setcargo
+    permission: savagebuilds.setcargo
   cargos:
     description: Ver cargo, listar jogadores ou definir cargos
     usage: /cargos [list|info <nick>|set <nick> <cargo>]
     aliases: [meucargo]
-    permission: spartabuilds.cargos
+    permission: savagebuilds.cargos
   top:
     description: Ver top jogadores por tempo de jogo
     usage: /top [quantidade]
@@ -140,28 +142,56 @@ commands:
     description: Ver top jogadores por blocos colocados
     usage: /topblocos [quantidade]
     aliases: [topblocks, topbloco]
+  slap:
+    description: Dar um tapao em um jogador (brincadeira)
+    usage: /slap <jogador>
+    permission: savagebuilds.fun
+  rocket:
+    description: Lancar jogador como foguete
+    usage: /rocket [jogador]
+    permission: savagebuilds.fun
+  hat:
+    description: Colocar item da mao na cabeca
+    usage: /hat
+    permission: savagebuilds.fun
+  hug:
+    description: Abracar um jogador
+    usage: /hug <jogador>
+    permission: savagebuilds.fun
+  kiss:
+    description: Beijar um jogador
+    usage: /kiss <jogador>
+    permission: savagebuilds.fun
+  confetti:
+    description: Jogar confete (particulas)
+    usage: /confetti
+    permission: savagebuilds.fun
+  flip:
+    description: Dar um flip/pirueta
+    usage: /flip
+    permission: savagebuilds.fun
   sb:
-    description: Lista todos os comandos e cargos do SpartaMC Builds
+    description: Lista todos os comandos e cargos do SavageMC Builds
     usage: /sb
-    aliases: [spartabuilds, spartab]
+    aliases: [savagebuilds, savageb]
   sbreload:
     description: Recarrega a configuracao do plugin (admin)
     usage: /sbreload
-    permission: spartabuilds.admin
+    permission: savagebuilds.admin
   sudo:
     description: Forca um jogador a executar um comando (como se ele tivesse digitado)
     usage: /sudo <jogador> <comando>
-    permission: spartabuilds.sudo
+    permission: savagebuilds.sudo
   pyramid:
     description: Desenha piramide 3D
     usage: /pyramid <bloco> <tamanho> [preenchido]
     aliases: [piramide]
-    permission: spartabuilds.staff
+    permission: savagebuilds.staff
   ellipsoid:
     description: Desenha elipsoide 3D
     usage: /ellipsoid <bloco> <rx> <ry> <rz> [preenchido]
     aliases: [elipsoide]
-    permission: spartabuilds.staff
+    permission: savagebuilds.staff
 
 # =============================================
 # SISTEMA DE PERMISSOES
@@ -169,9 +199,9 @@ commands:
 #
 # Hierarquia: admin > staff > build
 #
-# spartabuilds.build  -> Construtor (ferramentas basicas)
-# spartabuilds.staff  -> Staff (avancados + tudo do build)
-# spartabuilds.admin  -> Admin (acesso total, padrao: OP)
+# savagebuilds.build  -> Construtor (ferramentas basicas)
+# savagebuilds.staff  -> Staff (avancados + tudo do build)
+# savagebuilds.admin  -> Admin (acesso total, padrao: OP)
 #
 # Prefixos automaticos no chat:
 #   ADMIN  = &4&lADMIN &4
@@ -179,22 +209,23 @@ commands:
 #   BUILDER = &2&lBUILDER &2
 
 permissions:
-  spartabuilds.build:
+  savagebuilds.build:
     description: Cargo Build - ferramentas essenciais de construcao
     default: false
     children:
-      spartabuilds.cargos: true
-      spartabuilds.gradient: true
-      spartabuilds.checkerboard: true
-      spartabuilds.stripes: true
-      spartabuilds.outline: true
-      spartabuilds.colorswap: true
-      spartabuilds.measure: true
-      spartabuilds.palette: true
-      spartabuilds.clear: true
-      spartabuilds.undo: true
-      spartabuilds.redo: true
-      spartabuilds.tag.builder: true
+      savagebuilds.cargos: true
+      savagebuilds.gradient: true
+      savagebuilds.checkerboard: true
+      savagebuilds.stripes: true
+      savagebuilds.outline: true
+      savagebuilds.colorswap: true
+      savagebuilds.measure: true
+      savagebuilds.palette: true
+      savagebuilds.clear: true
+      savagebuilds.undo: true
+      savagebuilds.redo: true
+      savagebuilds.tag.builder: true
+      savagebuilds.fun: true
       bukkit.command.gamemode: true
       bukkit.command.gamemode.creative: true
       bukkit.command.gamemode.survival: true
@@ -216,20 +247,20 @@ permissions:
       multiverse.core.info: true
       multiverse.core.coord: true
 
-  spartabuilds.staff:
+  savagebuilds.staff:
     description: Cargo Staff - ferramentas avancadas + tudo do Build
     default: false
     children:
-      spartabuilds.build: true
-      spartabuilds.setcargo: true
-      spartabuilds.randomfill: true
-      spartabuilds.terraform: true
-      spartabuilds.heightmap: true
-      spartabuilds.circle: true
-      spartabuilds.schematic.save: true
-      spartabuilds.schematic.load: true
-      spartabuilds.schematic.list: true
-      spartabuilds.tag.staff: true
+      savagebuilds.build: true
+      savagebuilds.setcargo: true
+      savagebuilds.randomfill: true
+      savagebuilds.terraform: true
+      savagebuilds.heightmap: true
+      savagebuilds.circle: true
+      savagebuilds.schematic.save: true
+      savagebuilds.schematic.load: true
+      savagebuilds.schematic.list: true
+      savagebuilds.tag.staff: true
       bukkit.command.teleport: true
       multiverse.teleport.other.w: true
       multiverse.teleport.other.e: true
@@ -244,16 +275,16 @@ permissions:
       multiverse.core.list.who.all: true
       multiverse.core.confirm: true
 
-  spartabuilds.admin:
+  savagebuilds.admin:
     description: Cargo Admin - acesso total a todos os comandos
     default: op
     children:
-      spartabuilds.staff: true
-      spartabuilds.setcargo: true
-      spartabuilds.sudo: true
-      spartabuilds.tag.admin: true
-      spartabuilds.tag.master: true
-      spartabuilds.tag.joia: true
+      savagebuilds.staff: true
+      savagebuilds.setcargo: true
+      savagebuilds.sudo: true
+      savagebuilds.tag.admin: true
+      savagebuilds.tag.master: true
+      savagebuilds.tag.joia: true
       bukkit.command.give: true
       bukkit.command.list: true
       bukkit.command.say: true
@@ -309,84 +340,87 @@ permissions:
       multiverse.core.entityspawnconfig.modify: true
       multiverse.core.debug: true
 
-  spartabuilds.setcargo:
+  savagebuilds.setcargo:
     description: Definir cargos (staff=builder apenas, admin=todos)
     default: false
-  spartabuilds.sudo:
+  savagebuilds.sudo:
     description: Forcar jogador a executar comando (/sudo)
     default: false
-  spartabuilds.bypass:
+  savagebuilds.bypass:
     description: Entrar no servidor sem cargo (bypass do kick)
     default: false
-  spartabuilds.cargos:
+  savagebuilds.fun:
+    description: Comandos de brincadeira (slap, rocket, hat, hug, kiss, confetti, flip)
+    default: false
+  savagebuilds.cargos:
     description: Ver proprio cargo e info (/cargos, /meucargo)
     default: false
 
-  spartabuilds.gradient:
+  savagebuilds.gradient:
     description: Usar /bs gradient
     default: false
-  spartabuilds.checkerboard:
+  savagebuilds.checkerboard:
     description: Usar /bs checkerboard
     default: false
-  spartabuilds.stripes:
+  savagebuilds.stripes:
     description: Usar /bs stripes
     default: false
-  spartabuilds.outline:
+  savagebuilds.outline:
     description: Usar /bs outline
     default: false
-  spartabuilds.colorswap:
+  savagebuilds.colorswap:
     description: Usar /bs colorswap
     default: false
-  spartabuilds.measure:
+  savagebuilds.measure:
     description: Usar /bs measure
     default: false
-  spartabuilds.palette:
+  savagebuilds.palette:
     description: Usar /bs palette
     default: false
-  spartabuilds.clear:
+  savagebuilds.clear:
     description: Usar /bs clear
     default: false
-  spartabuilds.undo:
+  savagebuilds.undo:
     description: Usar /bs undo
     default: false
-  spartabuilds.redo:
+  savagebuilds.redo:
     description: Usar /bs redo
     default: false
-  spartabuilds.randomfill:
+  savagebuilds.randomfill:
     description: Usar /bs randomfill
     default: false
-  spartabuilds.terraform:
+  savagebuilds.terraform:
     description: Usar /bs terraform
     default: false
-  spartabuilds.heightmap:
+  savagebuilds.heightmap:
     description: Usar /bs heightmap
     default: false
-  spartabuilds.circle:
+  savagebuilds.circle:
     description: Usar /bs circle
     default: false
-  spartabuilds.schematic.save:
+  savagebuilds.schematic.save:
     description: Salvar schematics
     default: false
-  spartabuilds.schematic.load:
+  savagebuilds.schematic.load:
     description: Carregar schematics
     default: false
-  spartabuilds.schematic.list:
+  savagebuilds.schematic.list:
     description: Listar schematics
     default: false
 
   # ---- TAGS ----
-  spartabuilds.tag.master:
+  savagebuilds.tag.master:
     description: "Tag: PP (rosa claro italico) - acesso total"
     default: false
-  spartabuilds.tag.admin:
+  savagebuilds.tag.admin:
     description: "Tag: ADMIN (vermelho)"
     default: false
-  spartabuilds.tag.staff:
+  savagebuilds.tag.staff:
     description: "Tag: STAFF (azul)"
     default: false
-  spartabuilds.tag.builder:
+  savagebuilds.tag.builder:
     description: "Tag: BUILDER (verde)"
     default: false
-  spartabuilds.tag.joia:
+  savagebuilds.tag.joia:
     description: "Tag: JOIA (ciano)"
     default: false
